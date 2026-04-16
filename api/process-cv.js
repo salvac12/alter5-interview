@@ -2,12 +2,15 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { fileBase64, filename, isPDF } = req.body;
+  const { fileBase64, filename } = req.body;
   if (!fileBase64 || !filename) return res.status(400).json({ error: 'Missing required fields' });
   if (String(filename).length > 255) return res.status(400).json({ error: 'Filename too long' });
+  if (String(fileBase64).length > 10_000_000) return res.status(400).json({ error: 'File too large (max ~7MB)' });
+
+  const isPDF = String(fileBase64).startsWith('JVBERi0') || String(filename).toLowerCase().endsWith('.pdf');
 
   const KEY = process.env.ANTHROPIC_API_KEY;
-  if (!KEY) return res.status(500).json({ error: 'ANTHROPIC_API_KEY not configured. Add it to Vercel environment variables.' });
+  if (!KEY) return res.status(500).json({ error: 'Service unavailable' });
 
   try {
     const content = [
@@ -46,7 +49,8 @@ export default async function handler(req, res) {
 
     return res.status(200).json({ name, email: safeEmail });
   } catch (e) {
-    return res.status(500).json({ error: 'Internal server error' });
+    console.error('process-cv error:', e.message);
+    return res.status(500).json({ error: 'Service unavailable' });
   }
 }
 

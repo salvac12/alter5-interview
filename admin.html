@@ -73,12 +73,6 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 .empty-state p{font-size:0.9rem;line-height:1.6}
 .empty-icon{font-size:2.5rem;margin-bottom:0.75rem;display:block}
 
-/* API key section */
-.apikey-row{display:flex;gap:0.75rem;align-items:flex-end}
-.apikey-input{flex:1;padding:0.6rem 0.85rem;border:1px solid var(--border);border-radius:8px;font-family:var(--mono);font-size:0.82rem;color:var(--text);background:var(--white);outline:none;transition:border-color 0.15s}
-.apikey-input:focus{border-color:var(--emerald)}
-.apikey-hint{font-size:0.75rem;color:var(--text-muted);margin-top:0.35rem;line-height:1.4}
-
 /* Toast */
 .toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--navy);color:#fff;padding:0.75rem 1.25rem;border-radius:8px;font-size:0.84rem;z-index:999;transform:translateY(100px);opacity:0;transition:all 0.25s}
 .toast.show{transform:translateY(0);opacity:1}
@@ -110,9 +104,9 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
          ondragover="event.preventDefault();this.classList.add('drag')"
          ondragleave="this.classList.remove('drag')"
          ondrop="handleDrop(event)">
-      <input type="file" accept=".pdf,.doc,.docx" multiple onchange="handleFiles(this.files)">
+      <input type="file" accept=".pdf" multiple onchange="handleFiles(this.files)" aria-label="Subir CVs de candidatos (PDF)">
       <span class="upload-icon">📄</span>
-      <p class="upload-label"><strong>Haz clic o arrastra CVs aquí</strong><br>PDF, DOC o DOCX · Puedes subir varios a la vez</p>
+      <p class="upload-label"><strong>Haz clic o arrastra CVs aquí</strong><br>PDF · Puedes subir varios a la vez</p>
     </div>
   </div>
 
@@ -163,12 +157,11 @@ async function processCV(file) {
 
   try {
     const b64 = await fileToBase64(file);
-    const isPDF = file.name.toLowerCase().endsWith('.pdf');
 
     const res = await fetch('/api/process-cv', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ fileBase64: b64, filename: file.name, isPDF })
+      body: JSON.stringify({ fileBase64: b64, filename: file.name })
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Error procesando CV');
@@ -196,7 +189,7 @@ async function processCV(file) {
         const emailData = await emailRes.json();
         if (emailRes.ok && emailData.success) {
           cand.emailStatus = 'sent';
-          showToast(`Invitacion enviada a ${email}`);
+          showToast(`Invitación enviada a ${email}`);
         } else {
           cand.emailStatus = 'email_error';
           cand.error = emailData.error || 'Error enviando email';
@@ -245,13 +238,13 @@ function updateExp(id, val) {
 function copyLink(id) {
   const c = candidates.find(x => x.id === id);
   if (!c?.link) return;
-  navigator.clipboard.writeText(c.link).then(() => showToast(`Link de ${esc(c.name) || 'candidato'} copiado`));
+  navigator.clipboard.writeText(c.link).then(() => showToast(`Link de ${esc(c.name) || 'candidato'} copiado`)).catch(() => prompt('Copia este link:', c.link));
 }
 
 function copyEmail(id) {
   const c = candidates.find(x => x.id === id);
   if (!c?.email) return;
-  navigator.clipboard.writeText(c.email).then(() => showToast(`Email copiado: ${c.email}`));
+  navigator.clipboard.writeText(c.email).then(() => showToast(`Email copiado: ${c.email}`)).catch(() => prompt('Copia este email:', c.email));
 }
 
 function removeCandidate(id) {
@@ -272,7 +265,7 @@ function renderTable() {
   const area = document.getElementById('candidates-area');
   const clearBtn = document.getElementById('clear-btn');
   if (!candidates.length) {
-    area.innerHTML = `<div class="empty-state"><span class="empty-icon">👤</span><p>Aqui apareceran los candidatos una vez<br>proceses sus CVs.</p></div>`;
+    area.innerHTML = `<div class="empty-state"><span class="empty-icon">👤</span><p>Aquí aparecerán los candidatos una vez<br>proceses sus CVs.</p></div>`;
     clearBtn.style.display = 'none';
     return;
   }
@@ -285,7 +278,7 @@ function renderTable() {
         <th>Exp.</th>
         <th>Magic link</th>
         <th>Estado</th>
-        <th>Invitacion</th>
+        <th>Invitación</th>
         <th></th>
       </tr></thead>
       <tbody>
@@ -312,10 +305,10 @@ function renderTable() {
             </td>
             <td>
               <select class="exp-sel" onchange="updateExp('${safeId}', this.value)" ${c.status !== 'done' ? 'disabled' : ''}>
-                <option value="3-5" ${c.exp==='3-5'?'selected':''}>3-5 anos</option>
-                <option value="5-8" ${c.exp==='5-8'?'selected':''}>5-8 anos</option>
-                <option value="8-12" ${c.exp==='8-12'?'selected':''}>8-12 anos</option>
-                <option value="12+" ${c.exp==='12+'?'selected':''}>12+ anos</option>
+                <option value="3-5" ${c.exp==='3-5'?'selected':''}>3–5 años</option>
+                <option value="5-8" ${c.exp==='5-8'?'selected':''}>5–8 años</option>
+                <option value="8-12" ${c.exp==='8-12'?'selected':''}>8–12 años</option>
+                <option value="12+" ${c.exp==='12+'?'selected':''}>12+ años</option>
               </select>
             </td>
             <td>
@@ -368,7 +361,7 @@ async function resendInvite(id) {
     const data = await res.json();
     if (res.ok && data.success) {
       c.emailStatus = 'sent';
-      showToast(`Invitacion reenviada a ${c.email}`);
+      showToast(`Invitación reenviada a ${c.email}`);
     } else {
       c.emailStatus = 'email_error';
       c.error = data.error || 'Error enviando email';

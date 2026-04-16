@@ -14,7 +14,7 @@ export default async function handler(req, res) {
   const safeName = safe(name);
 
   const KEY = process.env.RESEND_API_KEY;
-  if (!KEY) return res.status(500).json({ error: 'RESEND_API_KEY not configured' });
+  if (!KEY) return res.status(500).json({ error: 'Service unavailable' });
 
   const BASE_URL = process.env.INTERVIEW_BASE_URL || 'https://technology-leader.alter5.com';
   const url = `${BASE_URL}/?c=${encodeURIComponent(name)}&t=${token}`;
@@ -57,6 +57,7 @@ export default async function handler(req, res) {
     if (!r.ok) return res.status(r.status).json({ error: d.message || 'Email service error' });
     return res.status(200).json({ success: true, id: d.id });
   } catch (e) {
-    return res.status(500).json({ error: 'Internal server error' });
+    console.error('send-invite error:', e.message);
+    return res.status(500).json({ error: 'Service unavailable' });
   }
 }

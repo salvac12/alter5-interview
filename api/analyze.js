@@ -8,9 +8,10 @@ export default async function handler(req, res) {
   if (String(summary).length > 50000) return res.status(400).json({ error: 'Summary too long' });
 
   const KEY = process.env.ANTHROPIC_API_KEY;
-  if (!KEY) return res.status(500).json({ error: 'ANTHROPIC_API_KEY not configured. Add it to Vercel environment variables.' });
+  if (!KEY) return res.status(500).json({ error: 'Service unavailable' });
 
   const safe = s => String(s).replace(/[<>"'&]/g, c => ({'<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','&':'&amp;'})[c]);
+  const stripXmlBreakout = s => String(s).replace(/<\/?interview_responses>/gi, '');
 
   const systemPrompt = `Eres un senior IT recruiter evaluando a un candidato para el puesto de SW Architect / AI Head of Engineering en Alter5, una fintech de banca de inversion.
 
@@ -45,7 +46,7 @@ Se directo, objetivo y concreto. No uses florituras. Escribe en espanol.`;
 EXPERIENCIA DECLARADA: ${safe(exp || '')}
 
 <interview_responses>
-${String(summary)}
+${stripXmlBreakout(summary)}
 </interview_responses>`;
 
   try {
@@ -62,6 +63,7 @@ ${String(summary)}
     const text = data.content?.find(c => c.type === 'text')?.text || '';
     return res.status(200).json({ analysis: text });
   } catch (e) {
-    return res.status(500).json({ error: 'Internal server error' });
+    console.error('analyze error:', e.message);
+    return res.status(500).json({ error: 'Service unavailable' });
   }
 }

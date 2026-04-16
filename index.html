@@ -148,9 +148,6 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 .ai-loading{display:flex;align-items:center;gap:0.75rem;padding:1.5rem;color:var(--text-muted);font-size:0.875rem}
 .ai-loading .spinner{width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--emerald);border-radius:50%;animation:spin 0.6s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-.apikey-inline{display:flex;gap:0.5rem;align-items:center;margin-bottom:1rem}
-.apikey-inline input{flex:1;padding:0.5rem 0.75rem;border:1px solid var(--border);border-radius:6px;font-family:var(--mono);font-size:0.78rem;outline:none}
-.apikey-inline input:focus{border-color:var(--emerald)}
 </style>
 </head>
 <body>
@@ -181,8 +178,8 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
     </div>
     <div class="cform">
       <div class="crow">
-        <div class="cgrp"><label>Nombre del candidato</label><input type="text" id="f-name" placeholder="Nombre y apellido"></div>
-        <div class="cgrp"><label>Años de experiencia</label>
+        <div class="cgrp"><label for="f-name">Nombre del candidato</label><input type="text" id="f-name" placeholder="Nombre y apellido"></div>
+        <div class="cgrp"><label for="f-exp">Años de experiencia</label>
           <select id="f-exp">
             <option value="">Seleccionar</option>
             <option value="3-5">3–5 años</option>
@@ -193,7 +190,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
         </div>
       </div>
       <div class="crow">
-        <div class="cgrp"><label>Fecha</label><input type="date" id="f-date"></div>
+        <div class="cgrp"><label for="f-date">Fecha</label><input type="date" id="f-date"></div>
       </div>
     </div>
     <button class="btn btn-primary" onclick="startInterview()">Comenzar entrevista →</button>
@@ -460,11 +457,11 @@ function fmt(s){const m=Math.floor(s/60),sec=s%60;return`${m}:${sec.toString().p
 function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
 
 window.addEventListener('DOMContentLoaded',()=>{
-  document.getElementById('f-date').valueAsDate=new Date();
+  const now=new Date();document.getElementById('f-date').value=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
   const p=new URLSearchParams(window.location.search);
   const n=p.get('c'),e=p.get('e');
-  if(n){document.getElementById('f-name').value=decodeURIComponent(n);document.getElementById('f-name').readOnly=true;}
-  if(e)document.getElementById('f-exp').value=e;
+  if(n){const decoded=decodeURIComponent(n).slice(0,100);document.getElementById('f-name').value=decoded;document.getElementById('f-name').readOnly=true;}
+  if(e&&['3-5','5-8','8-12','12+'].includes(e))document.getElementById('f-exp').value=e;
 });
 
 function startInterview(){
@@ -501,10 +498,10 @@ function showQ(){
     chars.textContent='0 caracteres';
   }else if(q.type==='single'){
     chars.textContent='';
-    area.innerHTML=`<div class="opts">${q.options.map((o,i)=>`<div class="opt" onclick="selSingle(${i})" id="opt${i}"><div class="radio" id="rad${i}"><div class="rdot"></div></div><span>${o}</span></div>`).join('')}</div>`;
+    area.innerHTML=`<div class="opts" role="radiogroup">${q.options.map((o,i)=>`<div class="opt" role="radio" aria-checked="false" tabindex="0" onclick="selSingle(${i})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();selSingle(${i})}" id="opt${i}"><div class="radio" id="rad${i}"><div class="rdot"></div></div><span>${o}</span></div>`).join('')}</div>`;
   }else if(q.type==='multi'){
     chars.textContent='';
-    area.innerHTML=`<div class="opts">${q.options.map((o,i)=>`<div class="opt" onclick="togMulti(${i})" id="opt${i}"><div class="chk" id="chk${i}">✓</div><span>${o}</span></div>`).join('')}</div><p style="font-size:0.78rem;color:var(--text-muted);margin-top:0.5rem">Selecciona todos los que apliquen.</p>`;
+    area.innerHTML=`<div class="opts" role="group">${q.options.map((o,i)=>`<div class="opt" role="checkbox" aria-checked="false" tabindex="0" onclick="togMulti(${i})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();togMulti(${i})}" id="opt${i}"><div class="chk" id="chk${i}">✓</div><span>${o}</span></div>`).join('')}</div><p style="font-size:0.78rem;color:var(--text-muted);margin-top:0.5rem">Selecciona todos los que apliquen.</p>`;
   }else if(q.type==='scale'){
     chars.textContent='';
     area.innerHTML=`<div class="scale-row">${q.labels.map((l,i)=>`<button class="sbtn" onclick="selScale(${i})" id="sc${i}">${l}</button>`).join('')}</div><div class="scale-labels"><span>Bajo</span><span>Alto</span></div>`;
@@ -512,8 +509,8 @@ function showQ(){
   startTimer(q);
 }
 
-function selSingle(i){selOpt=i;document.querySelectorAll('.opt').forEach((e,j)=>e.classList.toggle('sel',j===i))}
-function togMulti(i){const x=selMulti.indexOf(i);if(x>=0){selMulti.splice(x,1);document.getElementById(`opt${i}`).classList.remove('sel')}else{selMulti.push(i);document.getElementById(`opt${i}`).classList.add('sel')}}
+function selSingle(i){selOpt=i;document.querySelectorAll('.opt').forEach((e,j)=>{e.classList.toggle('sel',j===i);e.setAttribute('aria-checked',j===i?'true':'false');})}
+function togMulti(i){const x=selMulti.indexOf(i);const el=document.getElementById(`opt${i}`);if(x>=0){selMulti.splice(x,1);el.classList.remove('sel');el.setAttribute('aria-checked','false');}else{selMulti.push(i);el.classList.add('sel');el.setAttribute('aria-checked','true');}}
 function selScale(i){selOpt=i;document.querySelectorAll('.sbtn').forEach((e,j)=>e.classList.toggle('sel',j===i))}
 
 function startTimer(q){clearInterval(timer);elapsed=0;timerStart=Date.now();updateTimer(q,0);timer=setInterval(()=>{elapsed=Math.floor((Date.now()-timerStart)/1000);updateTimer(q,elapsed)},500);}
@@ -539,8 +536,8 @@ function getFlag(q,s){
   if(s>q.sus)return 'susp';
   return 'ok';
 }
-function nextQ(){if(navLock)return;navLock=true;clearInterval(timer);answers.push({q:QS[curQ],ans:getAnswer(),time:elapsed,flag:getFlag(QS[curQ],elapsed),skipped:false,aiFlags:getAiFlags(),aiData:{...aiDetect}});curQ++;if(curQ>=QS.length)showResults();else showQ();navLock=false;}
-function skipQ(){if(navLock)return;navLock=true;clearInterval(timer);const q=QS[curQ];answers.push({q,ans:null,time:elapsed,flag:q.block==='multiwork'?'multiwork':'ok',skipped:true,aiFlags:[],aiData:{}});curQ++;if(curQ>=QS.length)showResults();else showQ();navLock=false;}
+function nextQ(){if(navLock)return;navLock=true;clearInterval(timer);answers.push({q:QS[curQ],ans:getAnswer(),time:elapsed,flag:getFlag(QS[curQ],elapsed),skipped:false,aiFlags:getAiFlags(),aiData:{...aiDetect}});curQ++;if(curQ>=QS.length)showResults();else showQ();setTimeout(()=>{navLock=false;},100);}
+function skipQ(){if(navLock)return;navLock=true;clearInterval(timer);const q=QS[curQ];answers.push({q,ans:null,time:elapsed,flag:q.block==='multiwork'?'multiwork':'ok',skipped:true,aiFlags:[],aiData:{}});curQ++;if(curQ>=QS.length)showResults();else showQ();setTimeout(()=>{navLock=false;},100);}
 
 function showResults(){
   showScreen('screen-results');
@@ -560,7 +557,7 @@ function showResults(){
     if(a.q.block==='compensation')return;
     dims[a.q.block].max+=a.q.w*3;
     if(a.skipped||a.ans===null)return;
-    let pts=a.q.w;
+    let pts=0;
     if(a.q.type==='open'){const len=typeof a.ans==='string'?a.ans.trim().length:0;if(len>0)pts=a.q.w*3;}
     else if(a.q.type==='single'){if(a.q.correct!==undefined&&a.ans===a.q.options[a.q.correct])pts=a.q.w*3;else pts=a.q.w;}
     else if(a.q.type==='multi'){if(Array.isArray(a.ans)&&a.ans.length>=2)pts=a.q.w*3;else if(Array.isArray(a.ans)&&a.ans.length===1)pts=a.q.w*2;}
@@ -586,8 +583,8 @@ function showResults(){
   let v;
   if(answered===0)v={cls:'red',icon:'⚠',title:'Entrevista incompleta',body:'No se respondieron preguntas. No es posible evaluar al candidato.'};
   else if(flags===0&&gs>=7)v={cls:'green',icon:'✓',title:'Perfil sólido',body:'Sin alertas de tiempo y puntuación global alta. Los indicadores son favorables para avanzar.'};
-  else if(flags<=2&&gs>=5)v={cls:'amber',icon:'!',title:'Perfil con puntos a validar',body:`${flags} respuesta${flags!==1?'s':''} con tiempo elevado. Se recomienda profundizar en segunda entrevista.`};
-  else v={cls:'red',icon:'⚠',title:'Múltiples alertas detectadas',body:'Varias respuestas superaron el tiempo esperado o puntuación baja. Revisar en detalle antes de avanzar.'};
+  else if(flags<=2&&gs>=5){const reason=flags>0?`${flags} respuesta${flags!==1?'s':''} con tiempo elevado.`:'Puntuación moderada.';v={cls:'amber',icon:'!',title:'Perfil con puntos a validar',body:`${reason} Se recomienda profundizar en segunda entrevista.`};}
+  else{const reasons=[];if(flags>2)reasons.push(`${flags} respuestas con tiempo elevado`);if(gs<5)reasons.push('puntuación global baja');v={cls:'red',icon:'⚠',title:'Múltiples alertas detectadas',body:`${reasons.join(' y ')||'Revisar en detalle'}. Revisar antes de avanzar.`};}
   va.innerHTML=`<div class="verdict ${v.cls}"><div class="vicon">${v.icon}</div><div class="vtext"><strong>${v.title}</strong><p>${v.body}</p></div></div>`;
 
   const dimColors={compensation:'#854D0E',tech:'#1D4ED8',ai:'#15803D',leadership:'#7E22CE',product:'#C2410C',multiwork:'#DC2626'};
@@ -599,7 +596,7 @@ function showResults(){
   const mwA=answers.filter(a=>a.q.block==='multiwork'&&!a.skipped);
   const mwS=[];
   mwA.forEach(a=>{
-    if(a.q.type==='single'&&a.ans&&(a.ans.includes('Tengo compromisos')||a.ans.includes('no responder')))mwS.push('Declaró compromisos activos o evitó responder sobre exclusividad.');
+    if(a.q.type==='single'&&a.ans&&a.q.options){const idx=a.q.options.indexOf(a.ans);if(idx>=2)mwS.push('Declaró compromisos activos o evitó responder sobre exclusividad.');}
     if(a.q.type==='open'&&typeof a.ans==='string'&&a.time<a.q.min)mwS.push(`Respuesta muy rápida en pregunta de dedicación (${fmt(a.time)}).`);
   });
   document.getElementById('multiwork-area').innerHTML=mwS.length>0
@@ -621,7 +618,7 @@ function showResults(){
     if(totalTabAway>30)items.push(`<li>Tiempo total fuera de la pestaña: <strong>${totalTabAway} segundos</strong>.</li>`);
     const answersWithFlags=answers.filter(a=>(a.aiFlags||[]).length>0);
     if(answersWithFlags.length>0)items.push(`<li><strong>${answersWithFlags.length} pregunta${answersWithFlags.length>1?'s':''}</strong> con señales de alerta específicas (ver detalle abajo).</li>`);
-    aiIntArea.innerHTML=`<div style="background:#FEF2F2;border:1px solid rgba(239,68,68,0.25);border-radius:var(--radius);padding:1rem 1.25rem;font-size:0.84rem;color:#991B1B"><strong style="display:block;margin-bottom:0.5rem">⚠ Señales de posible uso de IA externa detectadas</strong><ul style="list-style:none;display:flex;flex-direction:column;gap:0.35rem">${items.map(i=>`<span style="display:flex;gap:0.4rem;align-items:flex-start">${i}</span>`).join('')}</ul></div>`;
+    aiIntArea.innerHTML=`<div style="background:#FEF2F2;border:1px solid rgba(239,68,68,0.25);border-radius:var(--radius);padding:1rem 1.25rem;font-size:0.84rem;color:#991B1B"><strong style="display:block;margin-bottom:0.5rem">⚠ Señales de posible uso de IA externa detectadas</strong><ul style="list-style:none;display:flex;flex-direction:column;gap:0.35rem">${items.join('')}</ul></div>`;
   }
 
   document.getElementById('answers-detail').innerHTML=answers.map((a,i)=>{
