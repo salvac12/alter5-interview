@@ -69,8 +69,8 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 .tdot{width:7px;height:7px;border-radius:50%;background:var(--emerald);animation:pulse 1.2s infinite}
 .tdot.warn{background:var(--amber)}.tdot.danger{background:var(--red)}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.8)}}
-.qtext{font-family:var(--serif);font-size:1.5rem;color:var(--navy);line-height:1.4;margin-bottom:0.65rem;letter-spacing:-0.01em}
-.qhint{font-size:0.84rem;color:var(--text-muted);margin-bottom:1.5rem;line-height:1.55;font-style:italic}
+.qtext{font-family:var(--serif);font-size:1.5rem;color:var(--navy);line-height:1.4;margin-bottom:0.65rem;letter-spacing:-0.01em;-webkit-user-select:none;user-select:none}
+.qhint{font-size:0.84rem;color:var(--text-muted);margin-bottom:1.5rem;line-height:1.55;font-style:italic;-webkit-user-select:none;user-select:none}
 .atextarea{width:100%;min-height:150px;padding:0.9rem 1rem;border:1px solid var(--border);border-radius:var(--radius);font-family:var(--sans);font-size:0.9rem;color:var(--text);background:var(--white);resize:vertical;outline:none;transition:border-color 0.15s;line-height:1.7}
 .atextarea:focus{border-color:var(--emerald)}
 .opts{display:flex;flex-direction:column;gap:0.5rem}
@@ -238,6 +238,11 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
     <div class="rsec"><p class="rsec-title">Evaluación por dimensión</p><div class="dims-grid" id="dims-grid"></div></div>
     <div id="multiwork-area"></div>
 
+    <div class="rsec" id="ai-integrity-sec">
+      <p class="rsec-title">Integridad de respuestas · Detección anti-IA</p>
+      <div id="ai-integrity-area"></div>
+    </div>
+
     <div class="rsec" id="ai-analysis-sec">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.85rem;padding-bottom:0.4rem;border-bottom:1px solid var(--border)">
         <p class="rsec-title" style="margin:0;border:none;padding:0">Análisis del recruiter AI</p>
@@ -312,6 +317,16 @@ const QS=[
    text:'¿Cuántos servicios de AWS has configurado y mantenido tú directamente en producción?',
    hint:'Un número concreto.',
    min:5,sus:40},
+  {block:'tech',type:'single',w:2,
+   text:'¿Qué stack de observabilidad implementarías en una plataforma en AWS que actualmente no tiene ninguno?',
+   hint:'',
+   options:['CloudWatch Logs + Alarms — suficiente para empezar','Sentry para errores + CloudWatch para métricas de infra','Stack completo: logging estructurado, Sentry, métricas custom (Datadog/Prometheus) y tracing distribuido','ELK Stack (Elasticsearch + Logstash + Kibana)'],
+   correct:2,min:10,sus:80},
+  {block:'tech',type:'single',w:2,
+   text:'Descubres credenciales de base de datos hardcodeadas en un script de migración que está en el repositorio. ¿Cuál es tu primer paso?',
+   hint:'',
+   options:['Rotar las credenciales inmediatamente, luego mover a Secrets Manager','Mover a variables de entorno y hacer un commit','Abrir un ticket para que se solucione en el próximo sprint','Revisar el historial de Git para ver si hay más credenciales expuestas antes de actuar'],
+   correct:0,min:10,sus:80},
   // AI
   {block:'ai',type:'scale',w:2,
    text:'¿Cuál es tu nivel de experiencia con agentes de IA y orquestación de LLMs?',
@@ -389,6 +404,56 @@ const QS=[
 ];
 
 let curQ=0,timer=null,elapsed=0,answers=[],selOpt=null,selMulti=[];
+
+// ── Anti-copy measures ────────────────────────────────────────────────────────
+document.addEventListener('contextmenu',(e)=>{if(e.target.tagName!=='TEXTAREA'&&e.target.tagName!=='INPUT')e.preventDefault();});
+document.addEventListener('copy',(e)=>{const sel=window.getSelection().toString();if(sel.length>10&&!['TEXTAREA','INPUT'].includes(document.activeElement?.tagName))e.preventDefault();});
+
+// ── Anti-AI Detection ────────────────────────────────────────────────────────
+let aiDetect={pasteCount:0,pasteChars:0,tabSwitches:0,tabAwayTime:0,tabLeftAt:null,keystrokes:0,lastKeystrokeTime:0,burstCount:0};
+
+function resetAiDetect(){
+  aiDetect={pasteCount:0,pasteChars:0,tabSwitches:0,tabAwayTime:0,tabLeftAt:null,keystrokes:0,lastKeystrokeTime:0,burstCount:0};
+}
+
+// Track tab visibility
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden){
+    aiDetect.tabSwitches++;
+    aiDetect.tabLeftAt=Date.now();
+  }else if(aiDetect.tabLeftAt){
+    aiDetect.tabAwayTime+=Math.round((Date.now()-aiDetect.tabLeftAt)/1000);
+    aiDetect.tabLeftAt=null;
+  }
+});
+
+// Track paste events
+document.addEventListener('paste',(e)=>{
+  const text=(e.clipboardData||window.clipboardData).getData('text');
+  if(text.length>20){
+    aiDetect.pasteCount++;
+    aiDetect.pasteChars+=text.length;
+  }
+});
+
+// Track keystrokes for open questions
+document.addEventListener('keydown',(e)=>{
+  if(e.target.tagName==='TEXTAREA'){
+    const now=Date.now();
+    aiDetect.keystrokes++;
+    if(now-aiDetect.lastKeystrokeTime<50)aiDetect.burstCount++;
+    aiDetect.lastKeystrokeTime=now;
+  }
+});
+
+function getAiFlags(){
+  const flags=[];
+  if(aiDetect.pasteCount>0)flags.push(`Pegó texto ${aiDetect.pasteCount} vez${aiDetect.pasteCount>1?'es':''} (${aiDetect.pasteChars} caracteres)`);
+  if(aiDetect.tabSwitches>2)flags.push(`Cambió de pestaña ${aiDetect.tabSwitches} veces`);
+  if(aiDetect.tabAwayTime>30)flags.push(`Fuera de la pestaña ${aiDetect.tabAwayTime}s en total`);
+  if(aiDetect.burstCount>10)flags.push('Patrón de escritura irregular (posible pegado con teclado)');
+  return flags;
+}
 function fmt(s){const m=Math.floor(s/60),sec=s%60;return`${m}:${sec.toString().padStart(2,'0')}`}
 
 window.addEventListener('DOMContentLoaded',()=>{
@@ -412,7 +477,7 @@ function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classL
 
 let lastBlock=null;
 function showQ(){
-  const q=QS[curQ];selOpt=null;selMulti=[];elapsed=0;
+  const q=QS[curQ];selOpt=null;selMulti=[];elapsed=0;resetAiDetect();
   document.getElementById('prog').style.width=`${(curQ/QS.length)*100}%`;
   document.getElementById('qnum').textContent=`Pregunta ${curQ+1} / ${QS.length}`;
   const bh=document.getElementById('block-header');
@@ -471,8 +536,8 @@ function getFlag(q,s){
   if(s>q.sus)return 'susp';
   return 'ok';
 }
-function nextQ(){clearInterval(timer);answers.push({q:QS[curQ],ans:getAnswer(),time:elapsed,flag:getFlag(QS[curQ],elapsed),skipped:false});curQ++;if(curQ>=QS.length)showResults();else showQ();}
-function skipQ(){clearInterval(timer);answers.push({q:QS[curQ],ans:null,time:elapsed,flag:'ok',skipped:true});curQ++;if(curQ>=QS.length)showResults();else showQ();}
+function nextQ(){clearInterval(timer);answers.push({q:QS[curQ],ans:getAnswer(),time:elapsed,flag:getFlag(QS[curQ],elapsed),skipped:false,aiFlags:getAiFlags(),aiData:{...aiDetect}});curQ++;if(curQ>=QS.length)showResults();else showQ();}
+function skipQ(){clearInterval(timer);answers.push({q:QS[curQ],ans:null,time:elapsed,flag:'ok',skipped:true,aiFlags:[],aiData:{}});curQ++;if(curQ>=QS.length)showResults();else showQ();}
 
 function showResults(){
   showScreen('screen-results');
@@ -534,6 +599,24 @@ function showResults(){
     ?`<div class="multiwork-box"><h4>⚠ Señales de multiempleo a revisar</h4><ul>${mwS.map(s=>`<li>${s}</li>`).join('')}</ul></div>`
     :`<div style="background:#F0FDF4;border:1px solid rgba(16,185,129,0.25);border-radius:var(--radius);padding:0.85rem 1.1rem;margin-bottom:1.5rem;font-size:0.84rem;color:#166534">✓ Sin señales de alerta en el bloque de compromiso y dedicación.</div>`;
 
+  // AI Integrity summary
+  const allAiFlags=answers.flatMap(a=>a.aiFlags||[]);
+  const totalPastes=answers.reduce((s,a)=>(a.aiData?.pasteCount||0)+s,0);
+  const totalTabSwitches=answers.reduce((s,a)=>(a.aiData?.tabSwitches||0)+s,0);
+  const totalTabAway=answers.reduce((s,a)=>(a.aiData?.tabAwayTime||0)+s,0);
+  const aiIntArea=document.getElementById('ai-integrity-area');
+  if(allAiFlags.length===0&&totalPastes===0&&totalTabSwitches<=2){
+    aiIntArea.innerHTML=`<div style="background:#F0FDF4;border:1px solid rgba(16,185,129,0.25);border-radius:var(--radius);padding:1rem 1.25rem;font-size:0.84rem;color:#166534">✓ Sin señales de uso de IA externa. No se detectaron pegados de texto, cambios de pestaña anómalos ni patrones irregulares de escritura.</div>`;
+  }else{
+    let items=[];
+    if(totalPastes>0)items.push(`<li>Se detectaron <strong>${totalPastes} evento${totalPastes>1?'s':''} de pegado</strong> de texto durante la entrevista.</li>`);
+    if(totalTabSwitches>2)items.push(`<li>El candidato <strong>cambió de pestaña ${totalTabSwitches} veces</strong> durante la entrevista.</li>`);
+    if(totalTabAway>30)items.push(`<li>Tiempo total fuera de la pestaña: <strong>${totalTabAway} segundos</strong>.</li>`);
+    const answersWithFlags=answers.filter(a=>(a.aiFlags||[]).length>0);
+    if(answersWithFlags.length>0)items.push(`<li><strong>${answersWithFlags.length} pregunta${answersWithFlags.length>1?'s':''}</strong> con señales de alerta específicas (ver detalle abajo).</li>`);
+    aiIntArea.innerHTML=`<div style="background:#FEF2F2;border:1px solid rgba(239,68,68,0.25);border-radius:var(--radius);padding:1rem 1.25rem;font-size:0.84rem;color:#991B1B"><strong style="display:block;margin-bottom:0.5rem">⚠ Señales de posible uso de IA externa detectadas</strong><ul style="list-style:none;display:flex;flex-direction:column;gap:0.35rem">${items.map(i=>`<span style="display:flex;gap:0.4rem;align-items:flex-start">${i}</span>`).join('')}</ul></div>`;
+  }
+
   document.getElementById('answers-detail').innerHTML=answers.map((a,i)=>{
     const fc=a.flag==='susp'?'flag-susp':a.flag==='fast'?'flag-fast':a.flag==='multiwork'?'flag-multi':'';
     const fl=a.flag==='susp'?`<span class="aiflag susp">⚠ ${fmt(a.time)}</span>`:a.flag==='fast'?`<span class="aiflag fast">✓ ${fmt(a.time)}</span>`:`<span class="aiflag ok">${fmt(a.time)}</span>`;
@@ -543,7 +626,8 @@ function showResults(){
     else if(Array.isArray(a.ans))at=a.ans.join(', ')||'<em>Sin selección</em>';
     else at=a.ans||'<em>Sin respuesta</em>';
     const b=BLOCKS.find(x=>x.id===a.q.block);
-    return`<div class="acard ${fc}"><div class="acard-hdr"><div><span class="qcat cat-${a.q.block}" style="margin-bottom:0.35rem;display:inline-block">${b.label}</span><p class="acard-q">${a.q.text}</p></div><div class="acard-timing">${fl}</div></div><div class="acard-body">${at}</div><label class="notes-lbl">Notas</label><textarea class="notes-ta" id="note-${i}" placeholder="Observaciones..."></textarea></div>`;
+    const aiFlagsHtml=(a.aiFlags&&a.aiFlags.length>0)?`<div style="margin-top:0.5rem;padding:0.5rem 0.65rem;background:#FEF2F2;border-radius:6px;font-size:0.75rem;color:#DC2626">${a.aiFlags.map(f=>`<div style="margin-bottom:0.2rem">⚠ ${f}</div>`).join('')}</div>`:'';
+    return`<div class="acard ${fc}"><div class="acard-hdr"><div><span class="qcat cat-${a.q.block}" style="margin-bottom:0.35rem;display:inline-block">${b.label}</span><p class="acard-q">${a.q.text}</p></div><div class="acard-timing">${fl}</div></div><div class="acard-body">${at}${aiFlagsHtml}</div><label class="notes-lbl">Notas</label><textarea class="notes-ta" id="note-${i}" placeholder="Observaciones..."></textarea></div>`;
   }).join('');
 
   // Save candidate to localStorage for dashboard
