@@ -46,7 +46,7 @@ export default async function handler(req, res) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${KEY}` },
       body: JSON.stringify({
-        from: 'Alter5 Hiring <hiring@alter-5.com>',
+        from: 'Leticia Menendez <leticia.menendez@alter-5.com>',
         to: [email],
         subject: `Alter5 — Entrevista técnica · ${safeName}`,
         html,
