@@ -7,7 +7,7 @@ export default async function handler(req, res) {
 
   const emailRx = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
   if (!emailRx.test(email)) return res.status(400).json({ error: 'Invalid email format' });
-  if (!/^[a-z0-9]{12,32}$/.test(token)) return res.status(400).json({ error: 'Invalid token' });
+  if (!/^[a-f0-9]{32}$/.test(token)) return res.status(400).json({ error: 'Invalid token' });
   if (name.length > 100) return res.status(400).json({ error: 'Name too long' });
 
   const safe = s => String(s).replace(/[<>"'&]/g, c => ({'<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','&':'&amp;'})[c]);
@@ -16,7 +16,8 @@ export default async function handler(req, res) {
   const KEY = process.env.RESEND_API_KEY;
   if (!KEY) return res.status(500).json({ error: 'RESEND_API_KEY not configured' });
 
-  const url = `https://technology-leader.alter5.com/?c=${encodeURIComponent(name)}&t=${token}`;
+  const BASE_URL = process.env.INTERVIEW_BASE_URL || 'https://technology-leader.alter5.com';
+  const url = `${BASE_URL}/?c=${encodeURIComponent(name)}&t=${token}`;
 
   const html = `<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:600px;margin:0 auto">
     <div style="background:#0A1628;padding:32px 40px;border-radius:12px 12px 0 0">

@@ -137,8 +137,24 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 </div>
 
 <script>
+function loadStorage(key,fallback){try{return JSON.parse(localStorage.getItem(key)||'null')??fallback;}catch(e){console.warn('localStorage corrupted:',key);localStorage.removeItem(key);return fallback;}}
+function saveStorage(key,data){try{localStorage.setItem(key,JSON.stringify(data));}catch(e){console.error('localStorage write failed:',e);}}
+function esc(s){const d=document.createElement('div');d.textContent=String(s||'');return d.innerHTML;}
+function sanitizeHTML(html){
+  const tmp=document.createElement('div');
+  tmp.innerHTML=html;
+  tmp.querySelectorAll('script,iframe,object,embed,link,style,form,input,textarea,select,button,meta,base').forEach(el=>el.remove());
+  tmp.querySelectorAll('*').forEach(el=>{
+    for(const attr of [...el.attributes]){
+      if(attr.name.startsWith('on'))el.removeAttribute(attr.name);
+      if(['src','href','action','formaction','data','background'].includes(attr.name)&&/^\s*javascript:/i.test(attr.value))el.removeAttribute(attr.name);
+    }
+  });
+  return tmp.innerHTML;
+}
+
 function getCandidates(){
-  return JSON.parse(localStorage.getItem('a5_interviews')||'[]');
+  return loadStorage('a5_interviews',[]);
 }
 
 function renderCandidates(){
@@ -170,7 +186,7 @@ function renderCandidates(){
   const avgScore=Math.round(candidates.reduce((a,c)=>a+(c.score||0),0)/candidates.length);
   document.getElementById('ss-avg').textContent=`${avgScore}/10`;
   const top=candidates.reduce((best,c)=>(c.score||0)>(best.score||0)?c:best,candidates[0]);
-  document.getElementById('ss-top').textContent=top.name?.split(' ')[0]||'—';
+  document.getElementById('ss-top').textContent=(top.name||'').split(' ')[0]||'—';
   const salaries=candidates.map(c=>parseSalary(c.salary)).filter(s=>s>0);
   document.getElementById('ss-salary').textContent=salaries.length?`$${Math.round(salaries.reduce((a,b)=>a+b,0)/salaries.length).toLocaleString()}`:'—';
 
@@ -192,20 +208,20 @@ function renderCandidates(){
     if((dims.ai?.pct||0)>=80)tags.push({cls:'tag-purple',text:'Fuerte en IA'});
     if((dims.leadership?.pct||0)>=80)tags.push({cls:'tag-purple',text:'Líder probado'});
     if((c.flags||0)>0)tags.push({cls:'tag-red',text:`${c.flags} alerta${c.flags>1?'s':''}`});
-    if(c.salary&&c.salary!=='No indicado')tags.push({cls:'tag-blue',text:`$${parseSalary(c.salary).toLocaleString()}/mes`});
+    if(c.salary&&c.salary!=='No indicado'){const sv=parseSalary(c.salary);if(sv>0)tags.push({cls:'tag-blue',text:`$${sv.toLocaleString()}/mes`});}
 
     return`<div class="cand-card ${isTop?'top-pick':''}">
       <div class="cand-header">
         <div class="cand-name-row">
           <div class="cand-rank ${isTop?'gold':''}">${rank}</div>
           <div>
-            <div class="cand-name">${c.name||'Candidato'}</div>
-            <div class="cand-meta">${c.exp||''} · ${c.date||''}</div>
+            <div class="cand-name">${esc(c.name)||'Candidato'}</div>
+            <div class="cand-meta">${esc(c.exp)||''} · ${esc(c.date)||''}</div>
           </div>
         </div>
         <div class="cand-score">
-          <div class="cand-score-val">${c.score||0}/10</div>
-          <div class="cand-score-label">Puntuación global</div>
+          <div class="cand-score-val">${parseInt(c.score)||0}/10</div>
+          <div class="cand-score-label">Puntuacion global</div>
         </div>
       </div>
 
@@ -213,7 +229,7 @@ function renderCandidates(){
         ${dimKeys.map(k=>{
           const d=dims[k]||{name:k,pct:0};
           return`<div class="cand-dim">
-            <div class="cand-dim-name">${d.name||k}</div>
+            <div class="cand-dim-name">${esc(d.name||k)}</div>
             <div class="cand-dim-bar"><div class="cand-dim-fill" style="width:${d.pct}%;background:${dimColors[k]||'#888'}"></div></div>
             <div class="cand-dim-val">${d.pct}%</div>
           </div>`;
@@ -221,22 +237,23 @@ function renderCandidates(){
       </div>
 
       <div class="cand-footer">
-        <div class="cand-tags">${tags.map(t=>`<span class="tag ${t.cls}">${t.text}</span>`).join('')}</div>
+        <div class="cand-tags">${tags.map(t=>`<span class="tag ${t.cls}">${esc(t.text)}</span>`).join('')}</div>
         <div class="cand-actions">
-          ${c.aiAnalysis?`<button class="btn btn-ghost btn-sm" onclick="toggleReport('${c.id}')">Ver análisis AI</button>`:''}
-          <button class="btn btn-danger btn-sm" onclick="removeCandidate('${c.id}')">✕</button>
+          ${c.aiAnalysis?`<button class="btn btn-ghost btn-sm" onclick="toggleReport('${esc(c.id)}')">Ver analisis AI</button>`:''}
+          <button class="btn btn-danger btn-sm" onclick="removeCandidate('${esc(c.id)}')">x</button>
         </div>
       </div>
 
-      ${c.aiAnalysis?`<div class="ai-expand" id="report-${c.id}"><div class="ai-report">${c.aiAnalysis}</div></div>`:''}
+      ${c.aiAnalysis?`<div class="ai-expand" id="report-${esc(c.id)}"><div class="ai-report">${sanitizeHTML(c.aiAnalysis)}</div></div>`:''}
     </div>`;
   }).join('');
 }
 
 function parseSalary(s){
   if(!s||s==='No indicado')return 0;
-  const nums=String(s).replace(/[^0-9]/g,'');
-  return parseInt(nums)||0;
+  const clean=String(s).replace(/[,\.]/g,'');
+  const match=clean.match(/\d+/);
+  return match?parseInt(match[0]):0;
 }
 
 function toggleReport(id){
@@ -245,9 +262,9 @@ function toggleReport(id){
 }
 
 function removeCandidate(id){
-  if(!confirm('¿Eliminar este candidato del panel?'))return;
+  if(!confirm('Eliminar este candidato del panel?'))return;
   let c=getCandidates().filter(x=>x.id!==id);
-  localStorage.setItem('a5_interviews',JSON.stringify(c));
+  saveStorage('a5_interviews',c);
   renderCandidates();
 }
 

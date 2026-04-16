@@ -103,23 +103,11 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
   <h1 class="page-title">Generador de Magic Links</h1>
   <p class="page-sub">Sube CVs en PDF. La IA extrae automáticamente el nombre y el email del candidato y genera el enlace personalizado para enviarle.</p>
 
-  <!-- API Key -->
-  <div class="card">
-    <p class="card-title">Configuración · API Key de Anthropic</p>
-    <div class="apikey-row">
-      <div style="flex:1">
-        <input type="password" class="apikey-input" id="api-key" placeholder="sk-ant-api03-...">
-        <p class="apikey-hint">La clave se usa solo en tu navegador para procesar los CVs. No se almacena en ningún servidor.</p>
-      </div>
-      <button class="btn btn-primary btn-sm" onclick="saveKey()">Guardar</button>
-    </div>
-  </div>
-
   <!-- Upload -->
   <div class="card">
     <p class="card-title">Subir CVs</p>
     <div class="upload-zone" id="upload-zone"
-         ondragover="ev.preventDefault();this.classList.add('drag')"
+         ondragover="event.preventDefault();this.classList.add('drag')"
          ondragleave="this.classList.remove('drag')"
          ondrop="handleDrop(event)">
       <input type="file" accept=".pdf,.doc,.docx" multiple onchange="handleFiles(this.files)">
@@ -147,24 +135,14 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 
 <script>
 const BASE_URL = window.location.origin;
-let candidates = JSON.parse(localStorage.getItem('a5_candidates') || '[]');
 
-window.addEventListener('DOMContentLoaded', () => {
-  const saved = localStorage.getItem('a5_apikey');
-  if (saved) document.getElementById('api-key').value = saved;
-  renderTable();
-});
+function loadStorage(key,fallback){try{return JSON.parse(localStorage.getItem(key)||'null')??fallback;}catch(e){console.warn('localStorage corrupted:',key);localStorage.removeItem(key);return fallback;}}
+function saveStorage(key,data){try{localStorage.setItem(key,JSON.stringify(data));}catch(e){console.error('localStorage write failed:',e);}}
+function esc(s){const d=document.createElement('div');d.textContent=String(s||'');return d.innerHTML;}
 
-function saveKey() {
-  const k = document.getElementById('api-key').value.trim();
-  if (!k) { showToast('Introduce una API key válida'); return; }
-  localStorage.setItem('a5_apikey', k);
-  showToast('API key guardada ✓');
-}
+let candidates = loadStorage('a5_candidates', []);
 
-function getKey() {
-  return document.getElementById('api-key').value.trim() || localStorage.getItem('a5_apikey') || '';
-}
+window.addEventListener('DOMContentLoaded', () => { renderTable(); });
 
 function handleDrop(e) {
   e.preventDefault();
@@ -173,69 +151,39 @@ function handleDrop(e) {
 }
 
 function handleFiles(files) {
-  const key = getKey();
-  if (!key) { showToast('⚠ Introduce primero tu API key de Anthropic'); return; }
-  Array.from(files).forEach(f => processCV(f, key));
+  Array.from(files).forEach(f => processCV(f));
 }
 
-async function processCV(file, apiKey) {
+async function processCV(file) {
   const id = Date.now() + Math.random().toString(36).slice(2);
-  const token = crypto.randomUUID().replace(/-/g,'').slice(0,16);
+  const token = crypto.randomUUID().replace(/-/g,'');
   const cand = { id, filename: file.name, name: '', email: '', exp: '5-8', status: 'processing', link: '', token, emailStatus: 'pending', error: '' };
   candidates.unshift(cand);
   save(); renderTable();
 
   try {
-    // Read file as base64
     const b64 = await fileToBase64(file);
     const isPDF = file.name.toLowerCase().endsWith('.pdf');
-    const mediaType = isPDF ? 'application/pdf' : 'application/octet-stream';
 
-    // Call Claude API
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch('/api/process-cv', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 300,
-        messages: [{
-          role: 'user',
-          content: [
-            isPDF
-              ? { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: b64 } }
-              : { type: 'text', text: `Filename: ${file.name}` },
-            {
-              type: 'text',
-              text: 'Extract the full name and email address from this CV. Respond ONLY with valid JSON: {"name": "Full Name", "email": "email@example.com"}. If you cannot find one of the fields, use an empty string. No other text.'
-            }
-          ]
-        }]
-      })
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fileBase64: b64, filename: file.name, isPDF })
     });
-
-    if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.error?.message || `API error ${res.status}`);
-    }
-
     const data = await res.json();
-    const text = data.content?.find(c => c.type === 'text')?.text || '{}';
-    let parsed;
-    try { parsed = JSON.parse(text.replace(/```json|```/g, '').trim()); }
-    catch { parsed = extractFallback(text); }
+    if (!res.ok) throw new Error(data.error || 'Error procesando CV');
 
-    const name = parsed.name || '';
-    const email = parsed.email || '';
+    const name = data.name || '';
+    const email = data.email || '';
 
     if (!name && !email) throw new Error('No se pudo extraer nombre ni email del CV');
 
     cand.name = name;
     cand.email = email;
-    cand.link = `${BASE_URL}/?c=${encodeURIComponent(name)}&t=${token}`;
+    cand.link = `${BASE_URL}/?c=${encodeURIComponent(name)}&e=${encodeURIComponent(cand.exp)}&t=${token}`;
     cand.status = 'done';
     save(); renderTable();
 
-    // Auto-send email if we have an email address
     if (email) {
       cand.emailStatus = 'sending';
       save(); renderTable();
@@ -248,11 +196,11 @@ async function processCV(file, apiKey) {
         const emailData = await emailRes.json();
         if (emailRes.ok && emailData.success) {
           cand.emailStatus = 'sent';
-          showToast(`✓ Invitación enviada a ${email}`);
+          showToast(`Invitacion enviada a ${email}`);
         } else {
           cand.emailStatus = 'email_error';
           cand.error = emailData.error || 'Error enviando email';
-          showToast(`⚠ CV procesado pero error al enviar email a ${email}`);
+          showToast(`CV procesado pero error al enviar email a ${email}`);
         }
       } catch (emailErr) {
         cand.emailStatus = 'email_error';
@@ -269,12 +217,6 @@ async function processCV(file, apiKey) {
   }
 
   save(); renderTable();
-}
-
-function extractFallback(text) {
-  const email = text.match(/[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/)?.[0] || '';
-  const name = text.match(/"name"\s*:\s*"([^"]+)"/)?.[1] || '';
-  return { name, email };
 }
 
 function fileToBase64(file) {
@@ -294,6 +236,7 @@ function updateExp(id, val) {
     const p = new URLSearchParams();
     if (c.name) p.set('c', c.name);
     p.set('e', val);
+    p.set('t', c.token);
     c.link = `${BASE_URL}/?${p.toString()}`;
   }
   save(); renderTable();
@@ -302,7 +245,7 @@ function updateExp(id, val) {
 function copyLink(id) {
   const c = candidates.find(x => x.id === id);
   if (!c?.link) return;
-  navigator.clipboard.writeText(c.link).then(() => showToast(`Link de ${c.name || 'candidato'} copiado ✓`));
+  navigator.clipboard.writeText(c.link).then(() => showToast(`Link de ${esc(c.name) || 'candidato'} copiado`));
 }
 
 function copyEmail(id) {
@@ -317,19 +260,19 @@ function removeCandidate(id) {
 }
 
 function clearAll() {
-  if (!confirm('¿Eliminar todos los candidatos de la lista?')) return;
+  if (!confirm('Eliminar todos los candidatos de la lista?')) return;
   candidates = []; save(); renderTable();
 }
 
 function save() {
-  localStorage.setItem('a5_candidates', JSON.stringify(candidates));
+  saveStorage('a5_candidates', candidates);
 }
 
 function renderTable() {
   const area = document.getElementById('candidates-area');
   const clearBtn = document.getElementById('clear-btn');
   if (!candidates.length) {
-    area.innerHTML = `<div class="empty-state"><span class="empty-icon">👤</span><p>Aquí aparecerán los candidatos una vez<br>proceses sus CVs.</p></div>`;
+    area.innerHTML = `<div class="empty-state"><span class="empty-icon">👤</span><p>Aqui apareceran los candidatos una vez<br>proceses sus CVs.</p></div>`;
     clearBtn.style.display = 'none';
     return;
   }
@@ -342,64 +285,71 @@ function renderTable() {
         <th>Exp.</th>
         <th>Magic link</th>
         <th>Estado</th>
-        <th>Invitación</th>
+        <th>Invitacion</th>
         <th></th>
       </tr></thead>
       <tbody>
-        ${candidates.map(c => `
+        ${candidates.map(c => {
+          const safeName = esc(c.name);
+          const safeFilename = esc(c.filename);
+          const safeEmail = esc(c.email);
+          const safeError = esc(c.error);
+          const safeLink = esc(c.link);
+          const safeId = esc(c.id);
+          return `
           <tr class="${c.status === 'processing' ? 'processing-row' : ''}">
             <td>
-              <div style="font-weight:500;color:var(--text)">${c.name || `<span style="color:var(--text-muted);font-style:italic">${c.filename}</span>`}</div>
-              ${c.name ? `<div style="font-size:0.75rem;color:var(--text-muted);margin-top:2px">${c.filename}</div>` : ''}
+              <div style="font-weight:500;color:var(--text)">${safeName || `<span style="color:var(--text-muted);font-style:italic">${safeFilename}</span>`}</div>
+              ${safeName ? `<div style="font-size:0.75rem;color:var(--text-muted);margin-top:2px">${safeFilename}</div>` : ''}
             </td>
             <td>
               ${c.email
                 ? `<div style="display:flex;align-items:center;gap:0.4rem">
-                    <span style="font-family:var(--mono);font-size:0.78rem">${c.email}</span>
-                    <button class="copy-btn" onclick="copyEmail('${c.id}')">copiar</button>
+                    <span style="font-family:var(--mono);font-size:0.78rem">${safeEmail}</span>
+                    <button class="copy-btn" onclick="copyEmail('${safeId}')">copiar</button>
                    </div>`
                 : `<span style="color:var(--text-muted);font-style:italic;font-size:0.82rem">—</span>`}
             </td>
             <td>
-              <select class="exp-sel" onchange="updateExp('${c.id}', this.value)" ${c.status !== 'done' ? 'disabled' : ''}>
-                <option value="3-5" ${c.exp==='3-5'?'selected':''}>3–5 años</option>
-                <option value="5-8" ${c.exp==='5-8'?'selected':''}>5–8 años</option>
-                <option value="8-12" ${c.exp==='8-12'?'selected':''}>8–12 años</option>
-                <option value="12+" ${c.exp==='12+'?'selected':''}>12+ años</option>
+              <select class="exp-sel" onchange="updateExp('${safeId}', this.value)" ${c.status !== 'done' ? 'disabled' : ''}>
+                <option value="3-5" ${c.exp==='3-5'?'selected':''}>3-5 anos</option>
+                <option value="5-8" ${c.exp==='5-8'?'selected':''}>5-8 anos</option>
+                <option value="8-12" ${c.exp==='8-12'?'selected':''}>8-12 anos</option>
+                <option value="12+" ${c.exp==='12+'?'selected':''}>12+ anos</option>
               </select>
             </td>
             <td>
               ${c.status === 'done' && c.link
-                ? `<div class="link-pill"><span>${c.link}</span><button class="copy-btn" onclick="copyLink('${c.id}')">copiar</button></div>`
+                ? `<div class="link-pill"><span>${safeLink}</span><button class="copy-btn" onclick="copyLink('${safeId}')">copiar</button></div>`
                 : c.status === 'processing'
                 ? `<span style="font-size:0.82rem;color:var(--text-muted)"><span class="spinner"></span>Procesando...</span>`
                 : `<span style="font-size:0.82rem;color:var(--red)">—</span>`}
             </td>
             <td>
               ${c.status === 'done'
-                ? `<span class="badge badge-ok">✓ CV</span>`
+                ? `<span class="badge badge-ok">CV</span>`
                 : c.status === 'processing'
                 ? `<span class="badge badge-proc">Procesando</span>`
-                : `<span class="badge badge-err" title="${c.error}">Error</span>`}
+                : `<span class="badge badge-err" title="${safeError}">Error</span>`}
             </td>
             <td>
               ${c.emailStatus === 'sent'
-                ? `<span class="badge badge-ok">✓ Enviada</span>`
+                ? `<span class="badge badge-ok">Enviada</span>`
                 : c.emailStatus === 'sending'
                 ? `<span style="font-size:0.78rem;color:var(--text-muted)"><span class="spinner"></span></span>`
                 : c.emailStatus === 'email_error'
-                ? `<span class="badge badge-err" title="${c.error}">Error</span> <button class="copy-btn" onclick="resendInvite('${c.id}')">reenviar</button>`
+                ? `<span class="badge badge-err" title="${safeError}">Error</span> <button class="copy-btn" onclick="resendInvite('${safeId}')">reenviar</button>`
                 : c.emailStatus === 'no_email'
                 ? `<span class="badge badge-wait">Sin email</span>`
                 : c.status === 'done' && c.email
-                ? `<button class="copy-btn" onclick="resendInvite('${c.id}')">enviar</button>`
+                ? `<button class="copy-btn" onclick="resendInvite('${safeId}')">enviar</button>`
                 : `<span style="color:var(--text-muted);font-size:0.78rem">—</span>`}
             </td>
             <td>
-              <button class="btn btn-danger btn-sm" onclick="removeCandidate('${c.id}')">✕</button>
+              <button class="btn btn-danger btn-sm" onclick="removeCandidate('${safeId}')">x</button>
             </td>
           </tr>
-        `).join('')}
+        `}).join('')}
       </tbody>
     </table>`;
 }
@@ -418,11 +368,11 @@ async function resendInvite(id) {
     const data = await res.json();
     if (res.ok && data.success) {
       c.emailStatus = 'sent';
-      showToast(`✓ Invitación reenviada a ${c.email}`);
+      showToast(`Invitacion reenviada a ${c.email}`);
     } else {
       c.emailStatus = 'email_error';
       c.error = data.error || 'Error enviando email';
-      showToast(`⚠ Error al reenviar: ${data.error || 'desconocido'}`);
+      showToast(`Error al reenviar: ${data.error || 'desconocido'}`);
     }
   } catch (err) {
     c.emailStatus = 'email_error';
