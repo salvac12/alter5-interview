@@ -243,7 +243,7 @@ async function processCV(file, apiKey) {
         const emailRes = await fetch('/api/send-invite', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, email, token, baseUrl: BASE_URL })
+          body: JSON.stringify({ name, email, token })
         });
         const emailData = await emailRes.json();
         if (emailRes.ok && emailData.success) {
@@ -413,7 +413,7 @@ async function resendInvite(id) {
     const res = await fetch('/api/send-invite', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: c.name, email: c.email, token: c.token, baseUrl: BASE_URL })
+      body: JSON.stringify({ name: c.name, email: c.email, token: c.token })
     });
     const data = await res.json();
     if (res.ok && data.success) {
