@@ -259,12 +259,6 @@ const BLOCKS=[
 ];
 
 const QS=[
-  // COMPENSATION
-  {block:'compensation',type:'single',w:1,
-   text:'¿Cuál es tu rango salarial anual esperado para este puesto?',
-   hint:'En dólares americanos (USD). Selecciona el rango que mejor representa tu expectativa.',
-   options:['Menos de $50,000','$50,000 – $70,000','$70,000 – $90,000','$90,000 – $110,000','$110,000 – $130,000','Más de $130,000'],
-   min:5,sus:60},
   // TECH
   {block:'tech',type:'open',w:3,
    text:'Cuéntame un sistema backend complejo que hayas diseñado desde cero.',
@@ -333,6 +327,12 @@ const QS=[
    text:'Si detectas que uno de tus developers trabaja para otra empresa en paralelo sin haberlo declarado, ¿cómo lo gestionas?',
    hint:'Proceso concreto: cómo lo detectarías, cómo lo abordarías, qué consecuencias tendría.',
    min:40,sus:190},
+  // COMPENSATION
+  {block:'compensation',type:'single',w:1,
+   text:'¿Cuál es tu rango salarial?',
+   hint:'Selecciona el rango que mejor representa tu expectativa.',
+   options:['Menos de $50,000','$50,000 – $70,000','$70,000 – $90,000','$90,000 – $110,000','$110,000 – $130,000','Más de $130,000'],
+   min:5,sus:60},
 ];
 
 let curQ=0,timer=null,elapsed=0,answers=[],selOpt=null,selMulti=[];
