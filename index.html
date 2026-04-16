@@ -135,6 +135,22 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 .salary-highlight{background:#FEFCE8;border:1px solid rgba(133,77,14,0.2);border-radius:var(--radius);padding:0.85rem 1.1rem;margin-bottom:1.5rem;font-size:0.875rem;color:#713F12}
 .salary-highlight strong{font-weight:600}
 @media print{.hdr,.export-bar,.btn{display:none!important}.screen{display:block!important}}
+
+/* AI Analysis */
+.ai-report{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;line-height:1.7;font-size:0.875rem;color:var(--text)}
+.ai-report h4{font-size:0.82rem;font-weight:600;color:var(--navy);margin:1.25rem 0 0.5rem;letter-spacing:0.02em}
+.ai-report h4:first-child{margin-top:0}
+.ai-report p{margin-bottom:0.6rem}
+.ai-report .score-pill{display:inline-flex;align-items:center;gap:0.35rem;font-family:var(--mono);font-size:0.82rem;font-weight:500;padding:0.25rem 0.65rem;border-radius:6px;margin-right:0.5rem}
+.ai-report .sp-green{background:#F0FDF4;color:#15803D}
+.ai-report .sp-amber{background:#FFF7ED;color:#92400E}
+.ai-report .sp-red{background:#FEF2F2;color:#DC2626}
+.ai-loading{display:flex;align-items:center;gap:0.75rem;padding:1.5rem;color:var(--text-muted);font-size:0.875rem}
+.ai-loading .spinner{width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--emerald);border-radius:50%;animation:spin 0.6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.apikey-inline{display:flex;gap:0.5rem;align-items:center;margin-bottom:1rem}
+.apikey-inline input{flex:1;padding:0.5rem 0.75rem;border:1px solid var(--border);border-radius:6px;font-family:var(--mono);font-size:0.78rem;outline:none}
+.apikey-inline input:focus{border-color:var(--emerald)}
 </style>
 </head>
 <body>
@@ -142,6 +158,9 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 <div class="hdr">
   <div class="hdr-logo">Alter<span>5</span></div>
   <div class="hdr-right">
+    <a href="/" style="font-size:0.72rem;color:var(--emerald);text-decoration:none;margin-right:0.5rem">Entrevista</a>
+    <a href="/dashboard" style="font-size:0.72rem;color:var(--slate);text-decoration:none;margin-right:0.5rem">Panel</a>
+    <a href="/admin" style="font-size:0.72rem;color:var(--slate);text-decoration:none;margin-right:1rem">Admin</a>
     <span class="hdr-meta">SW Architect / AI Head of Engineering</span>
     <span class="hdr-badge" id="hdr-status">Inicio</span>
     <span class="hdr-candidate" id="hdr-candidate" style="display:none"></span>
@@ -218,6 +237,20 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
     <div id="salary-area"></div>
     <div class="rsec"><p class="rsec-title">Evaluación por dimensión</p><div class="dims-grid" id="dims-grid"></div></div>
     <div id="multiwork-area"></div>
+
+    <div class="rsec" id="ai-analysis-sec">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.85rem;padding-bottom:0.4rem;border-bottom:1px solid var(--border)">
+        <p class="rsec-title" style="margin:0;border:none;padding:0">Análisis del recruiter AI</p>
+        <button class="btn btn-primary btn-sm" onclick="generateAnalysis()" id="gen-analysis-btn">Generar análisis →</button>
+      </div>
+      <div id="ai-analysis-area">
+        <div style="padding:1.5rem;text-align:center;color:var(--text-muted);font-size:0.875rem">
+          <p>Haz clic en "Generar análisis" para obtener un informe objetivo del candidato.</p>
+          <p style="font-size:0.78rem;margin-top:0.35rem">Requiere API key de Anthropic (se usa solo en tu navegador).</p>
+        </div>
+      </div>
+    </div>
+
     <div class="rsec"><p class="rsec-title">Detalle de respuestas</p><div id="answers-detail"></div></div>
     <div class="rsec">
       <p class="rsec-title">Valoración final del entrevistador</p>
@@ -241,7 +274,8 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
     </div>
     <div class="export-bar">
       <button class="btn btn-primary" onclick="window.print()">Exportar PDF</button>
-      <button class="btn btn-ghost" onclick="copyLink()">Copiar magic link →</button>
+      <button class="btn btn-primary" style="background:var(--emerald)" onclick="window.location.href='/dashboard'">Ver panel de candidatos →</button>
+      <button class="btn btn-ghost" onclick="copyLink()">Copiar magic link</button>
       <button class="btn btn-ghost" onclick="resetAll()">Nueva entrevista</button>
     </div>
   </div>
@@ -511,6 +545,127 @@ function showResults(){
     const b=BLOCKS.find(x=>x.id===a.q.block);
     return`<div class="acard ${fc}"><div class="acard-hdr"><div><span class="qcat cat-${a.q.block}" style="margin-bottom:0.35rem;display:inline-block">${b.label}</span><p class="acard-q">${a.q.text}</p></div><div class="acard-timing">${fl}</div></div><div class="acard-body">${at}</div><label class="notes-lbl">Notas</label><textarea class="notes-ta" id="note-${i}" placeholder="Observaciones..."></textarea></div>`;
   }).join('');
+
+  // Save candidate to localStorage for dashboard
+  saveCandidate(name,exp,date,gs,dims,dimColors,answers,total,flags);
+}
+
+// ── Save candidate ───────────────────────────────────────────────────────────
+function saveCandidate(name,exp,date,score,dims,dimColors,answers,totalTime,flags){
+  const candidates=JSON.parse(localStorage.getItem('a5_interviews')||'[]');
+  const salaryAns=answers.find(a=>a.q.block==='compensation');
+  const salary=salaryAns&&salaryAns.ans?salaryAns.ans:'No indicado';
+  const dimScores={};
+  Object.entries(dims).forEach(([k,d])=>{
+    if(k!=='compensation') dimScores[k]={name:d.name,pct:d.max>0?Math.round((d.pts/d.max)*100):0};
+  });
+  const existing=candidates.findIndex(c=>c.name===name&&c.date===date);
+  const record={
+    id:Date.now().toString(36),name,exp,date,score,salary,dimScores,totalTime,flags,
+    answersCount:answers.length,
+    skippedCount:answers.filter(a=>a.skipped).length,
+    aiAnalysis:'',
+    recommendation:'',
+    timestamp:Date.now()
+  };
+  if(existing>=0)candidates[existing]=record;else candidates.unshift(record);
+  localStorage.setItem('a5_interviews',JSON.stringify(candidates));
+}
+
+// ── AI Analysis ──────────────────────────────────────────────────────────────
+async function generateAnalysis(){
+  let apiKey=localStorage.getItem('a5_apikey')||'';
+  if(!apiKey){
+    const area=document.getElementById('ai-analysis-area');
+    area.innerHTML=`<div class="apikey-inline">
+      <input type="password" id="inline-key" placeholder="Introduce tu API key de Anthropic (sk-ant-...)">
+      <button class="btn btn-primary btn-sm" onclick="saveInlineKey()">Guardar y analizar</button>
+    </div>`;
+    return;
+  }
+  runAnalysis(apiKey);
+}
+
+function saveInlineKey(){
+  const k=document.getElementById('inline-key')?.value?.trim();
+  if(!k)return;
+  localStorage.setItem('a5_apikey',k);
+  runAnalysis(k);
+}
+
+async function runAnalysis(apiKey){
+  const area=document.getElementById('ai-analysis-area');
+  const btn=document.getElementById('gen-analysis-btn');
+  btn.disabled=true;btn.textContent='Analizando...';
+  area.innerHTML=`<div class="ai-loading"><div class="spinner"></div>Generando informe de recruiter senior...</div>`;
+
+  const name=document.getElementById('f-name').value||'Candidato';
+  const exp=document.getElementById('f-exp').value||'';
+
+  // Build answers summary
+  const summary=answers.map(a=>{
+    const b=BLOCKS.find(x=>x.id===a.q.block);
+    let ans='Omitida';
+    if(!a.skipped&&a.ans!==null){
+      ans=Array.isArray(a.ans)?a.ans.join(', '):String(a.ans);
+    }
+    return`[${b.label}] ${a.q.text}\nRespuesta: ${ans}\nTiempo: ${fmt(a.time)}`;
+  }).join('\n\n');
+
+  const prompt=`Eres un senior IT recruiter evaluando a un candidato para el puesto de SW Architect / AI Head of Engineering en Alter5, una fintech de banca de inversión.
+
+CANDIDATO: ${name}
+EXPERIENCIA DECLARADA: ${exp}
+
+RESPUESTAS DE LA ENTREVISTA:
+${summary}
+
+Genera un informe estructurado en HTML (sin tags html/body/head, solo contenido) con estas secciones:
+
+<h4>Resumen ejecutivo</h4>
+2-3 frases con tu valoración general del candidato.
+
+<h4>Puntuación por dimensión</h4>
+Para cada área (Arquitectura, IA, Liderazgo, Producto, Compromiso), pon un pill con puntuación /10 usando las clases: <span class="score-pill sp-green">8/10</span> para 7+, sp-amber para 5-6, sp-red para menos de 5. Seguido de 1 frase de justificación.
+
+<h4>Fortalezas</h4>
+Las 2-3 fortalezas más relevantes del candidato para este puesto.
+
+<h4>Riesgos y áreas de duda</h4>
+Los 2-3 riesgos principales o áreas que requieren profundización en segunda entrevista.
+
+<h4>Señales de alerta</h4>
+Cualquier señal preocupante: respuestas evasivas, tiempos sospechosos, inconsistencias, señales de multiempleo.
+
+<h4>Recomendación</h4>
+Una de tres: AVANZAR / RESERVA / DESCARTAR. Con justificación de 1-2 frases.
+
+<h4>Preguntas sugeridas para segunda entrevista</h4>
+3 preguntas específicas basadas en las debilidades o dudas detectadas.
+
+Sé directo, objetivo y concreto. No uses florituras. Escribe en español.`;
+
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:2000,messages:[{role:'user',content:prompt}]})
+    });
+    if(!res.ok){const e=await res.json();throw new Error(e.error?.message||`API error ${res.status}`);}
+    const data=await res.json();
+    const text=data.content?.find(c=>c.type==='text')?.text||'No se pudo generar el análisis.';
+    area.innerHTML=`<div class="ai-report">${text}</div>`;
+    btn.textContent='✓ Análisis generado';
+
+    // Save analysis to localStorage
+    const candidates=JSON.parse(localStorage.getItem('a5_interviews')||'[]');
+    const name2=document.getElementById('f-name').value||'';
+    const c=candidates.find(x=>x.name===name2);
+    if(c){c.aiAnalysis=text;localStorage.setItem('a5_interviews',JSON.stringify(candidates));}
+  }catch(err){
+    area.innerHTML=`<div style="padding:1rem;color:var(--red);font-size:0.875rem">Error: ${err.message}</div>`;
+    btn.disabled=false;btn.textContent='Reintentar análisis →';
+  }
 }
 
 function copyLink(){

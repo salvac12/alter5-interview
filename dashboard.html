@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alter5 — Panel de Candidatos</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0A1628;--navy2:#111f38;--emerald:#10B981;--slate:#94A3B8;
+  --red:#EF4444;--amber:#F59E0B;--purple:#7C3AED;
+  --bg:#F8FAFC;--white:#ffffff;--border:#E2E8F0;--text:#1E293B;--text-muted:#64748B;
+  --serif:'DM Serif Display',Georgia,serif;--sans:'Instrument Sans',sans-serif;--mono:'DM Mono',monospace;
+  --radius:12px;
+}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
+.hdr{background:var(--navy);padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.hdr-logo{font-family:var(--serif);color:#fff;font-size:1.2rem}
+.hdr-logo span{color:var(--emerald)}
+.hdr-nav{display:flex;gap:0.75rem}
+.hdr-nav a{font-size:0.78rem;color:var(--slate);text-decoration:none;padding:0.3rem 0.75rem;border-radius:6px;transition:all 0.15s}
+.hdr-nav a:hover{background:rgba(255,255,255,0.08);color:#fff}
+.hdr-nav a.active{background:rgba(16,185,129,0.15);color:var(--emerald)}
+.main{flex:1;max-width:1100px;width:100%;margin:0 auto;padding:2.5rem 1.5rem}
+.eyebrow{font-family:var(--mono);font-size:0.7rem;color:var(--emerald);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.6rem}
+.page-title{font-family:var(--serif);font-size:2.2rem;color:var(--navy);margin-bottom:0.4rem;letter-spacing:-0.02em}
+.page-sub{font-size:0.9rem;color:var(--text-muted);margin-bottom:2rem;line-height:1.6}
+
+/* Summary stats */
+.summary-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:0.85rem;margin-bottom:2.5rem}
+.scard{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:1.1rem;text-align:center}
+.sval{font-family:var(--mono);font-size:2rem;font-weight:500;color:var(--navy);display:block;line-height:1;margin-bottom:0.3rem}
+.slabel{font-size:0.7rem;color:var(--text-muted);font-weight:500;letter-spacing:0.03em;text-transform:uppercase}
+
+/* Sorting */
+.sort-bar{display:flex;align-items:center;gap:1rem;margin-bottom:1.25rem;padding-bottom:0.75rem;border-bottom:1px solid var(--border)}
+.sort-bar label{font-size:0.75rem;font-weight:500;color:var(--text-muted)}
+.sort-bar select{padding:0.4rem 0.65rem;border:1px solid var(--border);border-radius:6px;font-family:var(--sans);font-size:0.8rem;color:var(--text);background:var(--white);outline:none;cursor:pointer}
+.sort-bar select:focus{border-color:var(--emerald)}
+
+/* Candidate cards */
+.cand-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;margin-bottom:1rem;transition:box-shadow 0.15s}
+.cand-card:hover{box-shadow:0 2px 12px rgba(0,0,0,0.06)}
+.cand-card.top-pick{border-left:4px solid var(--emerald)}
+.cand-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1rem}
+.cand-name-row{display:flex;align-items:center;gap:0.85rem}
+.cand-rank{width:32px;height:32px;border-radius:50%;background:var(--navy);color:#fff;font-family:var(--mono);font-size:0.85rem;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.cand-rank.gold{background:var(--emerald)}
+.cand-name{font-family:var(--serif);font-size:1.25rem;color:var(--navy);letter-spacing:-0.01em}
+.cand-meta{font-size:0.78rem;color:var(--text-muted);margin-top:0.15rem}
+.cand-score{text-align:right}
+.cand-score-val{font-family:var(--mono);font-size:1.75rem;font-weight:500;color:var(--navy);line-height:1}
+.cand-score-label{font-size:0.68rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em}
+
+.cand-dims{display:grid;grid-template-columns:repeat(5,1fr);gap:0.6rem;margin-bottom:1rem}
+.cand-dim{text-align:center}
+.cand-dim-name{font-size:0.65rem;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem}
+.cand-dim-bar{height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin-bottom:0.2rem}
+.cand-dim-fill{height:100%;border-radius:3px}
+.cand-dim-val{font-family:var(--mono);font-size:0.78rem;font-weight:500;color:var(--text)}
+
+.cand-footer{display:flex;align-items:center;justify-content:space-between;padding-top:0.85rem;border-top:1px solid var(--border)}
+.cand-tags{display:flex;gap:0.4rem;flex-wrap:wrap}
+.tag{font-size:0.68rem;font-weight:500;padding:0.2rem 0.5rem;border-radius:4px}
+.tag-green{background:#F0FDF4;color:#15803D}
+.tag-amber{background:#FFF7ED;color:#92400E}
+.tag-red{background:#FEF2F2;color:#DC2626}
+.tag-blue{background:#EFF6FF;color:#1D4ED8}
+.tag-purple{background:#FDF4FF;color:#7E22CE}
+
+.cand-actions{display:flex;gap:0.5rem}
+.btn{display:inline-flex;align-items:center;gap:0.4rem;padding:0.4rem 0.85rem;border-radius:6px;font-family:var(--sans);font-size:0.78rem;font-weight:600;cursor:pointer;border:none;transition:all 0.15s}
+.btn-sm{padding:0.35rem 0.7rem;font-size:0.72rem}
+.btn-primary{background:var(--navy);color:#fff}
+.btn-primary:hover{background:var(--navy2)}
+.btn-ghost{background:transparent;color:var(--text-muted);border:1px solid var(--border)}
+.btn-ghost:hover{background:var(--white);color:var(--text)}
+.btn-danger{background:transparent;color:var(--red);border:1px solid rgba(239,68,68,0.3)}
+.btn-danger:hover{background:#FEF2F2}
+
+/* AI Report expandable */
+.ai-expand{margin-top:0.85rem;display:none}
+.ai-expand.show{display:block}
+.ai-report{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;font-size:0.82rem;line-height:1.7;color:var(--text)}
+.ai-report h4{font-size:0.78rem;font-weight:600;color:var(--navy);margin:1rem 0 0.4rem}
+.ai-report h4:first-child{margin-top:0}
+.ai-report p{margin-bottom:0.5rem}
+.ai-report .score-pill{display:inline-flex;align-items:center;gap:0.3rem;font-family:var(--mono);font-size:0.75rem;font-weight:500;padding:0.2rem 0.5rem;border-radius:5px;margin-right:0.4rem}
+.ai-report .sp-green{background:#F0FDF4;color:#15803D}
+.ai-report .sp-amber{background:#FFF7ED;color:#92400E}
+.ai-report .sp-red{background:#FEF2F2;color:#DC2626}
+
+/* Empty state */
+.empty{text-align:center;padding:4rem 1.5rem;color:var(--text-muted)}
+.empty p{font-size:0.95rem;line-height:1.6;margin-bottom:1.5rem}
+@media print{.hdr,.btn,.sort-bar,.cand-actions{display:none!important}}
+@media (max-width:768px){.summary-stats{grid-template-columns:repeat(2,1fr)}.cand-dims{grid-template-columns:repeat(3,1fr)}}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-logo">Alter<span>5</span></div>
+  <div class="hdr-nav">
+    <a href="/">Entrevista</a>
+    <a href="/admin">Admin · CVs</a>
+    <a href="/dashboard" class="active">Panel de candidatos</a>
+  </div>
+</div>
+
+<div class="main">
+  <p class="eyebrow">SW Architect / AI Head of Engineering</p>
+  <h1 class="page-title">Panel de candidatos</h1>
+  <p class="page-sub">Ranking y comparación de todos los candidatos entrevistados. Ordenados por puntuación global.</p>
+
+  <div class="summary-stats" id="summary-stats">
+    <div class="scard"><span class="sval" id="ss-total">0</span><span class="slabel">Candidatos</span></div>
+    <div class="scard"><span class="sval" id="ss-avg">—</span><span class="slabel">Puntuación media</span></div>
+    <div class="scard"><span class="sval" id="ss-top">—</span><span class="slabel">Mejor candidato</span></div>
+    <div class="scard"><span class="sval" id="ss-salary">—</span><span class="slabel">Salario medio (USD/mes)</span></div>
+  </div>
+
+  <div class="sort-bar">
+    <label>Ordenar por:</label>
+    <select id="sort-select" onchange="renderCandidates()">
+      <option value="score">Puntuación global</option>
+      <option value="tech">Arquitectura técnica</option>
+      <option value="ai">IA aplicada</option>
+      <option value="leadership">Liderazgo</option>
+      <option value="salary">Salario (menor primero)</option>
+      <option value="date">Fecha (reciente primero)</option>
+    </select>
+  </div>
+
+  <div id="candidates-list"></div>
+</div>
+
+<script>
+function getCandidates(){
+  return JSON.parse(localStorage.getItem('a5_interviews')||'[]');
+}
+
+function renderCandidates(){
+  const list=document.getElementById('candidates-list');
+  let candidates=getCandidates();
+
+  if(!candidates.length){
+    list.innerHTML=`<div class="empty"><p>No hay candidatos entrevistados todavía.<br>Completa una entrevista para ver los resultados aquí.</p><a href="/" class="btn btn-primary">Ir a entrevistas →</a></div>`;
+    return;
+  }
+
+  // Sort
+  const sortBy=document.getElementById('sort-select').value;
+  candidates.sort((a,b)=>{
+    if(sortBy==='score')return(b.score||0)-(a.score||0);
+    if(sortBy==='tech')return(b.dimScores?.tech?.pct||0)-(a.dimScores?.tech?.pct||0);
+    if(sortBy==='ai')return(b.dimScores?.ai?.pct||0)-(a.dimScores?.ai?.pct||0);
+    if(sortBy==='leadership')return(b.dimScores?.leadership?.pct||0)-(a.dimScores?.leadership?.pct||0);
+    if(sortBy==='salary'){
+      const sa=parseSalary(a.salary),sb=parseSalary(b.salary);
+      return sa-sb;
+    }
+    if(sortBy==='date')return(b.timestamp||0)-(a.timestamp||0);
+    return 0;
+  });
+
+  // Summary stats
+  document.getElementById('ss-total').textContent=candidates.length;
+  const avgScore=Math.round(candidates.reduce((a,c)=>a+(c.score||0),0)/candidates.length);
+  document.getElementById('ss-avg').textContent=`${avgScore}/10`;
+  const top=candidates.reduce((best,c)=>(c.score||0)>(best.score||0)?c:best,candidates[0]);
+  document.getElementById('ss-top').textContent=top.name?.split(' ')[0]||'—';
+  const salaries=candidates.map(c=>parseSalary(c.salary)).filter(s=>s>0);
+  document.getElementById('ss-salary').textContent=salaries.length?`$${Math.round(salaries.reduce((a,b)=>a+b,0)/salaries.length).toLocaleString()}`:'—';
+
+  const dimColors={tech:'#1D4ED8',ai:'#15803D',leadership:'#7E22CE',product:'#C2410C',multiwork:'#DC2626'};
+
+  list.innerHTML=candidates.map((c,i)=>{
+    const rank=i+1;
+    const isTop=rank===1;
+    const dims=c.dimScores||{};
+    const dimKeys=['tech','ai','leadership','product','multiwork'];
+
+    // Tags
+    const tags=[];
+    if((c.score||0)>=8)tags.push({cls:'tag-green',text:'Top performer'});
+    else if((c.score||0)>=6)tags.push({cls:'tag-blue',text:'Sólido'});
+    else if((c.score||0)>=4)tags.push({cls:'tag-amber',text:'Con reservas'});
+    else tags.push({cls:'tag-red',text:'Débil'});
+
+    if((dims.ai?.pct||0)>=80)tags.push({cls:'tag-purple',text:'Fuerte en IA'});
+    if((dims.leadership?.pct||0)>=80)tags.push({cls:'tag-purple',text:'Líder probado'});
+    if((c.flags||0)>0)tags.push({cls:'tag-red',text:`${c.flags} alerta${c.flags>1?'s':''}`});
+    if(c.salary&&c.salary!=='No indicado')tags.push({cls:'tag-blue',text:`$${parseSalary(c.salary).toLocaleString()}/mes`});
+
+    return`<div class="cand-card ${isTop?'top-pick':''}">
+      <div class="cand-header">
+        <div class="cand-name-row">
+          <div class="cand-rank ${isTop?'gold':''}">${rank}</div>
+          <div>
+            <div class="cand-name">${c.name||'Candidato'}</div>
+            <div class="cand-meta">${c.exp||''} · ${c.date||''}</div>
+          </div>
+        </div>
+        <div class="cand-score">
+          <div class="cand-score-val">${c.score||0}/10</div>
+          <div class="cand-score-label">Puntuación global</div>
+        </div>
+      </div>
+
+      <div class="cand-dims">
+        ${dimKeys.map(k=>{
+          const d=dims[k]||{name:k,pct:0};
+          return`<div class="cand-dim">
+            <div class="cand-dim-name">${d.name||k}</div>
+            <div class="cand-dim-bar"><div class="cand-dim-fill" style="width:${d.pct}%;background:${dimColors[k]||'#888'}"></div></div>
+            <div class="cand-dim-val">${d.pct}%</div>
+          </div>`;
+        }).join('')}
+      </div>
+
+      <div class="cand-footer">
+        <div class="cand-tags">${tags.map(t=>`<span class="tag ${t.cls}">${t.text}</span>`).join('')}</div>
+        <div class="cand-actions">
+          ${c.aiAnalysis?`<button class="btn btn-ghost btn-sm" onclick="toggleReport('${c.id}')">Ver análisis AI</button>`:''}
+          <button class="btn btn-danger btn-sm" onclick="removeCandidate('${c.id}')">✕</button>
+        </div>
+      </div>
+
+      ${c.aiAnalysis?`<div class="ai-expand" id="report-${c.id}"><div class="ai-report">${c.aiAnalysis}</div></div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function parseSalary(s){
+  if(!s||s==='No indicado')return 0;
+  const nums=String(s).replace(/[^0-9]/g,'');
+  return parseInt(nums)||0;
+}
+
+function toggleReport(id){
+  const el=document.getElementById('report-'+id);
+  if(el)el.classList.toggle('show');
+}
+
+function removeCandidate(id){
+  if(!confirm('¿Eliminar este candidato del panel?'))return;
+  let c=getCandidates().filter(x=>x.id!==id);
+  localStorage.setItem('a5_interviews',JSON.stringify(c));
+  renderCandidates();
+}
+
+renderCandidates();
+</script>
+</body>
+</html>
