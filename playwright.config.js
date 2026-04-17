@@ -9,7 +9,7 @@ module.exports = defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: 'html',
   use: {
-    baseURL: 'https://alter5-interview.vercel.app',
+    baseURL: process.env.PLAYWRIGHT_BASE_URL || 'https://alter5-interview.vercel.app',
     trace: 'on-first-retry',
   },
 

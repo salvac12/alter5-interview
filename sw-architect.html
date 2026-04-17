@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alter5 — SW Architect / AI Head of Engineering</title>
+<meta name="description" content="Únete a Alter5 como SW Architect / AI Head of Engineering. Proceso de selección asíncrono: sube tu CV y, si encajas, te invitamos a una entrevista técnica online.">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0A1628;--navy2:#111f38;--emerald:#10B981;--emerald-dim:#0d9268;
+  --slate:#94A3B8;--slate-light:#CBD5E1;--red:#EF4444;--amber:#F59E0B;
+  --bg:#F8FAFC;--white:#ffffff;--border:#E2E8F0;
+  --text:#1E293B;--text-muted:#64748B;
+  --serif:'DM Serif Display',Georgia,serif;
+  --sans:'Instrument Sans',sans-serif;
+  --mono:'DM Mono',monospace;
+  --radius:12px;
+}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;line-height:1.5}
+.hdr{background:var(--navy);padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.hdr-logo{font-family:var(--serif);color:#fff;font-size:1.2rem;letter-spacing:-0.01em}
+.hdr-logo span{color:var(--emerald)}
+.hdr-badge{background:rgba(16,185,129,0.15);color:var(--emerald);padding:0.2rem 0.6rem;border-radius:4px;font-size:0.68rem;font-weight:500;letter-spacing:0.05em;text-transform:uppercase;font-family:var(--mono)}
+.main{flex:1;max-width:760px;width:100%;margin:0 auto;padding:2.5rem 1.5rem}
+.eyebrow{font-family:var(--mono);font-size:0.7rem;color:var(--emerald);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.75rem}
+.big-title{font-family:var(--serif);font-size:2.8rem;color:var(--navy);line-height:1.1;margin-bottom:1rem;letter-spacing:-0.02em}
+.intro-body{font-size:1rem;color:var(--text-muted);line-height:1.75;margin-bottom:2rem}
+.section{margin-bottom:2.25rem}
+.section h2{font-family:var(--serif);font-size:1.35rem;color:var(--navy);margin-bottom:0.85rem;letter-spacing:-0.01em}
+.info-box{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem 1.5rem;margin-bottom:1rem}
+.info-box h3{font-size:0.72rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.75rem;font-family:var(--mono)}
+.req-list{list-style:none;padding:0}
+.req-list li{display:flex;gap:0.75rem;align-items:flex-start;font-size:0.92rem;color:var(--text);margin-bottom:0.65rem;line-height:1.55}
+.req-list li::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--emerald);margin-top:0.55rem;flex-shrink:0}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:2rem}
+@media (max-width:640px){.steps{grid-template-columns:1fr}}
+.step{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:1.1rem}
+.step-num{font-family:var(--mono);font-size:0.72rem;font-weight:600;color:var(--emerald);letter-spacing:0.1em;margin-bottom:0.4rem}
+.step-title{font-size:0.95rem;font-weight:600;color:var(--navy);margin-bottom:0.35rem}
+.step-desc{font-size:0.82rem;color:var(--text-muted);line-height:1.55}
+.apply-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;margin-top:1rem}
+.apply-card h2{font-family:var(--serif);font-size:1.5rem;color:var(--navy);margin-bottom:0.5rem;letter-spacing:-0.01em}
+.apply-card p.lead{font-size:0.9rem;color:var(--text-muted);margin-bottom:1.5rem;line-height:1.6}
+.cform{display:flex;flex-direction:column;gap:1rem}
+.cgrp{display:flex;flex-direction:column;gap:0.4rem}
+.cgrp label{font-size:0.78rem;font-weight:500;color:var(--text);letter-spacing:0.02em}
+.cgrp input[type=email]{padding:0.7rem 0.9rem;border:1px solid var(--border);border-radius:8px;font-family:var(--sans);font-size:0.95rem;color:var(--text);background:var(--white);outline:none;transition:border-color 0.15s}
+.cgrp input:focus{border-color:var(--emerald)}
+.consent{display:flex;gap:0.65rem;align-items:flex-start;font-size:0.83rem;color:var(--text);line-height:1.55}
+.consent input[type=checkbox]{width:16px;height:16px;margin-top:0.2rem;accent-color:var(--emerald);flex-shrink:0}
+.consent a{color:var(--emerald);text-decoration:underline}
+.consent a:hover{color:var(--emerald-dim)}
+.consent-opt{background:#F0FDF4;border:1px solid #BBF7D0;border-radius:8px;padding:0.85rem 1rem;font-size:0.82rem;color:#166534;line-height:1.55}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;padding:0.85rem 1.75rem;border-radius:8px;font-family:var(--sans);font-size:0.95rem;font-weight:600;cursor:pointer;border:none;transition:all 0.15s;width:100%}
+.btn-primary{background:var(--navy);color:#fff}
+.btn-primary:hover:not(:disabled){background:var(--navy2);transform:translateY(-1px)}
+.btn-primary:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+.err,.ok{padding:0.75rem 1rem;border-radius:8px;font-size:0.85rem;line-height:1.5;margin-top:0.75rem}
+.err{background:#FEF2F2;color:#991B1B;border:1px solid #FEE2E2}
+.ok{background:#F0FDF4;color:#166534;border:1px solid #BBF7D0}
+.hidden{display:none}
+.privacy-note{font-size:0.75rem;color:var(--text-muted);line-height:1.6;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border)}
+.privacy-note a{color:var(--text-muted);text-decoration:underline}
+.ftr{text-align:center;padding:2rem 1rem;font-size:0.75rem;color:var(--text-muted);font-family:var(--mono);letter-spacing:0.05em}
+.ftr a{color:var(--text-muted);text-decoration:underline;margin:0 0.5rem}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="hdr-logo">Alter<span>5</span></div>
+  <div class="hdr-badge">Ofertas activas · 1</div>
+</header>
+
+<main class="main">
+  <div class="eyebrow">Posición abierta · Remoto desde España</div>
+  <h1 class="big-title">SW Architect /<br>AI Head of Engineering</h1>
+  <p class="intro-body">
+    Alter5 es una fintech que construye plataformas de inversión alternativa. Buscamos un líder
+    técnico que combine arquitectura software sólida con visión de producto y aplicación práctica
+    de IA. Liderarás la plataforma tecnológica y un equipo pequeño pero muy senior.
+  </p>
+
+  <div class="section">
+    <h2>Lo que esperamos de ti</h2>
+    <div class="info-box">
+      <h3>Requisitos mínimos</h3>
+      <ul class="req-list">
+        <li>8+ años de experiencia como desarrollador, 3+ liderando equipos técnicos.</li>
+        <li>Arquitectura cloud en AWS (App Runner, RDS, ECS, PostgreSQL, observabilidad).</li>
+        <li>Experiencia real aplicando LLMs: RAG, agentes, orquestación (LangChain, CrewAI, Vercel AI SDK).</li>
+        <li>Gestión de personas (&gt;3), remoto, evaluaciones de performance.</li>
+        <li>Colaboración con perfiles no técnicos y traducción de negocio a producto.</li>
+        <li>Dedicación exclusiva (obligatoria).</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Cómo funciona el proceso</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-title">Verificas tu email</div>
+        <div class="step-desc">Introduces tu email, te mandamos un enlace de un solo uso para continuar.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-title">Subes tu CV</div>
+        <div class="step-desc">Analizamos tu CV con IA frente a los requisitos del puesto en unos segundos.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-title">Si encajas, entrevista</div>
+        <div class="step-desc">Recibes un link a una entrevista técnica estructurada online (~15 min).</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="apply-card">
+    <h2>Aplica ahora</h2>
+    <p class="lead">Introduce tu email profesional para empezar. Te enviaremos un enlace único para verificar tu dirección y subir tu CV.</p>
+
+    <form id="apply-form" class="cform" autocomplete="on" novalidate>
+      <div class="cgrp">
+        <label for="email">Email *</label>
+        <input type="email" id="email" name="email" required autocomplete="email" placeholder="tu@dominio.com" maxlength="254">
+      </div>
+
+      <label class="consent">
+        <input type="checkbox" id="consent-privacy" required>
+        <span>
+          He leído y acepto la <a href="/apply/privacy" target="_blank" rel="noopener">política de privacidad para candidatos</a>
+          y el tratamiento de mis datos por Alter5 Financial Technologies, S.L. con la finalidad de gestionar
+          mi candidatura. *
+        </span>
+      </label>
+
+      <label class="consent">
+        <input type="checkbox" id="consent-ai" required>
+        <span>
+          Entiendo que mi CV será analizado de forma <strong>automatizada mediante IA</strong> (Claude, Anthropic)
+          para evaluar el encaje con el puesto, y que puedo solicitar <strong>revisión humana</strong> de esa decisión. *
+        </span>
+      </label>
+
+      <label class="consent consent-opt">
+        <input type="checkbox" id="request-human-review">
+        <span>Prefiero que un miembro del equipo revise mi candidatura manualmente (opcional).</span>
+      </label>
+
+      <div id="turnstile-container"></div>
+
+      <button type="submit" id="submit-btn" class="btn btn-primary">Enviar y verificar email</button>
+
+      <div id="err-box" class="err hidden"></div>
+      <div id="ok-box" class="ok hidden"></div>
+    </form>
+
+    <p class="privacy-note">
+      * Campos obligatorios. Procesamos tus datos en la UE (Fráncfort). Retención máxima 12 meses.
+      Derechos GDPR: <a href="/privacy/my-data">gestionar mis datos</a> o escribe a <a href="mailto:privacy@alter-5.com">privacy@alter-5.com</a>.
+    </p>
+  </div>
+</main>
+
+<footer class="ftr">
+  Alter5 Financial Technologies, S.L. · Madrid ·
+  <a href="https://www.alter5.com/es/privacy" target="_blank" rel="noopener">Privacidad</a>
+  <a href="https://www.alter5.com/es/legal" target="_blank" rel="noopener">Aviso legal</a>
+  <a href="/privacy/my-data">Mis datos</a>
+</footer>
+
+<script>
+(async function () {
+  const form = document.getElementById('apply-form');
+  const emailInput = document.getElementById('email');
+  const consentPrivacy = document.getElementById('consent-privacy');
+  const consentAi = document.getElementById('consent-ai');
+  const requestHuman = document.getElementById('request-human-review');
+  const submitBtn = document.getElementById('submit-btn');
+  const errBox = document.getElementById('err-box');
+  const okBox = document.getElementById('ok-box');
+  const turnstileContainer = document.getElementById('turnstile-container');
+
+  let turnstileWidgetId = null;
+  let turnstileToken = null;
+
+  // Fetch public config, then render Turnstile.
+  let cfg;
+  try {
+    cfg = await (await fetch('/api/public-config', { cache: 'no-store' })).json();
+  } catch {
+    cfg = { turnstile_site_key: '1x00000000000000000000AA' };
+  }
+
+  function renderTurnstile() {
+    if (!window.turnstile) { setTimeout(renderTurnstile, 100); return; }
+    turnstileWidgetId = window.turnstile.render(turnstileContainer, {
+      sitekey: cfg.turnstile_site_key,
+      callback: (token) => { turnstileToken = token; },
+      'error-callback': () => { turnstileToken = null; },
+      'expired-callback': () => { turnstileToken = null; },
+      theme: 'light',
+      appearance: 'always',
+    });
+  }
+  renderTurnstile();
+
+  // Read UTM params for attribution (LinkedIn tracking).
+  const params = new URLSearchParams(window.location.search);
+  const utm = {
+    source: params.get('utm_source') || null,
+    medium: params.get('utm_medium') || null,
+    campaign: params.get('utm_campaign') || null,
+  };
+
+  function showErr(msg) {
+    errBox.textContent = msg;
+    errBox.classList.remove('hidden');
+    okBox.classList.add('hidden');
+  }
+  function showOk(msg) {
+    okBox.textContent = msg;
+    okBox.classList.remove('hidden');
+    errBox.classList.add('hidden');
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    errBox.classList.add('hidden');
+    okBox.classList.add('hidden');
+
+    const email = emailInput.value.trim().toLowerCase();
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return showErr('Introduce un email válido.');
+    }
+    if (!consentPrivacy.checked || !consentAi.checked) {
+      return showErr('Debes aceptar los consentimientos obligatorios para continuar.');
+    }
+    if (!turnstileToken) {
+      return showErr('Completa la verificación anti-robot antes de enviar.');
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Enviando...';
+
+    try {
+      const r = await fetch('/api/apply', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email,
+          consent_privacy: consentPrivacy.checked,
+          consent_ai_decision: consentAi.checked,
+          requested_human_review: requestHuman.checked,
+          turnstile_token: turnstileToken,
+          utm_source: utm.source,
+          utm_medium: utm.medium,
+          utm_campaign: utm.campaign,
+        }),
+      });
+      const data = await r.json().catch(() => ({}));
+
+      if (r.ok) {
+        // Redirect to "check your email" page.
+        window.location.href = '/apply/thanks?email=' + encodeURIComponent(email);
+        return;
+      }
+
+      const msgs = {
+        invalid_email: 'El email no es válido.',
+        consent_required: 'Debes aceptar los consentimientos obligatorios.',
+        turnstile_failed: 'La verificación anti-robot falló. Recarga e inténtalo de nuevo.',
+        email_send_failed: 'No pudimos enviar el email. Revisa tu dirección e inténtalo de nuevo en unos minutos.',
+      };
+      showErr(msgs[data.error] || 'Error al procesar la solicitud. Inténtalo de nuevo.');
+      if (turnstileWidgetId !== null && window.turnstile) window.turnstile.reset(turnstileWidgetId);
+      turnstileToken = null;
+    } catch {
+      showErr('Error de red. Comprueba tu conexión e inténtalo de nuevo.');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Enviar y verificar email';
+    }
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Entrevista técnica — Alter5</title>
+<meta name="robots" content="noindex">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0A1628;--navy2:#111f38;--emerald:#10B981;--emerald-dim:#0d9268;
+  --slate:#94A3B8;--slate-light:#CBD5E1;--red:#EF4444;--amber:#F59E0B;
+  --bg:#F8FAFC;--white:#ffffff;--border:#E2E8F0;
+  --text:#1E293B;--text-muted:#64748B;
+  --serif:'DM Serif Display',Georgia,serif;
+  --sans:'Instrument Sans',sans-serif;
+  --mono:'DM Mono',monospace;
+  --radius:12px;
+}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;line-height:1.5}
+.hdr{background:var(--navy);padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.hdr-logo{font-family:var(--serif);color:#fff;font-size:1.2rem;letter-spacing:-0.01em}
+.hdr-logo span{color:var(--emerald)}
+.hdr-right{display:flex;align-items:center;gap:0.75rem}
+.hdr-meta{font-family:var(--mono);font-size:0.72rem;color:var(--slate)}
+.hdr-badge{background:rgba(16,185,129,0.15);color:var(--emerald);padding:0.2rem 0.6rem;border-radius:4px;font-size:0.68rem;font-weight:500;letter-spacing:0.05em;text-transform:uppercase;font-family:var(--mono)}
+.hdr-candidate{font-family:var(--mono);font-size:0.72rem;color:#fff;background:rgba(255,255,255,0.08);padding:0.25rem 0.75rem;border-radius:4px}
+.main{flex:1;max-width:780px;width:100%;margin:0 auto;padding:2.5rem 1.5rem}
+.screen{display:none}.screen.active{display:block}
+.eyebrow{font-family:var(--mono);font-size:0.7rem;color:var(--emerald);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.75rem}
+.big-title{font-family:var(--serif);font-size:2.4rem;color:var(--navy);line-height:1.15;margin-bottom:1rem;letter-spacing:-0.02em}
+.intro-body{font-size:0.95rem;color:var(--text-muted);line-height:1.75;margin-bottom:1.75rem;max-width:560px}
+.info-box{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;margin-bottom:1.25rem}
+.info-box h3{font-size:0.75rem;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.85rem}
+.info-row{display:flex;gap:0.65rem;align-items:flex-start;font-size:0.875rem;color:var(--text);margin-bottom:0.5rem;line-height:1.5}
+.dot{width:5px;height:5px;border-radius:50%;background:var(--emerald);margin-top:0.42rem;flex-shrink:0}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;padding:0.8rem 1.6rem;border-radius:8px;font-family:var(--sans);font-size:0.9rem;font-weight:600;cursor:pointer;border:none;transition:all 0.15s}
+.btn-primary{background:var(--navy);color:#fff}
+.btn-primary:hover:not(:disabled){background:var(--navy2);transform:translateY(-1px)}
+.btn-primary:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+.btn-ghost{background:transparent;color:var(--text-muted);border:1px solid var(--border)}
+.btn-ghost:hover{background:var(--white);color:var(--text)}
+.btn-emerald{background:var(--emerald);color:#fff}
+.btn-emerald:hover:not(:disabled){background:var(--emerald-dim)}
+.btn-sm{padding:0.5rem 1rem;font-size:0.82rem}
+.prog-wrap{background:var(--border);height:3px;border-radius:2px;margin-bottom:2rem;overflow:hidden}
+.prog-fill{height:100%;background:var(--emerald);border-radius:2px;transition:width 0.4s ease}
+.block-intro{background:var(--navy);border-radius:var(--radius);padding:1.1rem 1.4rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem}
+.block-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;background:rgba(255,255,255,0.1);color:#fff}
+.block-text h3{font-size:0.9rem;font-weight:600;color:#fff;margin-bottom:0.15rem}
+.block-text p{font-size:0.78rem;color:var(--slate);line-height:1.4}
+.qheader{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem}
+.qmeta{display:flex;align-items:center;gap:0.65rem}
+.qnum{font-family:var(--mono);font-size:0.72rem;color:var(--text-muted)}
+.qcat{font-size:0.68rem;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;padding:0.18rem 0.55rem;border-radius:4px}
+.cat-tech{background:#EFF6FF;color:#1D4ED8}
+.cat-ai{background:#F0FDF4;color:#15803D}
+.cat-leadership{background:#FDF4FF;color:#7E22CE}
+.cat-product{background:#FFF7ED;color:#C2410C}
+.cat-multiwork{background:#FEF2F2;color:#DC2626}
+.cat-compensation{background:#FEFCE8;color:#854D0E}
+.timer{display:flex;align-items:center;gap:0.45rem;font-family:var(--mono);font-size:0.95rem;font-weight:500;color:var(--navy);transition:color 0.3s}
+.timer.warn{color:var(--amber)}.timer.danger{color:var(--red)}
+.tdot{width:7px;height:7px;border-radius:50%;background:var(--emerald);animation:pulse 1.2s infinite}
+.tdot.warn{background:var(--amber)}.tdot.danger{background:var(--red)}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.8)}}
+.qtext{font-family:var(--serif);font-size:1.5rem;color:var(--navy);line-height:1.4;margin-bottom:0.6rem;letter-spacing:-0.01em;-webkit-user-select:none;user-select:none}
+.qhint{font-size:0.84rem;color:var(--text-muted);margin-bottom:1.4rem;line-height:1.55;font-style:italic;-webkit-user-select:none;user-select:none}
+.atextarea{width:100%;min-height:150px;padding:0.9rem 1rem;border:1px solid var(--border);border-radius:var(--radius);font-family:var(--sans);font-size:0.9rem;color:var(--text);background:var(--white);resize:vertical;outline:none;transition:border-color 0.15s;line-height:1.7}
+.atextarea:focus{border-color:var(--emerald)}
+.opts{display:flex;flex-direction:column;gap:0.5rem}
+.opt{display:flex;align-items:center;gap:0.8rem;padding:0.85rem 0.95rem;border:1px solid var(--border);border-radius:8px;cursor:pointer;background:var(--white);transition:all 0.12s;font-size:0.88rem;color:var(--text);user-select:none}
+.opt:hover{border-color:var(--slate-light);background:#f8fafc}
+.opt.sel{border-color:var(--emerald);background:rgba(16,185,129,0.05);color:var(--navy);font-weight:500}
+.radio{width:17px;height:17px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.12s}
+.opt.sel .radio{border-color:var(--emerald);background:var(--emerald)}
+.rdot{width:5px;height:5px;border-radius:50%;background:#fff;opacity:0;transition:opacity 0.12s}
+.opt.sel .rdot{opacity:1}
+.chk{width:17px;height:17px;border-radius:4px;border:2px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.12s;font-size:10px;color:#fff}
+.opt.sel .chk{border-color:var(--emerald);background:var(--emerald)}
+.scale-row{display:flex;gap:0.4rem;margin-bottom:0.4rem}
+.sbtn{flex:1;padding:0.65rem 0;border:1px solid var(--border);border-radius:8px;background:var(--white);font-family:var(--mono);font-size:0.88rem;font-weight:500;cursor:pointer;transition:all 0.12s;color:var(--text-muted)}
+.sbtn:hover{border-color:var(--slate-light);color:var(--text)}
+.sbtn.sel{background:var(--navy);border-color:var(--navy);color:#fff}
+.scale-labels{display:flex;justify-content:space-between;font-size:0.7rem;color:var(--text-muted);padding:0 0.2rem}
+.aactions{display:flex;justify-content:space-between;align-items:center;margin-top:1.25rem;flex-wrap:wrap;gap:0.75rem}
+.chars{font-family:var(--mono);font-size:0.72rem;color:var(--text-muted)}
+
+.blocker{min-height:60vh;display:flex;align-items:center;justify-content:center}
+.blocker-card{max-width:480px;width:100%;background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;text-align:center}
+.blocker-card h2{font-family:var(--serif);font-size:1.6rem;color:var(--navy);margin-bottom:0.75rem;letter-spacing:-0.01em}
+.blocker-card p{font-size:0.92rem;color:var(--text-muted);margin-bottom:1.25rem;line-height:1.65}
+.blocker-icon{width:56px;height:56px;margin:0 auto 1rem;color:var(--amber)}
+
+.success-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;text-align:center}
+.success-icon{width:64px;height:64px;margin:0 auto 1rem;color:var(--emerald)}
+.success-card h2{font-family:var(--serif);font-size:1.9rem;color:var(--navy);margin-bottom:0.75rem;letter-spacing:-0.02em}
+.success-card p{font-size:0.95rem;color:var(--text-muted);margin-bottom:0.75rem;line-height:1.7;max-width:540px;margin-left:auto;margin-right:auto}
+.booking-box{background:#F0FDF4;border:1px solid rgba(16,185,129,0.3);border-radius:var(--radius);padding:1.5rem;margin:1.75rem auto 1rem;max-width:480px;text-align:left}
+.booking-box h3{font-size:0.88rem;font-weight:600;color:var(--navy);margin-bottom:0.6rem}
+.booking-box p{font-size:0.85rem;color:#166534;margin-bottom:1rem;line-height:1.55;text-align:left}
+.booking-box .btn{width:100%}
+
+.hidden{display:none}
+.spinner-lg{display:inline-block;width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--emerald);border-radius:50%;animation:spin 0.8s linear infinite}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.err{padding:0.85rem 1rem;border-radius:8px;font-size:0.88rem;line-height:1.55;margin-top:1rem;background:#FEF2F2;color:#991B1B;border:1px solid #FEE2E2}
+
+.ftr{text-align:center;padding:1.5rem 1rem;font-size:0.72rem;color:var(--text-muted);font-family:var(--mono);letter-spacing:0.05em}
+.ftr a{color:var(--text-muted);text-decoration:underline;margin:0 0.5rem}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="hdr-logo">Alter<span>5</span></div>
+  <div class="hdr-right">
+    <span class="hdr-meta">SW Architect / AI Head of Engineering</span>
+    <span class="hdr-badge" id="hdr-status">Entrevista</span>
+    <span class="hdr-candidate" id="hdr-candidate" style="display:none"></span>
+  </div>
+</header>
+
+<main class="main">
+
+  <!-- LOADING -->
+  <div class="screen active" id="screen-loading">
+    <div class="blocker">
+      <div style="text-align:center">
+        <div class="spinner-lg"></div>
+        <p style="margin-top:1rem;color:var(--text-muted);font-size:0.9rem">Verificando tu enlace…</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- BLOCKER (invalid / expired / used / completed) -->
+  <div class="screen" id="screen-blocker">
+    <div class="blocker">
+      <div class="blocker-card">
+        <svg class="blocker-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m0-10.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.75c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Zm0 13.036h.008v.008H12v-.008Z"/>
+        </svg>
+        <h2 id="blocker-title">Enlace no válido</h2>
+        <p id="blocker-message">Este enlace ya no está disponible.</p>
+        <p style="font-size:0.85rem;color:var(--text-muted)">
+          Si crees que es un error, escríbenos a <a href="mailto:careers@alter-5.com" style="color:var(--emerald)">careers@alter-5.com</a>.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTRO -->
+  <div class="screen" id="screen-intro">
+    <p class="eyebrow">Proceso de selección · Alter5</p>
+    <h1 class="big-title">Entrevista técnica<br><em>SW Architect / AI Head of Engineering</em></h1>
+    <p class="intro-body">
+      Hola <strong id="intro-name">…</strong>. Gracias por llegar hasta aquí. Esta entrevista estructurada
+      nos ayuda a evaluar tu encaje de forma objetiva. Dedícale unos <strong>15-20 minutos</strong>
+      en un momento sin distracciones.
+    </p>
+    <div class="info-box">
+      <h3>Instrucciones</h3>
+      <div class="info-row"><div class="dot"></div><span>Responde con ejemplos reales y concretos. No buscamos respuestas perfectas — buscamos criterio y honestidad.</span></div>
+      <div class="info-row"><div class="dot"></div><span>El tiempo de cada respuesta se registra y aplicamos detectores anti-IA (pegados, cambios de pestaña, etc.).</span></div>
+      <div class="info-row"><div class="dot"></div><span>Una vez empieces, completa la entrevista de una sola sesión. No podrás retomarla después.</span></div>
+    </div>
+    <button class="btn btn-primary" onclick="startInterview()">Comenzar entrevista →</button>
+  </div>
+
+  <!-- QUESTION -->
+  <div class="screen" id="screen-question">
+    <div class="prog-wrap"><div class="prog-fill" id="prog" style="width:0%"></div></div>
+    <div id="block-header"></div>
+    <div class="qheader">
+      <div class="qmeta">
+        <span class="qnum" id="qnum">Pregunta 1 / 16</span>
+        <span class="qcat" id="qcat"></span>
+      </div>
+      <div class="timer" id="timer"><div class="tdot" id="tdot"></div><span id="tval">0:00</span></div>
+    </div>
+    <h2 class="qtext" id="qtext"></h2>
+    <p class="qhint" id="qhint"></p>
+    <div id="answer-area"></div>
+    <div class="aactions">
+      <span class="chars" id="chars"></span>
+      <div style="display:flex;gap:0.65rem">
+        <button class="btn btn-ghost btn-sm" onclick="skipQ()">Omitir</button>
+        <button class="btn btn-primary btn-sm" onclick="nextQ()" id="next-btn">Siguiente →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUBMITTING -->
+  <div class="screen" id="screen-submitting">
+    <div class="blocker">
+      <div style="text-align:center">
+        <div class="spinner-lg"></div>
+        <p style="margin-top:1rem;color:var(--text-muted);font-size:0.9rem">Enviando tus respuestas…</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUCCESS -->
+  <div class="screen" id="screen-success">
+    <div class="success-card">
+      <svg class="success-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+      </svg>
+      <h2>Entrevista completada</h2>
+      <p>
+        Gracias por tu tiempo. Revisaremos tus respuestas en las próximas horas y te daremos una respuesta
+        <strong>en los próximos 2-3 días laborables</strong>.
+      </p>
+
+      <div class="booking-box" id="booking-box">
+        <h3>Siguiente paso (opcional)</h3>
+        <p>Si quieres adelantar el proceso, puedes reservar directamente una videoconferencia de 30 min con Salva para conocernos mejor.</p>
+        <a class="btn btn-emerald" id="booking-link" href="#" target="_blank" rel="noopener">
+          Reservar videollamada →
+        </a>
+      </div>
+
+      <p style="font-size:0.8rem;margin-top:1.25rem">
+        También puedes cerrar esta pestaña con tranquilidad — tus respuestas están guardadas.
+      </p>
+    </div>
+  </div>
+
+  <!-- ERROR -->
+  <div class="screen" id="screen-error">
+    <div class="blocker">
+      <div class="blocker-card">
+        <svg class="blocker-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--red)">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z"/>
+        </svg>
+        <h2>No se pudo enviar</h2>
+        <p id="error-message">Ha ocurrido un error al enviar tu entrevista. Puedes reintentarlo.</p>
+        <button class="btn btn-primary" onclick="retrySubmit()">Reintentar envío</button>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer class="ftr">
+  Alter5 Financial Technologies, S.L. · Madrid ·
+  <a href="/apply/privacy" target="_blank" rel="noopener">Privacidad candidatos</a>
+  <a href="/privacy/my-data">Mis datos</a>
+</footer>
+
+<script>
+// ───────────────────────────────────────────────────────────────────────────
+// Interview definition (ported from legacy index.html — same questions).
+// ───────────────────────────────────────────────────────────────────────────
+const BLOCKS=[
+  {id:'compensation',label:'Compensación',icon:'$',desc:'Alineamos expectativas económicas desde el inicio.'},
+  {id:'tech',label:'Arquitectura técnica',icon:'⬡',desc:'Evaluamos criterio técnico en backend, infraestructura y buenas prácticas.'},
+  {id:'ai',label:'IA aplicada',icon:'◈',desc:'Evaluamos uso real de IA: agentes, orquestación y programación agéntica.'},
+  {id:'leadership',label:'Liderazgo de equipo',icon:'◎',desc:'Evaluamos experiencia gestionando personas, no solo liderazgo técnico informal.'},
+  {id:'product',label:'Producto y negocio',icon:'◇',desc:'Evaluamos colaboración con negocio y traducción de necesidades en decisiones técnicas.'},
+  {id:'multiwork',label:'Compromiso y dedicación',icon:'◉',desc:'Evaluamos dedicación exclusiva y compromiso con el proyecto.'},
+];
+
+const QS=[
+  {block:'tech',type:'scale',w:2,text:'¿Cuál es tu nivel de conocimiento en gestión de infraestructura de Amazon Web Services?',hint:'Del 1 al 10.',labels:['1','2','3','4','5','6','7','8','9','10'],min:3,sus:30},
+  {block:'tech',type:'single',w:2,text:'Tienes 14 microservicios, cada uno con su propio pool de 5 conexiones a PostgreSQL RDS. Empiezas a ver timeouts intermitentes. ¿Cuál es tu primer paso?',hint:'',options:['Aumentar el max_connections de RDS','Implementar un connection pooler centralizado (PgBouncer o RDS Proxy)','Reducir el número de conexiones por servicio y añadir retry logic','Migrar a Aurora Serverless para que escale automáticamente'],correct:1,min:10,sus:90},
+  {block:'tech',type:'single',w:2,text:'Tu backend en App Runner tarda 8 segundos en arrancar en frío tras un pico de tráfico. ¿Qué investigas primero?',hint:'',options:['Configurar instancias mínimas activas en App Runner para evitar cold starts','Reducir el tamaño de la imagen Docker y optimizar el build','Revisar las conexiones que se establecen al inicio (DB, APIs externas, carga de configuración)','Migrar a ECS Fargate con provisioned capacity'],correct:2,min:10,sus:90},
+  {block:'tech',type:'open',w:1,text:'¿Cuántos servicios de AWS has configurado y mantenido tú directamente en producción?',hint:'Un número concreto.',min:5,sus:40},
+  {block:'tech',type:'single',w:2,text:'¿Qué stack de observabilidad implementarías en una plataforma en AWS que actualmente no tiene ninguno?',hint:'',options:['CloudWatch Logs + Alarms — suficiente para empezar','Sentry para errores + CloudWatch para métricas de infra','Stack completo: logging estructurado, Sentry, métricas custom (Datadog/Prometheus) y tracing distribuido','ELK Stack (Elasticsearch + Logstash + Kibana)'],correct:2,min:10,sus:80},
+  {block:'tech',type:'single',w:2,text:'Descubres credenciales de base de datos hardcodeadas en un script de migración que está en el repositorio. ¿Cuál es tu primer paso?',hint:'',options:['Rotar las credenciales inmediatamente, luego mover a Secrets Manager','Mover a variables de entorno y hacer un commit','Abrir un ticket para que se solucione en el próximo sprint','Revisar el historial de Git para ver si hay más credenciales expuestas antes de actuar'],correct:0,min:10,sus:80},
+  {block:'ai',type:'scale',w:2,text:'¿Cuál es tu nivel de experiencia con agentes de IA y orquestación de LLMs?',hint:'Del 1 al 10.',labels:['1','2','3','4','5','6','7','8','9','10'],min:3,sus:30},
+  {block:'ai',type:'multi',w:2,text:'¿Con qué frameworks de orquestación de agentes has trabajado en proyectos reales?',hint:'Selecciona solo los que hayas usado en producción o proyectos reales.',options:['LangChain / LangGraph','Mastra','AutoGen / AG2','CrewAI','Vercel AI SDK','Semantic Kernel','He construido mi propia orquestación','Ninguno todavía'],min:5,sus:60},
+  {block:'ai',type:'single',w:2,text:'Un agente de IA genera una respuesta incorrecta que llega a producción. ¿Cuál es la causa más probable?',hint:'',options:['El prompt estaba mal diseñado','Falta de guardrails y validación del output antes de ejecutar la acción','El modelo alucinó y no hay manera de prevenirlo','El contexto que recibió el agente estaba incompleto o mal estructurado'],correct:1,min:10,sus:70},
+  {block:'ai',type:'open',w:1,text:'¿Cuántos meses llevas usando herramientas de programación asistida por IA (Claude Code, Cursor, Copilot...) de forma habitual?',hint:'Un número concreto.',min:5,sus:40},
+  {block:'leadership',type:'open',w:1,text:'¿Cuántas personas has gestionado directamente con responsabilidad sobre su evaluación y desarrollo profesional?',hint:'Un número concreto.',min:5,sus:35},
+  {block:'leadership',type:'single',w:2,text:'Detectas que un developer del equipo entrega consistentemente tarde pero la calidad de su código es buena. ¿Cuál es tu primer paso?',hint:'',options:['Revisar si tiene demasiadas tareas asignadas y rebalancear la carga','Hablar con él en un one-on-one para entender qué lo bloquea','Establecer deadlines más cortos con checkpoints intermedios','Documentar el patrón y escalarlo como problema de rendimiento'],correct:1,min:10,sus:80},
+  {block:'leadership',type:'single',w:2,text:'¿Cómo garantizas la productividad y la alineación de un equipo de desarrollo 100% remoto?',hint:'',options:['Standups diarios cortos + entregables con granularidad diaria','Objetivos semanales claros + revisión asíncrona de código','Confianza total — mido solo por resultados finales, sin cadencias fijas','Combinación de dailies, entregables diarios y code reviews frecuentes'],correct:3,min:10,sus:80},
+  {block:'leadership',type:'single',w:2,text:'Si tu equipo multiplica x3 su velocidad de desarrollo gracias a la programación agéntica, ¿qué cambia en cómo organizas el trabajo?',hint:'',options:['Nada — el proceso es el mismo, solo que más rápido','Más tiempo a revisión y testing porque se genera más código','Rediseño el flujo completo: sprints más cortos, más foco en validación y arquitectura, menos en escritura de código','Reduzco el equipo y mantengo el mismo output'],correct:2,min:10,sus:80},
+  {block:'leadership',type:'single',w:2,text:'¿Tienes repositorios públicos en GitHub con proyectos propios relacionados con IA?',hint:'',options:['Sí, con contribuciones activas recientes','Sí, pero no los mantengo activamente','No, pero contribuyo a repos de otros proyectos de IA','No tengo repos públicos de IA'],correct:0,min:5,sus:50},
+  {block:'leadership',type:'scale',w:1,text:'¿Cuál es tu nivel de experiencia definiendo procesos de trabajo para equipos distribuidos (remotos)?',hint:'Del 1 al 10.',labels:['1','2','3','4','5','6','7','8','9','10'],min:3,sus:30},
+  {block:'product',type:'single',w:2,text:'Un perfil de negocio sin background técnico te pide una feature urgente. Su propuesta técnica no tiene sentido. ¿Qué haces?',hint:'',options:['Le explico por qué no es viable y propongo una alternativa técnica','Entiendo primero el problema de negocio que quiere resolver antes de evaluar la solución','Lo implemento como pide para no bloquear al negocio y lo refactorizo después','Lo derivo al Product Manager para que lo priorice y defina bien'],correct:1,min:10,sus:70},
+  {block:'product',type:'scale',w:1,text:'¿Cuál es tu nivel de experiencia colaborando con equipos de negocio (no técnicos) en la definición de producto?',hint:'Del 1 al 10.',labels:['1','2','3','4','5','6','7','8','9','10'],min:3,sus:30},
+  {block:'multiwork',type:'single',w:3,text:'¿Tienes actualmente algún compromiso profesional activo que compatibilizarías con este rol?',hint:'Respuesta directa.',options:['No, dedicación exclusiva','Tengo un compromiso menor que termina en menos de 30 días','Tengo compromisos activos pero puedo compatibilizarlos','Prefiero no responder'],correct:0,min:5,sus:60},
+  {block:'multiwork',type:'single',w:2,text:'Si detectas que uno de tus developers trabaja para otra empresa en paralelo sin haberlo declarado, ¿cómo actúas?',hint:'',options:['Conversación directa, primera advertencia formal, y si reincide, despido','Lo despido inmediatamente — es una falta de confianza irrecuperable','Analizo primero si afecta a su rendimiento antes de tomar acción','Lo escalo a RRHH o dirección para que lo gestionen'],correct:0,min:10,sus:70},
+  {block:'compensation',type:'open',w:1,text:'¿Cuál es tu expectativa salarial mensual en dólares (USD)?',hint:'Indica un número concreto en USD mensuales.',min:5,sus:60},
+];
+
+// ───────────────────────────────────────────────────────────────────────────
+// State
+// ───────────────────────────────────────────────────────────────────────────
+let curQ=0,timer=null,elapsed=0,answers=[],selOpt=null,selMulti=[],navLock=false,timerStart=0;
+let token=null,candidateName='',candidateExp='',applicationId=null,startedAt=null;
+let lastSubmitPayload=null;
+
+const BLOCKER_MESSAGES={
+  invalid:{title:'Enlace no válido',msg:'Este enlace no es correcto. Revisa el email que te enviamos.'},
+  not_found:{title:'Enlace no encontrado',msg:'No encontramos una entrevista asociada a este enlace. Si ya completaste la entrevista, no necesitas hacer nada más.'},
+  used:{title:'Enlace ya utilizado',msg:'Este enlace ya se usó. Cada candidato solo puede completar la entrevista una vez.'},
+  expired:{title:'Enlace caducado',msg:'El enlace ha caducado. Escríbenos a careers@alter-5.com si quieres uno nuevo.'},
+  completed:{title:'Entrevista ya completada',msg:'Tu entrevista ya está registrada. Estamos revisando tus respuestas — te daremos una respuesta en los próximos días.'},
+  server:{title:'Error del servidor',msg:'Hubo un problema al validar el enlace. Inténtalo de nuevo en unos minutos.'},
+};
+
+// ───────────────────────────────────────────────────────────────────────────
+// Anti-copy / anti-IA detection
+// ───────────────────────────────────────────────────────────────────────────
+document.addEventListener('contextmenu',(e)=>{if(e.target.tagName!=='TEXTAREA'&&e.target.tagName!=='INPUT')e.preventDefault();});
+document.addEventListener('copy',(e)=>{const sel=window.getSelection().toString();if(sel.length>10&&!['TEXTAREA','INPUT'].includes(document.activeElement?.tagName))e.preventDefault();});
+
+let aiDetect={pasteCount:0,pasteChars:0,tabSwitches:0,tabAwayTime:0,tabLeftAt:null,keystrokes:0,lastKeystrokeTime:0,burstCount:0};
+function resetAiDetect(){aiDetect={pasteCount:0,pasteChars:0,tabSwitches:0,tabAwayTime:0,tabLeftAt:null,keystrokes:0,lastKeystrokeTime:0,burstCount:0};}
+document.addEventListener('visibilitychange',()=>{if(document.hidden){aiDetect.tabSwitches++;aiDetect.tabLeftAt=Date.now();}else if(aiDetect.tabLeftAt){aiDetect.tabAwayTime+=Math.round((Date.now()-aiDetect.tabLeftAt)/1000);aiDetect.tabLeftAt=null;}});
+document.addEventListener('paste',(e)=>{const text=(e.clipboardData||window.clipboardData).getData('text');if(text.length>20){aiDetect.pasteCount++;aiDetect.pasteChars+=text.length;}});
+document.addEventListener('keydown',(e)=>{if(e.target.tagName==='TEXTAREA'){const now=Date.now();aiDetect.keystrokes++;if(now-aiDetect.lastKeystrokeTime<50)aiDetect.burstCount++;aiDetect.lastKeystrokeTime=now;}});
+
+function getAiFlags(){
+  const flags=[];
+  if(aiDetect.pasteCount>0)flags.push(`Pegó texto ${aiDetect.pasteCount} vez${aiDetect.pasteCount>1?'es':''} (${aiDetect.pasteChars} caracteres)`);
+  if(aiDetect.tabSwitches>2)flags.push(`Cambió de pestaña ${aiDetect.tabSwitches} veces`);
+  if(aiDetect.tabAwayTime>30)flags.push(`Fuera de la pestaña ${aiDetect.tabAwayTime}s en total`);
+  if(aiDetect.burstCount>10)flags.push('Patrón de escritura irregular (posible pegado con teclado)');
+  return flags;
+}
+
+window.addEventListener('beforeunload',(e)=>{if(curQ>0&&curQ<QS.length){e.preventDefault();return(e.returnValue='');}});
+
+function fmt(s){const m=Math.floor(s/60),sec=s%60;return`${m}:${sec.toString().padStart(2,'0')}`}
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+
+function showBlocker(reason){
+  const meta=BLOCKER_MESSAGES[reason]||BLOCKER_MESSAGES.server;
+  document.getElementById('blocker-title').textContent=meta.title;
+  document.getElementById('blocker-message').textContent=meta.msg;
+  showScreen('screen-blocker');
+}
+
+// ───────────────────────────────────────────────────────────────────────────
+// Bootstrap: validate token from URL
+// ───────────────────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded',async()=>{
+  const params=new URLSearchParams(window.location.search);
+  token=params.get('token');
+  if(!token||!/^[a-f0-9]{64}$/.test(token)){
+    showBlocker('invalid');
+    return;
+  }
+  try{
+    const res=await fetch('/api/interview/validate',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({token}),
+    });
+    const data=await res.json().catch(()=>({}));
+    if(!data.ok){showBlocker(data.reason||'server');return;}
+    candidateName=data.name||'candidato';
+    candidateExp=data.experience||'';
+    applicationId=data.applicationId;
+    document.getElementById('intro-name').textContent=candidateName||'';
+    const cand=document.getElementById('hdr-candidate');
+    if(candidateName){cand.textContent=candidateName;cand.style.display='block';}
+    showScreen('screen-intro');
+  }catch(e){
+    showBlocker('server');
+  }
+
+  // Booking link (Google Meet placeholder). Fetched from /api/public-config.
+  try{
+    const cfg=await fetch('/api/public-config').then(r=>r.json()).catch(()=>null);
+    if(cfg&&cfg.booking_url){
+      document.getElementById('booking-link').href=cfg.booking_url;
+    }else{
+      document.getElementById('booking-box').style.display='none';
+    }
+  }catch{
+    document.getElementById('booking-box').style.display='none';
+  }
+});
+
+// ───────────────────────────────────────────────────────────────────────────
+// Interview flow
+// ───────────────────────────────────────────────────────────────────────────
+function startInterview(){
+  curQ=0;answers=[];clearInterval(timer);
+  startedAt=new Date().toISOString();
+  document.getElementById('hdr-status').textContent='En curso';
+  showScreen('screen-question');showQ();
+}
+
+let lastBlock=null;
+function showQ(){
+  const q=QS[curQ];selOpt=null;selMulti=[];elapsed=0;resetAiDetect();
+  document.getElementById('prog').style.width=`${(curQ/QS.length)*100}%`;
+  document.getElementById('qnum').textContent=`Pregunta ${curQ+1} / ${QS.length}`;
+  const bh=document.getElementById('block-header');
+  const b=BLOCKS.find(x=>x.id===q.block);
+  if(q.block!==lastBlock){
+    bh.innerHTML=`<div class="block-intro"><div class="block-icon">${b.icon}</div><div class="block-text"><h3>${b.label}</h3><p>${b.desc}</p></div></div>`;
+    lastBlock=q.block;
+  }else bh.innerHTML='';
+  const catEl=document.getElementById('qcat');
+  catEl.textContent=b.label;catEl.className=`qcat cat-${q.block}`;
+  document.getElementById('qtext').textContent=q.text;
+  document.getElementById('qhint').textContent=q.hint;
+  const area=document.getElementById('answer-area'),chars=document.getElementById('chars');
+  if(q.type==='open'){
+    area.innerHTML=`<textarea class="atextarea" id="ainput" placeholder="Escribe tu respuesta aquí..." maxlength="10000"></textarea>`;
+    document.getElementById('ainput').addEventListener('input',e=>chars.textContent=`${e.target.value.length} caracteres`);
+    chars.textContent='0 caracteres';
+  }else if(q.type==='single'){
+    chars.textContent='';
+    area.innerHTML=`<div class="opts" role="radiogroup">${q.options.map((o,i)=>`<div class="opt" role="radio" aria-checked="false" tabindex="0" onclick="selSingle(${i})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();selSingle(${i})}" id="opt${i}"><div class="radio" id="rad${i}"><div class="rdot"></div></div><span>${escapeHtml(o)}</span></div>`).join('')}</div>`;
+  }else if(q.type==='multi'){
+    chars.textContent='';
+    area.innerHTML=`<div class="opts" role="group">${q.options.map((o,i)=>`<div class="opt" role="checkbox" aria-checked="false" tabindex="0" onclick="togMulti(${i})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();togMulti(${i})}" id="opt${i}"><div class="chk" id="chk${i}">✓</div><span>${escapeHtml(o)}</span></div>`).join('')}</div><p style="font-size:0.78rem;color:var(--text-muted);margin-top:0.5rem">Selecciona todos los que apliquen.</p>`;
+  }else if(q.type==='scale'){
+    chars.textContent='';
+    area.innerHTML=`<div class="scale-row">${q.labels.map((l,i)=>`<button class="sbtn" onclick="selScale(${i})" id="sc${i}">${l}</button>`).join('')}</div><div class="scale-labels"><span>Bajo</span><span>Alto</span></div>`;
+  }
+  // Last question: rename button
+  document.getElementById('next-btn').textContent = (curQ===QS.length-1)?'Finalizar entrevista →':'Siguiente →';
+  startTimer(q);
+}
+
+function escapeHtml(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+function selSingle(i){selOpt=i;document.querySelectorAll('.opt').forEach((e,j)=>{e.classList.toggle('sel',j===i);e.setAttribute('aria-checked',j===i?'true':'false');})}
+function togMulti(i){const x=selMulti.indexOf(i);const el=document.getElementById(`opt${i}`);if(x>=0){selMulti.splice(x,1);el.classList.remove('sel');el.setAttribute('aria-checked','false');}else{selMulti.push(i);el.classList.add('sel');el.setAttribute('aria-checked','true');}}
+function selScale(i){selOpt=i;document.querySelectorAll('.sbtn').forEach((e,j)=>e.classList.toggle('sel',j===i))}
+
+function startTimer(q){clearInterval(timer);elapsed=0;timerStart=Date.now();updateTimer(q,0);timer=setInterval(()=>{elapsed=Math.floor((Date.now()-timerStart)/1000);updateTimer(q,elapsed)},500);}
+function updateTimer(q,s){
+  const el=document.getElementById('timer'),dot=document.getElementById('tdot'),val=document.getElementById('tval');
+  val.textContent=fmt(s);
+  if(s>q.sus){el.className='timer danger';dot.className='tdot danger'}
+  else if(s>q.sus*0.6){el.className='timer warn';dot.className='tdot warn'}
+  else{el.className='timer';dot.className='tdot'}
+}
+function getAnswer(){
+  const q=QS[curQ];
+  if(q.type==='open')return document.getElementById('ainput')?.value||'';
+  if(q.type==='scale')return selOpt===null?null:q.labels[selOpt];
+  if(q.type==='single')return selOpt===null?null:q.options[selOpt];
+  if(q.type==='multi')return selMulti.map(i=>q.options[i]);
+  return null;
+}
+function getFlag(q,s){
+  if(q.block==='multiwork')return 'multiwork';
+  if(q.block==='compensation')return 'ok';
+  if(s<q.min)return 'fast';
+  if(s>q.sus)return 'susp';
+  return 'ok';
+}
+
+function pushAnswer(skipped){
+  const q=QS[curQ];
+  const ans=skipped?null:getAnswer();
+  answers.push({
+    q,
+    ans,
+    time:elapsed,
+    flag:skipped?(q.block==='multiwork'?'multiwork':'ok'):getFlag(q,elapsed),
+    skipped,
+    aiFlags:skipped?[]:getAiFlags(),
+    aiData:skipped?{}:{...aiDetect},
+  });
+}
+
+function nextQ(){
+  if(navLock)return;navLock=true;clearInterval(timer);
+  pushAnswer(false);
+  curQ++;
+  if(curQ>=QS.length)finishInterview();
+  else showQ();
+  setTimeout(()=>{navLock=false;},100);
+}
+
+function skipQ(){
+  if(navLock)return;navLock=true;clearInterval(timer);
+  pushAnswer(true);
+  curQ++;
+  if(curQ>=QS.length)finishInterview();
+  else showQ();
+  setTimeout(()=>{navLock=false;},100);
+}
+
+// ───────────────────────────────────────────────────────────────────────────
+// Scoring + submission
+// ───────────────────────────────────────────────────────────────────────────
+function computeScores(){
+  const nonComp=answers.filter(a=>a.q.block!=='compensation');
+  const total=answers.reduce((a,b)=>a+b.time,0);
+  const flags=nonComp.filter(a=>a.flag==='susp').length;
+  const dims={};
+  BLOCKS.forEach(b=>{dims[b.id]={pts:0,max:0,name:b.label}});
+  answers.forEach(a=>{
+    if(a.q.block==='compensation')return;
+    dims[a.q.block].max+=a.q.w*3;
+    if(a.skipped||a.ans===null)return;
+    let pts=0;
+    if(a.q.type==='open'){const len=typeof a.ans==='string'?a.ans.trim().length:0;if(len>0)pts=a.q.w*3;}
+    else if(a.q.type==='single'){if(a.q.correct!==undefined&&a.ans===a.q.options[a.q.correct])pts=a.q.w*3;else pts=a.q.w;}
+    else if(a.q.type==='multi'){if(Array.isArray(a.ans)&&a.ans.length>=2)pts=a.q.w*3;else if(Array.isArray(a.ans)&&a.ans.length===1)pts=a.q.w*2;}
+    else if(a.q.type==='scale'){const v=parseInt(a.ans)||0;if(v>=7)pts=a.q.w*3;else if(v>=4)pts=a.q.w*2;else pts=a.q.w;}
+    dims[a.q.block].pts+=pts;
+  });
+  let tp=0,tm=0;Object.values(dims).forEach(d=>{tp+=d.pts;tm+=d.max});
+  const gs=tm>0?Math.round((tp/tm)*10):0;
+  const dimScores={};
+  Object.entries(dims).forEach(([k,d])=>{
+    if(k!=='compensation')dimScores[k]={name:d.name,pct:d.max>0?Math.round((d.pts/d.max)*100):0};
+  });
+  const salaryAns=answers.find(a=>a.q.block==='compensation');
+  const salary=salaryAns&&salaryAns.ans?String(salaryAns.ans).slice(0,200):null;
+  // Simple verdict hint — authoritative verdict is recomputed server-side if needed.
+  let verdict;
+  if(flags===0&&gs>=7)verdict='verde';
+  else if(flags<=2&&gs>=5)verdict='amber';
+  else verdict='red';
+  return {globalScore:gs,dimScores,flags,totalTimeSec:total,verdict,salary};
+}
+
+function buildPayload(){
+  const s=computeScores();
+  return {
+    token,
+    globalScore:s.globalScore,
+    dimScores:s.dimScores,
+    flags:s.flags,
+    totalTimeSec:s.totalTimeSec,
+    verdict:s.verdict,
+    salary:s.salary,
+    startedAt,
+    answers:answers.map((a,i)=>({
+      idx:i,
+      key:a.q.block,
+      type:a.q.type,
+      blockLabel:(BLOCKS.find(b=>b.id===a.q.block)||{}).label,
+      questionText:a.q.text,
+      text:typeof a.ans==='string'?a.ans:(a.ans===null?null:undefined),
+      options:Array.isArray(a.ans)?a.ans:undefined,
+      time:a.time,
+      flag:a.flag,
+      skipped:!!a.skipped,
+      pasteCount:a.aiData?.pasteCount||0,
+      pasteChars:a.aiData?.pasteChars||0,
+      tabSwitches:a.aiData?.tabSwitches||0,
+      burstCount:a.aiData?.burstCount||0,
+      aiFlags:a.aiFlags||[],
+    })),
+  };
+}
+
+async function finishInterview(){
+  showScreen('screen-submitting');
+  document.getElementById('hdr-status').textContent='Enviando…';
+  lastSubmitPayload=buildPayload();
+  await sendSubmission();
+}
+
+async function sendSubmission(){
+  try{
+    const res=await fetch('/api/submit-interview',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(lastSubmitPayload),
+    });
+    const data=await res.json().catch(()=>({}));
+    if(!res.ok){
+      const m=(()=>{
+        if(data.error==='expired')return 'El enlace ha caducado. Escríbenos a careers@alter-5.com para conseguir uno nuevo.';
+        if(data.error==='already_used')return 'Esta entrevista ya había sido enviada. No es necesario reintentar.';
+        if(data.error==='not_found')return 'No encontramos tu entrevista. Escríbenos a careers@alter-5.com.';
+        return 'Hubo un error al enviar. Puedes reintentarlo en unos segundos.';
+      })();
+      document.getElementById('error-message').textContent=m;
+      showScreen('screen-error');
+      document.getElementById('hdr-status').textContent='Error';
+      return;
+    }
+    document.getElementById('hdr-status').textContent='Completada';
+    showScreen('screen-success');
+  }catch(e){
+    document.getElementById('error-message').textContent='No hemos podido conectar con el servidor. Inténtalo de nuevo.';
+    showScreen('screen-error');
+    document.getElementById('hdr-status').textContent='Error';
+  }
+}
+
+function retrySubmit(){
+  if(!lastSubmitPayload){showBlocker('server');return;}
+  showScreen('screen-submitting');
+  sendSubmission();
+}
+</script>
+</body>
+</html>

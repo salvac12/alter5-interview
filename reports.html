@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alter5 — Reports</title>
+<meta name="robots" content="noindex">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0A1628;--navy2:#111f38;--emerald:#10B981;--emerald-dim:#0d9268;
+  --slate:#94A3B8;--red:#EF4444;--amber:#F59E0B;
+  --bg:#F8FAFC;--white:#ffffff;--border:#E2E8F0;
+  --text:#1E293B;--text-muted:#64748B;
+  --serif:'DM Serif Display',Georgia,serif;--sans:'Instrument Sans',sans-serif;--mono:'DM Mono',monospace;
+  --radius:12px;
+}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;line-height:1.5}
+.hdr{background:var(--navy);padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between}
+.hdr-logo{font-family:var(--serif);color:#fff;font-size:1.2rem}
+.hdr-logo span{color:var(--emerald)}
+.hdr-nav{display:flex;gap:0.5rem}
+.hdr-nav a{font-size:0.78rem;color:var(--slate);text-decoration:none;padding:0.35rem 0.8rem;border-radius:6px}
+.hdr-nav a:hover{background:rgba(255,255,255,0.08);color:#fff}
+.hdr-nav a.active{background:rgba(16,185,129,0.15);color:var(--emerald)}
+.main{flex:1;max-width:1200px;width:100%;margin:0 auto;padding:2rem 1.5rem}
+h1{font-family:var(--serif);font-size:1.9rem;color:var(--navy);margin-bottom:0.3rem;letter-spacing:-0.02em}
+.page-sub{font-size:0.88rem;color:var(--text-muted);margin-bottom:1.5rem;line-height:1.6}
+
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:0.85rem;margin-bottom:1.75rem}
+.kpi{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem}
+.kpi-label{font-size:0.72rem;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.5rem}
+.kpi-val{font-family:var(--mono);font-size:1.8rem;font-weight:500;color:var(--navy);line-height:1}
+.kpi-sub{font-size:0.78rem;color:var(--text-muted);margin-top:0.4rem}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem}
+@media(max-width:820px){.grid2{grid-template-columns:1fr}}
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem}
+.card-title{font-size:0.78rem;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:var(--text-muted);margin-bottom:1rem;padding-bottom:0.5rem;border-bottom:1px solid var(--border)}
+
+.funnel-row{display:grid;grid-template-columns:1fr auto;align-items:center;gap:0.75rem;margin-bottom:0.65rem}
+.funnel-bar{height:28px;background:#F1F5F9;border-radius:6px;overflow:hidden}
+.funnel-fill{height:100%;background:var(--emerald);border-radius:6px;transition:width 0.4s;position:relative}
+.funnel-label{font-size:0.82rem;color:var(--text);width:100%;display:flex;justify-content:space-between;padding:0 0.6rem;line-height:28px}
+.funnel-label span:first-child{color:var(--navy);font-weight:500}
+.funnel-val{font-family:var(--mono);font-size:0.84rem;font-weight:500;min-width:60px;text-align:right}
+.funnel-pct{font-size:0.72rem;color:var(--text-muted);font-family:var(--mono)}
+
+.hist-grid{display:grid;grid-template-columns:repeat(10,1fr);gap:0.35rem;height:140px;align-items:end;margin-top:0.5rem}
+.hist-bar{background:#F1F5F9;border-radius:4px 4px 0 0;display:flex;align-items:flex-end;justify-content:center;position:relative;min-height:4px;transition:all 0.3s}
+.hist-bar-inner{background:var(--emerald);width:100%;border-radius:4px 4px 0 0;transition:height 0.5s}
+.hist-bar.low .hist-bar-inner{background:var(--red)}
+.hist-bar.mid .hist-bar-inner{background:var(--amber)}
+.hist-bar.high .hist-bar-inner{background:var(--emerald)}
+.hist-val{position:absolute;top:-18px;left:0;right:0;text-align:center;font-family:var(--mono);font-size:0.7rem;color:var(--text-muted)}
+.hist-labels{display:grid;grid-template-columns:repeat(10,1fr);gap:0.35rem;margin-top:0.35rem;font-family:var(--mono);font-size:0.72rem;color:var(--text-muted);text-align:center}
+
+.status-list{display:flex;flex-direction:column;gap:0.5rem}
+.status-row{display:flex;justify-content:space-between;align-items:center;padding:0.5rem 0;border-bottom:1px solid var(--border);font-size:0.86rem}
+.status-row:last-child{border:none}
+.status-row .badge{display:inline-block;font-size:0.7rem;padding:0.15rem 0.5rem;border-radius:4px}
+.b-green{background:#F0FDF4;color:#15803D}
+.b-amber{background:#FFF7ED;color:#92400E}
+.b-red{background:#FEF2F2;color:#DC2626}
+.b-blue{background:#EFF6FF;color:#1D4ED8}
+.b-gray{background:#F1F5F9;color:var(--text-muted)}
+.b-purple{background:#FDF4FF;color:#7E22CE}
+
+.export-bar{display:flex;gap:0.55rem;margin-top:1.25rem;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:0.4rem;padding:0.55rem 1.1rem;border-radius:7px;font-family:var(--sans);font-size:0.85rem;font-weight:600;cursor:pointer;border:none;transition:all 0.15s;text-decoration:none}
+.btn-ghost{background:transparent;color:var(--text);border:1px solid var(--border)}
+.btn-ghost:hover{background:var(--white);border-color:var(--slate)}
+.btn-primary{background:var(--navy);color:#fff}
+.btn-primary:hover{background:var(--navy2)}
+
+.mono{font-family:var(--mono);font-size:0.82rem}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="hdr-logo">Alter<span>5</span></div>
+  <div class="hdr-nav">
+    <a href="/admin">Admin</a>
+    <a href="/reports" class="active">Reports</a>
+    <a href="/sw-architect" target="_blank">Landing ↗</a>
+  </div>
+</header>
+
+<main class="main">
+  <h1>Informe de selección</h1>
+  <p class="page-sub">Métricas agregadas del proceso — SW Architect / AI Head of Engineering.</p>
+
+  <div class="kpi-grid" id="kpi-grid">
+    <div class="kpi"><div class="kpi-label">Cargando…</div></div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">Embudo de conversión</div>
+      <div id="funnel"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Distribución de scores de CV</div>
+      <div class="hist-grid" id="hist"></div>
+      <div class="hist-labels"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span></div>
+      <p class="mono" style="margin-top:0.75rem;color:var(--text-muted);font-size:0.78rem">Score del análisis automatizado del CV (Claude).</p>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">Estado de las candidaturas</div>
+      <div class="status-list" id="status-list"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Origen</div>
+      <div class="status-list" id="source-list"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Exportar datos (CSV)</div>
+    <div class="export-bar">
+      <a class="btn btn-ghost" href="/api/admin/export?type=applications">↓ Aplicaciones</a>
+      <a class="btn btn-ghost" href="/api/admin/export?type=interviews">↓ Entrevistas</a>
+      <a class="btn btn-primary" href="/admin">Ir al panel →</a>
+    </div>
+    <p class="mono" style="margin-top:0.85rem;color:var(--text-muted);font-size:0.76rem">
+      Los CSV incluyen únicamente candidaturas no eliminadas. Datos personales · trátalos según la política GDPR.
+    </p>
+  </div>
+</main>
+
+<script>
+const STATUS_CLS = {
+  pending_verify:'b-gray', verified:'b-blue', cv_uploaded:'b-blue',
+  analyzed_pending_review:'b-amber',
+  analyzed_auto_invited:'b-green', analyzed_auto_rejected:'b-red',
+  analyzed_manual_approved:'b-green', analyzed_manual_rejected:'b-red',
+  interview_started:'b-purple', interview_completed:'b-purple',
+  deleted:'b-gray',
+};
+
+async function load(){
+  try{
+    const r = await fetch('/api/admin/stats');
+    const s = await r.json();
+    renderKpis(s);
+    renderFunnel(s.funnel);
+    renderHist(s.cv_score_histogram);
+    renderStatusList(s.status_counts);
+    renderSourceList(s.source_counts);
+  }catch(e){
+    document.getElementById('kpi-grid').innerHTML = `<div class="kpi"><div class="kpi-label">Error</div><div class="kpi-val">—</div><div class="kpi-sub">${String(e.message||e)}</div></div>`;
+  }
+}
+
+function renderKpis(s){
+  const invited = s.funnel.invited || 0;
+  const applied = s.funnel.applied || 0;
+  const convRate = applied>0 ? Math.round((invited/applied)*100) : 0;
+  const avg = s.interview_avg_score != null ? s.interview_avg_score.toFixed(1) : '—';
+  document.getElementById('kpi-grid').innerHTML = `
+    <div class="kpi"><div class="kpi-label">Aplicaciones totales</div><div class="kpi-val">${applied}</div><div class="kpi-sub">Desde inicio del proceso</div></div>
+    <div class="kpi"><div class="kpi-label">Invitados a entrevista</div><div class="kpi-val">${invited}</div><div class="kpi-sub">${convRate}% conversión</div></div>
+    <div class="kpi"><div class="kpi-label">Entrevistas completadas</div><div class="kpi-val">${s.interviews_completed||0}</div><div class="kpi-sub">Score medio: ${avg}/10</div></div>
+    <div class="kpi"><div class="kpi-label">Alertas de integridad</div><div class="kpi-val">${s.interview_flags_total||0}</div><div class="kpi-sub">Flags acumulados (anti-IA)</div></div>
+  `;
+}
+
+function renderFunnel(f){
+  const steps = [
+    ['Aplicaron',          f.applied||0],
+    ['Verificaron email',  f.verified||0],
+    ['Subieron CV',        f.cv_uploaded||0],
+    ['Analizados',         f.analyzed||0],
+    ['Invitados',          f.invited||0],
+    ['Completaron entrevista', f.interview_completed||0],
+  ];
+  const base = Math.max(1, steps[0][1]);
+  document.getElementById('funnel').innerHTML = steps.map(([label,val])=>{
+    const pct = Math.round((val/base)*100);
+    return `<div class="funnel-row">
+      <div class="funnel-bar"><div class="funnel-fill" style="width:${pct}%"></div>
+        <div class="funnel-label" style="margin-top:-28px;position:relative"><span>${label}</span><span class="funnel-pct">${pct}%</span></div>
+      </div>
+      <div class="funnel-val">${val}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderHist(hist){
+  const max = Math.max(1, ...hist);
+  document.getElementById('hist').innerHTML = hist.map((v,i)=>{
+    const h = Math.max(4, Math.round((v/max)*120));
+    const cls = i<3 ? 'low' : i<6 ? 'mid' : 'high';
+    return `<div class="hist-bar ${cls}" style="height:120px"><div class="hist-bar-inner" style="height:${h}px"></div><div class="hist-val">${v||''}</div></div>`;
+  }).join('');
+}
+
+function renderStatusList(counts){
+  const entries = Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+  document.getElementById('status-list').innerHTML = entries.length ? entries.map(([k,v])=>`
+    <div class="status-row">
+      <span class="badge ${STATUS_CLS[k]||'b-gray'}">${k}</span>
+      <span class="mono">${v}</span>
+    </div>`).join('') : '<div style="color:var(--text-muted);font-size:0.85rem">Sin datos todavía.</div>';
+}
+
+function renderSourceList(counts){
+  const entries = Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+  document.getElementById('source-list').innerHTML = entries.length ? entries.map(([k,v])=>`
+    <div class="status-row">
+      <span class="badge b-blue">${k}</span>
+      <span class="mono">${v}</span>
+    </div>`).join('') : '<div style="color:var(--text-muted);font-size:0.85rem">Sin datos todavía.</div>';
+}
+
+load();
+</script>
+</body>
+</html>

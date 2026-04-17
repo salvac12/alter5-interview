@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mis datos — Alter5</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Instrument+Sans:wght@400;500;600&family=DM+Mono&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Instrument Sans',sans-serif;background:#F8FAFC;color:#1E293B;min-height:100vh;display:flex;flex-direction:column}
+.hdr{background:#0A1628;padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between}
+.hdr-logo{font-family:'DM Serif Display',serif;color:#fff;font-size:1.2rem;letter-spacing:-0.01em}
+.hdr-logo span{color:#10B981}
+.hdr-tag{font-size:0.72rem;color:#94A3B8;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:0.1em}
+.main{flex:1;max-width:860px;width:100%;margin:0 auto;padding:2.5rem 1.5rem}
+.hero h1{font-family:'DM Serif Display',serif;font-size:2rem;color:#0A1628;margin-bottom:0.5rem;letter-spacing:-0.02em}
+.hero p.lead{font-size:1rem;color:#64748B;line-height:1.7;margin-bottom:2rem;max-width:620px}
+
+.card{background:#fff;border:1px solid #E2E8F0;border-radius:10px;padding:1.75rem;margin-bottom:1.25rem}
+.card h2{font-family:'DM Serif Display',serif;font-size:1.3rem;color:#0A1628;margin-bottom:0.75rem;letter-spacing:-0.01em}
+.card p{font-size:0.92rem;color:#475569;line-height:1.65;margin-bottom:0.75rem}
+
+label{display:block;font-size:0.78rem;color:#475569;font-weight:500;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.4rem}
+input[type=email]{width:100%;padding:0.75rem 0.9rem;border:1px solid #CBD5E1;border-radius:8px;font-size:0.95rem;font-family:inherit;color:#1E293B;background:#fff}
+input[type=email]:focus{outline:none;border-color:#0A1628;box-shadow:0 0 0 3px rgba(10,22,40,0.08)}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;padding:0.75rem 1.4rem;border:none;border-radius:8px;font-size:0.92rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.15s;text-decoration:none}
+.btn-primary{background:#0A1628;color:#fff}
+.btn-primary:hover{background:#1E293B}
+.btn-primary:disabled{background:#94A3B8;cursor:not-allowed}
+.btn-secondary{background:#fff;color:#1E293B;border:1px solid #CBD5E1}
+.btn-secondary:hover{background:#F1F5F9}
+.btn-danger{background:#DC2626;color:#fff}
+.btn-danger:hover{background:#B91C1C}
+.btn-row{display:flex;flex-wrap:wrap;gap:0.6rem;margin-top:0.5rem}
+
+.msg{padding:0.9rem 1.1rem;border-radius:8px;font-size:0.9rem;margin-top:1rem;line-height:1.5}
+.msg-ok{background:#F0FDF4;border:1px solid #BBF7D0;color:#14532D}
+.msg-err{background:#FEF2F2;border:1px solid #FECACA;color:#991B1B}
+.msg-info{background:#F0F9FF;border:1px solid #BAE6FD;color:#075985}
+
+.kv{display:grid;grid-template-columns:220px 1fr;gap:0.4rem 1rem;font-size:0.9rem;margin-top:0.5rem}
+.kv dt{color:#64748B;font-weight:500}
+.kv dd{color:#1E293B;font-family:'DM Mono',monospace;word-break:break-word}
+.kv dd.muted{color:#94A3B8;font-style:italic}
+
+.sec-list{margin-top:0.75rem;border-top:1px solid #F1F5F9}
+.sec-list .row{display:grid;grid-template-columns:160px 1fr;gap:1rem;padding:0.65rem 0;border-bottom:1px solid #F1F5F9;font-size:0.88rem}
+.sec-list .row .date{color:#64748B;font-family:'DM Mono',monospace;font-size:0.8rem}
+.sec-list .row .info{color:#1E293B}
+.sec-list .row .info em{color:#64748B;font-style:normal}
+.empty{font-size:0.85rem;color:#94A3B8;font-style:italic;margin:0.5rem 0}
+
+.danger-card{border-color:#FECACA;background:#FEF2F2}
+.danger-card h2{color:#991B1B}
+.danger-card p{color:#7F1D1D}
+
+.ftr{text-align:center;padding:1.5rem;font-size:0.72rem;color:#94A3B8;font-family:'DM Mono',monospace}
+.ftr a{color:#64748B;text-decoration:none}
+.hide{display:none}
+.loading{text-align:center;color:#64748B;padding:2rem;font-size:0.9rem}
+</style>
+</head>
+<body>
+<header class="hdr">
+  <div class="hdr-logo">Alter<span>5</span></div>
+  <div class="hdr-tag">Gestión de datos personales</div>
+</header>
+
+<main class="main">
+  <!-- Mode A: no token -> request access by email -->
+  <section id="mode-request" class="hide">
+    <div class="hero">
+      <h1>Gestiona tus datos</h1>
+      <p class="lead">
+        Indica tu email para recibir un enlace privado desde el que podrás consultar,
+        exportar o borrar los datos personales asociados a tu candidatura en Alter5.
+      </p>
+    </div>
+
+    <div class="card">
+      <h2>Solicitar enlace</h2>
+      <p>El enlace caduca en 30 minutos y es de un solo uso.</p>
+      <div style="margin-top:1rem">
+        <label for="email">Email</label>
+        <input type="email" id="email" autocomplete="email" placeholder="tu@dominio.com" required>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="btn-request" type="button">Enviar enlace</button>
+      </div>
+      <div id="request-msg" class="msg hide"></div>
+    </div>
+
+    <div class="card">
+      <h2>¿Qué derechos tengo?</h2>
+      <p>Conforme al RGPD / LOPDGDD tienes derecho de acceso, rectificación, supresión, limitación,
+      portabilidad y oposición sobre los datos que Alter5 trata en el marco de sus procesos de selección.</p>
+      <p style="margin:0">También puedes escribirnos a <a href="mailto:privacy@alter-5.com">privacy@alter-5.com</a>
+      o presentar reclamación ante la <a href="https://www.aepd.es" target="_blank" rel="noopener">AEPD</a>.</p>
+    </div>
+  </section>
+
+  <!-- Mode B: valid token -> show data + actions -->
+  <section id="mode-loading" class="hide">
+    <div class="loading">Cargando tus datos…</div>
+  </section>
+
+  <section id="mode-data" class="hide">
+    <div class="hero">
+      <h1>Tus datos</h1>
+      <p class="lead">Esta es la información que Alter5 conserva sobre tu candidatura.
+      Puedes descargar una copia completa en JSON o solicitar su borrado inmediato.</p>
+    </div>
+
+    <div class="card">
+      <h2>Candidatura</h2>
+      <dl class="kv" id="kv-app"></dl>
+      <div class="btn-row" style="margin-top:1.25rem">
+        <button class="btn btn-primary" id="btn-export" type="button">Descargar copia (JSON)</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>CV subido</h2>
+      <div id="sec-cvs"></div>
+    </div>
+
+    <div class="card">
+      <h2>Análisis del CV</h2>
+      <div id="sec-analyses"></div>
+    </div>
+
+    <div class="card">
+      <h2>Entrevista</h2>
+      <div id="sec-interviews"></div>
+    </div>
+
+    <div class="card">
+      <h2>Historial de eventos</h2>
+      <div id="sec-events"></div>
+    </div>
+
+    <div class="card danger-card">
+      <h2>Borrar mis datos</h2>
+      <p>Al borrar, Alter5 realizará un soft-delete y anonimizará los datos personales de tu
+      candidatura (nombre, email, IP, UTM). Se conservará un registro mínimo de auditoría anonimizado.
+      <strong>Esta acción es irreversible.</strong></p>
+      <div class="btn-row">
+        <button class="btn btn-danger" id="btn-delete" type="button">Borrar todos mis datos</button>
+      </div>
+      <div id="delete-msg" class="msg hide"></div>
+    </div>
+  </section>
+
+  <!-- Token invalid / expired -->
+  <section id="mode-invalid" class="hide">
+    <div class="hero">
+      <h1>Enlace no válido</h1>
+      <p class="lead" id="invalid-msg">Este enlace ha caducado, ya se ha usado o no es válido.</p>
+    </div>
+    <div class="card">
+      <p>Solicita un enlace nuevo indicando tu email:</p>
+      <div style="margin-top:1rem">
+        <label for="email-retry">Email</label>
+        <input type="email" id="email-retry" autocomplete="email" placeholder="tu@dominio.com" required>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="btn-retry" type="button">Enviar enlace</button>
+      </div>
+      <div id="retry-msg" class="msg hide"></div>
+    </div>
+  </section>
+
+  <!-- Deletion success -->
+  <section id="mode-deleted" class="hide">
+    <div class="hero">
+      <h1>Datos borrados</h1>
+      <p class="lead">Hemos anonimizado tu candidatura. Ya no conservamos datos personales
+      asociados a este proceso.</p>
+    </div>
+    <div class="card">
+      <p>Si más adelante deseas aplicar de nuevo, podrás hacerlo desde
+      <a href="/sw-architect">la página de la vacante</a>.</p>
+    </div>
+  </section>
+</main>
+
+<footer class="ftr">
+  Alter5 Financial Technologies, S.L. · Madrid ·
+  <a href="mailto:privacy@alter-5.com">privacy@alter-5.com</a>
+</footer>
+
+<script>
+const TOKEN = new URLSearchParams(location.search).get('token') || '';
+
+const $ = id => document.getElementById(id);
+function show(id) {
+  ['mode-request','mode-loading','mode-data','mode-invalid','mode-deleted']
+    .forEach(m => $(m).classList.toggle('hide', m !== id));
+}
+function escapeHtml(s) {
+  return String(s == null ? '' : s).replace(/[<>&"']/g, c => ({
+    '<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'
+  }[c]));
+}
+function fmtDate(v) {
+  if (!v) return '—';
+  try { return new Date(v).toLocaleString('es-ES'); } catch(_) { return String(v); }
+}
+function setMsg(el, text, kind) {
+  el.className = 'msg msg-' + kind;
+  el.textContent = text;
+  el.classList.remove('hide');
+}
+
+// ── Mode A: request access ─────────────────────────────────────────────
+async function requestAccess(email, msgEl, btn) {
+  if (!email) { setMsg(msgEl, 'Indica tu email.', 'err'); return; }
+  btn.disabled = true;
+  try {
+    const r = await fetch('/api/privacy/request-access', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+    if (!r.ok) throw new Error('http');
+    setMsg(msgEl,
+      'Si este email está en nuestros sistemas, te hemos enviado un enlace. Revisa tu bandeja de entrada y la carpeta de spam.',
+      'ok');
+  } catch (_) {
+    setMsg(msgEl, 'No hemos podido procesar la solicitud. Inténtalo de nuevo en unos minutos.', 'err');
+  } finally {
+    btn.disabled = false;
+  }
+}
+$('btn-request').addEventListener('click', () => {
+  requestAccess($('email').value.trim(), $('request-msg'), $('btn-request'));
+});
+$('btn-retry').addEventListener('click', () => {
+  requestAccess($('email-retry').value.trim(), $('retry-msg'), $('btn-retry'));
+});
+
+// ── Mode B: render data ────────────────────────────────────────────────
+let loadedData = null;
+
+function renderApp(app) {
+  const rows = [
+    ['Email', app.email],
+    ['Nombre', app.name || '—'],
+    ['Estado', app.status],
+    ['Origen', app.source],
+    ['Experiencia', app.experience || '—'],
+    ['Consentimiento privacidad', app.consent_privacy ? 'Sí' : 'No'],
+    ['Consentimiento IA', app.consent_ai_decision ? 'Sí' : 'No'],
+    ['Solicitó revisión humana', app.requested_human_review ? 'Sí' : 'No'],
+    ['UTM source', app.utm_source || '—'],
+    ['UTM medium', app.utm_medium || '—'],
+    ['UTM campaign', app.utm_campaign || '—'],
+    ['Creado', fmtDate(app.created_at)],
+    ['Email verificado', fmtDate(app.verified_at)],
+    ['CV subido', fmtDate(app.cv_uploaded_at)],
+    ['CV analizado', fmtDate(app.analyzed_at)],
+    ['Entrevista completada', fmtDate(app.interview_completed_at)],
+    ['Caducidad (retención)', fmtDate(app.expires_at)],
+  ];
+  $('kv-app').innerHTML = rows.map(([k,v]) =>
+    `<dt>${escapeHtml(k)}</dt><dd${v === '—' ? ' class="muted"':''}>${escapeHtml(v)}</dd>`
+  ).join('');
+}
+function renderCvs(cvs) {
+  if (!cvs.length) { $('sec-cvs').innerHTML = '<p class="empty">No hay CV asociado.</p>'; return; }
+  $('sec-cvs').innerHTML = '<div class="sec-list">' + cvs.map(c => `
+    <div class="row">
+      <div class="date">${escapeHtml(fmtDate(c.uploaded_at))}</div>
+      <div class="info">${escapeHtml(c.filename)} <em>(${Math.round((c.size_bytes||0)/1024)} KB)</em></div>
+    </div>`).join('') + '</div>';
+}
+function renderAnalyses(arr) {
+  if (!arr.length) { $('sec-analyses').innerHTML = '<p class="empty">Sin análisis registrados.</p>'; return; }
+  $('sec-analyses').innerHTML = '<div class="sec-list">' + arr.map(a => `
+    <div class="row">
+      <div class="date">${escapeHtml(fmtDate(a.analyzed_at))}</div>
+      <div class="info">Score ${escapeHtml(a.score)}/10 — <em>${escapeHtml(a.recommendation)}</em><br>
+        <span style="color:#64748B">${escapeHtml((a.summary||'').slice(0,240))}</span></div>
+    </div>`).join('') + '</div>';
+}
+function renderInterviews(arr) {
+  if (!arr.length) { $('sec-interviews').innerHTML = '<p class="empty">No has completado ninguna entrevista.</p>'; return; }
+  $('sec-interviews').innerHTML = '<div class="sec-list">' + arr.map(i => `
+    <div class="row">
+      <div class="date">${escapeHtml(fmtDate(i.completed_at))}</div>
+      <div class="info">Score global ${escapeHtml(i.global_score ?? '—')}/10 —
+        <em>${escapeHtml(i.verdict || '—')}</em><br>
+        <span style="color:#64748B">${escapeHtml(i.answers_count || 0)} respuestas ·
+        ${escapeHtml(i.flags || 0)} flags · ${escapeHtml(i.total_time_sec || 0)}s</span></div>
+    </div>`).join('') + '</div>';
+}
+function renderEvents(arr) {
+  if (!arr.length) { $('sec-events').innerHTML = '<p class="empty">Sin eventos.</p>'; return; }
+  $('sec-events').innerHTML = '<div class="sec-list">' + arr.slice(0, 50).map(e => `
+    <div class="row">
+      <div class="date">${escapeHtml(fmtDate(e.created_at))}</div>
+      <div class="info">${escapeHtml(e.event_type)} <em>(${escapeHtml(e.actor || '—')})</em></div>
+    </div>`).join('') + '</div>';
+}
+
+async function loadData() {
+  show('mode-loading');
+  try {
+    const r = await fetch('/api/privacy/data', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: TOKEN }),
+    });
+    const d = await r.json();
+    if (!d.ok) {
+      const msgs = {
+        invalid:   'El enlace no tiene un formato válido.',
+        not_found: 'No hemos encontrado ninguna candidatura asociada a este enlace.',
+        used:      'Este enlace ya ha sido usado. Solicita uno nuevo.',
+        expired:   'Este enlace ha caducado. Solicita uno nuevo.',
+        server:    'Error del servidor. Inténtalo de nuevo en unos minutos.',
+      };
+      $('invalid-msg').textContent = msgs[d.reason] || msgs.server;
+      show('mode-invalid');
+      return;
+    }
+    loadedData = d.data;
+    renderApp(d.data.application);
+    renderCvs(d.data.cvs);
+    renderAnalyses(d.data.analyses);
+    renderInterviews(d.data.interviews);
+    renderEvents(d.data.events);
+    show('mode-data');
+  } catch (_) {
+    $('invalid-msg').textContent = 'No hemos podido cargar los datos. Revisa tu conexión e inténtalo de nuevo.';
+    show('mode-invalid');
+  }
+}
+
+$('btn-export').addEventListener('click', () => {
+  if (!loadedData) return;
+  const blob = new Blob([JSON.stringify(loadedData, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `alter5-mis-datos-${new Date().toISOString().slice(0,10)}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+});
+
+$('btn-delete').addEventListener('click', async () => {
+  if (!confirm('¿Seguro que quieres borrar todos tus datos? Esta acción es irreversible.')) return;
+  $('btn-delete').disabled = true;
+  try {
+    const r = await fetch('/api/privacy/delete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: TOKEN }),
+    });
+    const d = await r.json();
+    if (d.ok) {
+      show('mode-deleted');
+    } else {
+      const msgs = {
+        not_found: 'No hemos podido localizar la candidatura.',
+        used:      'Este enlace ya se ha usado.',
+        expired:   'Este enlace ha caducado.',
+        server:    'Error del servidor. Inténtalo de nuevo.',
+      };
+      setMsg($('delete-msg'), msgs[d.reason] || 'No se ha podido procesar el borrado.', 'err');
+      $('btn-delete').disabled = false;
+    }
+  } catch (_) {
+    setMsg($('delete-msg'), 'Error de red. Revisa tu conexión e inténtalo de nuevo.', 'err');
+    $('btn-delete').disabled = false;
+  }
+});
+
+// ── Bootstrap ──────────────────────────────────────────────────────────
+if (TOKEN) {
+  loadData();
+} else {
+  show('mode-request');
+}
+</script>
+</body>
+</html>

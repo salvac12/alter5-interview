@@ -3,364 +3,559 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Alter5 — Admin · Screening & Magic Links</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<title>Alter5 — Admin</title>
+<meta name="robots" content="noindex">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --navy:#0A1628;--emerald:#10B981;--slate:#94A3B8;--red:#EF4444;--amber:#F59E0B;
-  --bg:#F8FAFC;--white:#ffffff;--border:#E2E8F0;--text:#1E293B;--text-muted:#64748B;
+  --navy:#0A1628;--navy2:#111f38;--emerald:#10B981;--emerald-dim:#0d9268;
+  --slate:#94A3B8;--red:#EF4444;--amber:#F59E0B;
+  --bg:#F8FAFC;--white:#ffffff;--border:#E2E8F0;
+  --text:#1E293B;--text-muted:#64748B;
   --serif:'DM Serif Display',Georgia,serif;--sans:'Instrument Sans',sans-serif;--mono:'DM Mono',monospace;
   --radius:12px;
 }
-body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;line-height:1.5}
 .hdr{background:var(--navy);padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between}
 .hdr-logo{font-family:var(--serif);color:#fff;font-size:1.2rem}
 .hdr-logo span{color:var(--emerald)}
-.hdr-nav{display:flex;gap:0.75rem}
-.hdr-nav a{font-size:0.78rem;color:var(--slate);text-decoration:none;padding:0.3rem 0.75rem;border-radius:6px;transition:all 0.15s}
+.hdr-nav{display:flex;gap:0.5rem}
+.hdr-nav a{font-size:0.78rem;color:var(--slate);text-decoration:none;padding:0.35rem 0.8rem;border-radius:6px;transition:all 0.15s}
 .hdr-nav a:hover{background:rgba(255,255,255,0.08);color:#fff}
 .hdr-nav a.active{background:rgba(16,185,129,0.15);color:var(--emerald)}
-.main{flex:1;max-width:960px;width:100%;margin:0 auto;padding:2.5rem 1.5rem}
-.page-title{font-family:var(--serif);font-size:2rem;color:var(--navy);margin-bottom:0.4rem;letter-spacing:-0.02em}
-.page-sub{font-size:0.9rem;color:var(--text-muted);margin-bottom:2.5rem;line-height:1.6}
-.card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;margin-bottom:1.25rem}
-.card-title{font-size:0.78rem;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-muted);margin-bottom:1.25rem;padding-bottom:0.6rem;border-bottom:1px solid var(--border)}
-.upload-zone{border:2px dashed var(--border);border-radius:var(--radius);padding:2.5rem;text-align:center;cursor:pointer;transition:all 0.2s;background:var(--bg);position:relative}
-.upload-zone:hover,.upload-zone.drag{border-color:var(--emerald);background:rgba(16,185,129,0.03)}
-.upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
-.upload-icon{font-size:2rem;margin-bottom:0.75rem;display:block}
-.upload-label{font-size:0.9rem;color:var(--text-muted);line-height:1.5}
-.upload-label strong{color:var(--text)}
-.badge{display:inline-flex;align-items:center;gap:0.3rem;font-size:0.7rem;font-weight:500;padding:0.2rem 0.55rem;border-radius:4px}
-.badge-ok{background:#F0FDF4;color:#15803D}
-.badge-proc{background:#EFF6FF;color:#1D4ED8}
-.badge-err{background:#FEF2F2;color:#DC2626}
-.badge-wait{background:#F8FAFC;color:var(--text-muted)}
-.badge-enviar{background:#F0FDF4;color:#15803D}
-.badge-revisar{background:#FFF7ED;color:#92400E}
-.badge-descartar{background:#FEF2F2;color:#DC2626}
-.copy-btn{background:none;border:none;cursor:pointer;font-size:0.78rem;color:var(--emerald);font-family:var(--sans);font-weight:600;padding:0 0.25rem;flex-shrink:0;white-space:nowrap}
-.copy-btn:hover{color:var(--navy)}
-.btn{display:inline-flex;align-items:center;gap:0.4rem;padding:0.55rem 1.1rem;border-radius:7px;font-family:var(--sans);font-size:0.82rem;font-weight:600;cursor:pointer;border:none;transition:all 0.15s}
+.main{flex:1;max-width:1200px;width:100%;margin:0 auto;padding:2rem 1.5rem}
+h1{font-family:var(--serif);font-size:1.9rem;color:var(--navy);margin-bottom:0.3rem;letter-spacing:-0.02em}
+.page-sub{font-size:0.88rem;color:var(--text-muted);margin-bottom:2rem;line-height:1.6}
+.tabs{display:flex;gap:0.4rem;margin-bottom:1.5rem;border-bottom:1px solid var(--border);overflow-x:auto}
+.tab{padding:0.7rem 1.1rem;font-size:0.85rem;font-weight:500;color:var(--text-muted);background:none;border:none;cursor:pointer;border-bottom:2px solid transparent;font-family:inherit;white-space:nowrap;transition:all 0.15s}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--navy);border-bottom-color:var(--emerald);font-weight:600}
+.tab-badge{display:inline-block;background:var(--amber);color:#fff;font-size:0.68rem;padding:0.05rem 0.45rem;border-radius:10px;margin-left:0.35rem;font-weight:600}
+.view{display:none}.view.active{display:block}
+
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;margin-bottom:1rem}
+.card-title{font-size:0.8rem;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:var(--text-muted);margin-bottom:1rem;padding-bottom:0.5rem;border-bottom:1px solid var(--border)}
+
+.filters{display:flex;gap:0.6rem;margin-bottom:1rem;flex-wrap:wrap}
+.filters input,.filters select{padding:0.55rem 0.8rem;border:1px solid var(--border);border-radius:7px;font-family:var(--sans);font-size:0.85rem;color:var(--text);background:var(--white);outline:none}
+.filters input:focus,.filters select:focus{border-color:var(--emerald)}
+.filters input{flex:1;min-width:180px}
+
+.tbl{width:100%;border-collapse:collapse;font-size:0.86rem}
+.tbl th{text-align:left;padding:0.7rem 0.6rem;font-size:0.72rem;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:var(--text-muted);border-bottom:1px solid var(--border);background:var(--bg)}
+.tbl td{padding:0.7rem 0.6rem;border-bottom:1px solid var(--border);vertical-align:top}
+.tbl tr:hover td{background:#F8FAFC}
+.tbl tr:last-child td{border-bottom:none}
+.tbl .muted{color:var(--text-muted);font-size:0.78rem}
+.tbl .mono{font-family:var(--mono);font-size:0.78rem}
+
+.badge{display:inline-block;font-size:0.68rem;font-weight:500;padding:0.18rem 0.5rem;border-radius:4px;letter-spacing:0.02em}
+.b-green{background:#F0FDF4;color:#15803D}
+.b-amber{background:#FFF7ED;color:#92400E}
+.b-red{background:#FEF2F2;color:#DC2626}
+.b-blue{background:#EFF6FF;color:#1D4ED8}
+.b-gray{background:#F1F5F9;color:var(--text-muted)}
+.b-purple{background:#FDF4FF;color:#7E22CE}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:0.4rem;padding:0.5rem 1rem;border-radius:7px;font-family:var(--sans);font-size:0.82rem;font-weight:600;cursor:pointer;border:none;transition:all 0.15s}
 .btn-primary{background:var(--navy);color:#fff}
-.btn-primary:hover{background:#111f38}
+.btn-primary:hover:not(:disabled){background:var(--navy2)}
+.btn-primary:disabled{opacity:0.5;cursor:not-allowed}
 .btn-emerald{background:var(--emerald);color:#fff}
-.btn-emerald:hover{background:#0d9268}
+.btn-emerald:hover:not(:disabled){background:var(--emerald-dim)}
 .btn-ghost{background:transparent;color:var(--text-muted);border:1px solid var(--border)}
 .btn-ghost:hover{background:var(--white);color:var(--text)}
 .btn-danger{background:transparent;color:var(--red);border:1px solid rgba(239,68,68,0.3)}
 .btn-danger:hover{background:#FEF2F2}
-.btn-sm{padding:0.35rem 0.75rem;font-size:0.75rem}
-.processing-row td{background:rgba(16,185,129,0.03)!important}
-@keyframes spin{to{transform:rotate(360deg)}}
-.spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--emerald);border-radius:50%;animation:spin 0.6s linear infinite;vertical-align:middle;margin-right:4px}
-.empty-state{text-align:center;padding:3rem 1.5rem;color:var(--text-muted)}
-.empty-state p{font-size:0.9rem;line-height:1.6}
-.empty-icon{font-size:2.5rem;margin-bottom:0.75rem;display:block}
-.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--navy);color:#fff;padding:0.75rem 1.25rem;border-radius:8px;font-size:0.84rem;z-index:999;transform:translateY(100px);opacity:0;transition:all 0.25s}
-.toast.show{transform:translateY(0);opacity:1}
-.exp-sel{padding:0.4rem 0.6rem;border:1px solid var(--border);border-radius:6px;font-family:var(--sans);font-size:0.78rem;color:var(--text);background:var(--white);outline:none;cursor:pointer}
-.exp-sel:focus{border-color:var(--emerald)}
+.btn-sm{padding:0.35rem 0.7rem;font-size:0.75rem}
 
-/* Candidate card */
-.cand-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;margin-bottom:0.85rem;transition:box-shadow 0.15s}
-.cand-card:hover{box-shadow:0 2px 8px rgba(0,0,0,0.05)}
-.cand-card.fit-enviar{border-left:4px solid var(--emerald)}
-.cand-card.fit-revisar{border-left:4px solid var(--amber)}
-.cand-card.fit-descartar{border-left:4px solid var(--red)}
-.cand-card.processing{border-left:4px solid #60A5FA;opacity:0.8}
-.cand-card.error{border-left:4px solid var(--red);opacity:0.7}
-.cand-row{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem}
-.cand-info{flex:1;min-width:0}
-.cand-name{font-weight:600;font-size:0.95rem;color:var(--text)}
-.cand-file{font-size:0.72rem;color:var(--text-muted);margin-top:0.15rem}
-.cand-email{font-family:var(--mono);font-size:0.78rem;color:var(--text-muted);margin-top:0.25rem}
-.cand-fit{display:flex;align-items:center;gap:0.65rem;margin-top:0.65rem;padding-top:0.65rem;border-top:1px solid var(--border)}
-.fit-score{font-family:var(--mono);font-size:1.4rem;font-weight:500;line-height:1;width:40px;text-align:center}
-.fit-score.high{color:#15803D}
-.fit-score.mid{color:#92400E}
-.fit-score.low{color:#DC2626}
-.fit-summary{font-size:0.8rem;color:var(--text-muted);line-height:1.5;flex:1}
-.cand-actions{display:flex;flex-direction:column;align-items:flex-end;gap:0.4rem;flex-shrink:0}
-.stats-row{display:flex;gap:0.85rem;margin-bottom:1.25rem}
-.stat-pill{background:var(--white);border:1px solid var(--border);border-radius:8px;padding:0.6rem 1rem;text-align:center;flex:1}
-.stat-val{font-family:var(--mono);font-size:1.3rem;font-weight:500;color:var(--navy);display:block}
-.stat-label{font-size:0.65rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.04em}
+.empty{text-align:center;padding:2.5rem 1rem;color:var(--text-muted);font-size:0.88rem}
+
+/* Upload form */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.85rem}
+@media(max-width:640px){.form-grid{grid-template-columns:1fr}}
+.field{display:flex;flex-direction:column;gap:0.35rem}
+.field label{font-size:0.76rem;font-weight:500;color:var(--text-muted)}
+.field input,.field select{padding:0.6rem 0.8rem;border:1px solid var(--border);border-radius:7px;font-family:var(--sans);font-size:0.88rem;background:var(--white);outline:none}
+.field input:focus,.field select:focus{border-color:var(--emerald)}
+
+.drop{border:2px dashed var(--border);border-radius:var(--radius);padding:1.5rem;text-align:center;cursor:pointer;transition:all 0.15s;background:var(--bg);margin:1rem 0}
+.drop:hover,.drop.dragover,.drop.has-file{border-color:var(--emerald);background:#F0FDF4}
+.drop input[type=file]{display:none}
+.drop-label{font-size:0.88rem;color:var(--text-muted)}
+.drop-label strong{color:var(--navy)}
+
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--navy);color:#fff;padding:0.75rem 1.25rem;border-radius:8px;font-size:0.85rem;z-index:999;transform:translateY(100px);opacity:0;transition:all 0.25s;max-width:360px}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.err{background:var(--red)}
+
+.modal{position:fixed;inset:0;background:rgba(10,22,40,0.65);display:none;align-items:center;justify-content:center;z-index:500;padding:1rem}
+.modal.show{display:flex}
+.modal-card{background:#fff;border-radius:var(--radius);padding:1.75rem;max-width:720px;width:100%;max-height:90vh;overflow-y:auto}
+.modal-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem;gap:1rem}
+.modal-head h2{font-family:var(--serif);font-size:1.4rem;color:var(--navy);letter-spacing:-0.01em}
+.modal-close{background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--text-muted)}
+.modal-sec{margin-bottom:1.25rem;padding-bottom:1.25rem;border-bottom:1px solid var(--border)}
+.modal-sec:last-child{border-bottom:none}
+.modal-sec h3{font-size:0.75rem;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.65rem}
+.kv{display:grid;grid-template-columns:140px 1fr;gap:0.45rem 1rem;font-size:0.85rem}
+.kv dt{color:var(--text-muted)}
+.kv dd{color:var(--text)}
+
+.ai-report{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;line-height:1.7;font-size:0.86rem}
+.ai-report h4{font-size:0.8rem;font-weight:600;color:var(--navy);margin:1rem 0 0.4rem}
+.ai-report h4:first-child{margin-top:0}
+.ai-report .score-pill{display:inline-flex;align-items:center;gap:0.3rem;font-family:var(--mono);font-size:0.8rem;font-weight:500;padding:0.2rem 0.55rem;border-radius:6px;margin-right:0.4rem}
+.ai-report .sp-green{background:#F0FDF4;color:#15803D}
+.ai-report .sp-amber{background:#FFF7ED;color:#92400E}
+.ai-report .sp-red{background:#FEF2F2;color:#DC2626}
 </style>
 </head>
 <body>
 
-<div class="hdr">
-  <div class="hdr-logo">Alter<span>5</span> <span style="font-family:var(--sans);font-size:0.75rem;color:var(--slate);font-weight:400;margin-left:0.5rem">Admin</span></div>
+<header class="hdr">
+  <div class="hdr-logo">Alter<span>5</span></div>
   <div class="hdr-nav">
-    <a href="/">Entrevista</a>
-    <a href="/dashboard">Panel</a>
-    <a href="/admin" class="active">Admin · Screening</a>
+    <a href="/admin" class="active">Admin</a>
+    <a href="/reports">Reports</a>
+    <a href="/sw-architect" target="_blank">Landing ↗</a>
   </div>
-</div>
+</header>
 
-<div class="main">
-  <p style="font-family:var(--mono);font-size:0.7rem;color:var(--emerald);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.6rem">Panel de administración</p>
-  <h1 class="page-title">Screening de CVs e invitaciones</h1>
-  <p class="page-sub">Sube CVs en PDF. La IA analiza el fit de cada candidato con la posición y recomienda a quién invitar. Tú decides a quién enviar la entrevista.</p>
+<main class="main">
+  <h1>Panel de administración</h1>
+  <p class="page-sub">Candidaturas en curso — revisa, aprueba/descarta y gestiona subidas manuales.</p>
 
-  <div class="card">
-    <p class="card-title">Subir CVs</p>
-    <div class="upload-zone" id="upload-zone"
-         ondragover="event.preventDefault();this.classList.add('drag')"
-         ondragleave="this.classList.remove('drag')"
-         ondrop="handleDrop(event)">
-      <input type="file" accept=".pdf" multiple onchange="handleFiles(this.files)" aria-label="Subir CVs de candidatos (PDF)">
-      <span class="upload-icon">📄</span>
-      <p class="upload-label"><strong>Haz clic o arrastra CVs aquí</strong><br>PDF · Puedes subir varios a la vez</p>
+  <div class="tabs">
+    <button class="tab active" data-view="review">Cola de revisión <span class="tab-badge" id="review-count" style="display:none">0</span></button>
+    <button class="tab" data-view="all">Todas las candidaturas</button>
+    <button class="tab" data-view="upload">Subir CV manual</button>
+  </div>
+
+  <!-- ── Review queue ──────────────────────────────────────────────── -->
+  <section class="view active" id="view-review">
+    <div class="card">
+      <div class="card-title">Pendientes de decisión manual (score 4-6 o petición de revisión humana)</div>
+      <div id="review-list"><div class="empty">Cargando…</div></div>
     </div>
-  </div>
+  </section>
 
-  <div class="card">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;padding-bottom:0.6rem;border-bottom:1px solid var(--border)">
-      <p class="card-title" style="margin:0;border:none;padding:0">Candidatos</p>
-      <div style="display:flex;gap:0.5rem">
-        <button class="btn btn-emerald btn-sm" onclick="sendAllRecommended()" id="send-all-btn" style="display:none">Enviar a todos los recomendados</button>
-        <button class="btn btn-ghost btn-sm" onclick="clearAll()" id="clear-btn" style="display:none">Limpiar</button>
+  <!-- ── All applications ──────────────────────────────────────────── -->
+  <section class="view" id="view-all">
+    <div class="card">
+      <div class="card-title">Todas las candidaturas</div>
+      <div class="filters">
+        <input type="text" id="filter-q" placeholder="Buscar por email…">
+        <select id="filter-status">
+          <option value="">Todos los estados</option>
+          <option value="pending_verify">pending_verify</option>
+          <option value="verified">verified</option>
+          <option value="cv_uploaded">cv_uploaded</option>
+          <option value="analyzed_pending_review">pending_review</option>
+          <option value="analyzed_auto_invited">auto_invited</option>
+          <option value="analyzed_auto_rejected">auto_rejected</option>
+          <option value="analyzed_manual_approved">manual_approved</option>
+          <option value="analyzed_manual_rejected">manual_rejected</option>
+          <option value="interview_started">interview_started</option>
+          <option value="interview_completed">interview_completed</option>
+        </select>
+        <select id="filter-source">
+          <option value="">Todos</option>
+          <option value="public">public</option>
+          <option value="admin_manual">admin_manual</option>
+          <option value="legacy">legacy</option>
+        </select>
+        <button class="btn btn-ghost btn-sm" onclick="loadAll()">Actualizar</button>
       </div>
+      <div id="all-list"><div class="empty">Cargando…</div></div>
     </div>
-    <div class="stats-row" id="stats-row" style="display:none">
-      <div class="stat-pill"><span class="stat-val" id="st-total">0</span><span class="stat-label">Total</span></div>
-      <div class="stat-pill"><span class="stat-val" id="st-enviar" style="color:#15803D">0</span><span class="stat-label">Recomendados</span></div>
-      <div class="stat-pill"><span class="stat-val" id="st-revisar" style="color:#92400E">0</span><span class="stat-label">Revisar</span></div>
-      <div class="stat-pill"><span class="stat-val" id="st-descartar" style="color:#DC2626">0</span><span class="stat-label">Descartados</span></div>
-      <div class="stat-pill"><span class="stat-val" id="st-sent" style="color:var(--emerald)">0</span><span class="stat-label">Enviados</span></div>
+  </section>
+
+  <!-- ── Manual upload ─────────────────────────────────────────────── -->
+  <section class="view" id="view-upload">
+    <div class="card">
+      <div class="card-title">Subir CV en nombre de un candidato</div>
+      <form id="upload-form">
+        <div class="form-grid">
+          <div class="field">
+            <label for="mu-email">Email del candidato *</label>
+            <input type="email" id="mu-email" required placeholder="candidato@dominio.com">
+          </div>
+          <div class="field">
+            <label for="mu-name">Nombre (opcional)</label>
+            <input type="text" id="mu-name" maxlength="100" placeholder="Nombre y apellido">
+          </div>
+          <div class="field">
+            <label for="mu-exp">Experiencia</label>
+            <select id="mu-exp">
+              <option value="">—</option>
+              <option value="3-5">3-5 años</option>
+              <option value="5-8">5-8 años</option>
+              <option value="8-12">8-12 años</option>
+              <option value="12+">12+ años</option>
+            </select>
+          </div>
+          <div class="field">
+            <label><input type="checkbox" id="mu-auto" style="margin-right:0.4rem">Invitar siempre (ignora score)</label>
+          </div>
+        </div>
+        <label class="drop" id="mu-drop">
+          <div class="drop-label"><strong>Arrastra aquí el CV</strong> o haz click para elegir un PDF (máx. 5 MB)</div>
+          <input type="file" id="mu-file" accept="application/pdf,.pdf">
+        </label>
+        <div id="mu-file-info" class="muted" style="font-size:0.82rem;margin-bottom:0.75rem"></div>
+        <button type="submit" class="btn btn-primary" id="mu-submit">Subir y analizar →</button>
+      </form>
     </div>
-    <div id="candidates-area">
-      <div class="empty-state">
-        <span class="empty-icon">👤</span>
-        <p>Aquí aparecerán los candidatos una vez<br>proceses sus CVs.</p>
-      </div>
-    </div>
-  </div>
-</div>
+  </section>
+
+</main>
 
 <div class="toast" id="toast"></div>
 
+<!-- Detail modal -->
+<div class="modal" id="modal">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h2 id="m-title">Detalle</h2>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div id="m-body"></div>
+  </div>
+</div>
+
 <script>
-const BASE_URL = window.location.origin;
-
-function loadStorage(key,fallback){try{return JSON.parse(localStorage.getItem(key)||'null')??fallback;}catch(e){console.warn('localStorage corrupted:',key);localStorage.removeItem(key);return fallback;}}
-function saveStorage(key,data){try{localStorage.setItem(key,JSON.stringify(data));}catch(e){console.error('localStorage write failed:',e);}}
-function esc(s){const d=document.createElement('div');d.textContent=String(s||'');return d.innerHTML;}
-
-let candidates = loadStorage('a5_candidates', []);
-
-window.addEventListener('DOMContentLoaded', () => { render(); });
-
-function handleDrop(e) {
-  e.preventDefault();
-  document.getElementById('upload-zone').classList.remove('drag');
-  handleFiles(e.dataTransfer.files);
-}
-
-function handleFiles(files) {
-  Array.from(files).forEach(f => processCV(f));
-}
-
-async function processCV(file) {
-  const id = Date.now() + Math.random().toString(36).slice(2);
-  const token = crypto.randomUUID().replace(/-/g,'');
-  const cand = { id, filename: file.name, name: '', email: '', exp: '8-12', status: 'processing', link: '', token, emailStatus: 'pending', error: '', fit: null };
-  candidates.unshift(cand);
-  save(); render();
-
-  try {
-    const b64 = await fileToBase64(file);
-    const res = await fetch('/api/process-cv', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ fileBase64: b64, filename: file.name })
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Error procesando CV');
-
-    cand.name = data.name || '';
-    cand.email = data.email || '';
-    cand.fit = data.fit || null;
-    cand.link = `${BASE_URL}/?c=${encodeURIComponent(cand.name)}&e=${encodeURIComponent(cand.exp)}&t=${token}`;
-    cand.status = 'done';
-  } catch (err) {
-    cand.status = 'error';
-    cand.error = err.message;
-  }
-
-  save(); render();
-}
-
-function fileToBase64(file) {
-  return new Promise((res, rej) => {
-    const r = new FileReader();
-    r.onload = () => res(r.result.split(',')[1]);
-    r.onerror = () => rej(new Error('Error leyendo el archivo'));
-    r.readAsDataURL(file);
+// ───────────────────────────────────────────────────────────────────────────
+// Tab switching
+// ───────────────────────────────────────────────────────────────────────────
+document.querySelectorAll('.tab').forEach(t => {
+  t.addEventListener('click', () => {
+    const v = t.dataset.view;
+    document.querySelectorAll('.tab').forEach(x => x.classList.toggle('active', x === t));
+    document.querySelectorAll('.view').forEach(x => x.classList.toggle('active', x.id === 'view-' + v));
+    if (v === 'review') loadReview();
+    if (v === 'all') loadAll();
   });
+});
+
+// ───────────────────────────────────────────────────────────────────────────
+// Helpers
+// ───────────────────────────────────────────────────────────────────────────
+function esc(s){const d=document.createElement('div');d.textContent=s==null?'':String(s);return d.innerHTML;}
+function fmtDate(iso){if(!iso)return'—';try{const d=new Date(iso);return d.toLocaleString('es-ES',{dateStyle:'short',timeStyle:'short'})}catch{return iso}}
+function toast(msg, isErr=false){const t=document.getElementById('toast');t.textContent=msg;t.className='toast show'+(isErr?' err':'');setTimeout(()=>t.classList.remove('show'),3000);}
+function statusBadge(s){
+  const map={
+    pending_verify:['b-gray','pending_verify'],
+    verified:['b-blue','verified'],
+    cv_uploaded:['b-blue','cv_uploaded'],
+    analyzed_pending_review:['b-amber','pending_review'],
+    analyzed_auto_invited:['b-green','auto_invited'],
+    analyzed_auto_rejected:['b-red','auto_rejected'],
+    analyzed_manual_approved:['b-green','manual_approved'],
+    analyzed_manual_rejected:['b-red','manual_rejected'],
+    interview_started:['b-purple','iv_started'],
+    interview_completed:['b-purple','iv_completed'],
+    deleted:['b-gray','deleted'],
+  };
+  const [cls,label]=map[s]||['b-gray',s||'—'];
+  return `<span class="badge ${cls}">${label}</span>`;
+}
+function sanitizeHTML(html){
+  const tmp=document.createElement('div');
+  tmp.innerHTML=html;
+  tmp.querySelectorAll('script,iframe,object,embed,link,style,form,input,textarea,select,button,meta,base').forEach(el=>el.remove());
+  tmp.querySelectorAll('*').forEach(el=>{
+    for(const attr of [...el.attributes]){
+      if(attr.name.startsWith('on'))el.removeAttribute(attr.name);
+      if(['src','href','action','formaction','data','background'].includes(attr.name)&&/^\s*javascript:/i.test(attr.value))el.removeAttribute(attr.name);
+    }
+  });
+  return tmp.innerHTML;
 }
 
-async function sendInvite(id) {
-  const c = candidates.find(x => x.id === id);
-  if (!c || !c.email || !c.name) { showToast('Faltan datos del candidato'); return; }
-  c.emailStatus = 'sending';
-  save(); render();
-  try {
-    const res = await fetch('/api/send-invite', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: c.name, email: c.email, token: c.token })
+// ───────────────────────────────────────────────────────────────────────────
+// Review queue
+// ───────────────────────────────────────────────────────────────────────────
+async function loadReview(){
+  const target=document.getElementById('review-list');
+  target.innerHTML='<div class="empty">Cargando…</div>';
+  try{
+    const r=await fetch('/api/admin/applications?status=analyzed_pending_review&limit=100');
+    const data=await r.json();
+    const apps=data.applications||[];
+    const badge=document.getElementById('review-count');
+    if(apps.length===0){
+      target.innerHTML='<div class="empty">No hay candidaturas pendientes de revisión. 🎉</div>';
+      badge.style.display='none';
+      return;
+    }
+    badge.textContent=apps.length;badge.style.display='inline-block';
+    target.innerHTML=`<table class="tbl">
+      <thead><tr>
+        <th>Candidato</th><th>Score</th><th>Recomendación IA</th><th>Revisión humana</th><th>Subido</th><th></th>
+      </tr></thead>
+      <tbody>${apps.map(renderReviewRow).join('')}</tbody>
+    </table>`;
+  }catch(e){
+    target.innerHTML='<div class="empty">Error cargando datos.</div>';
+  }
+}
+
+function renderReviewRow(a){
+  const an=a.latest_analysis;
+  const score=an?`<strong style="font-family:var(--mono);font-size:1rem">${an.score}/10</strong>`:'—';
+  const rec=an?`<span class="badge ${an.recommendation==='enviar'?'b-green':an.recommendation==='revisar'?'b-amber':'b-red'}">${an.recommendation}</span>`:'—';
+  const hr=a.requested_human_review?'<span class="badge b-purple">sí</span>':'<span class="muted">no</span>';
+  return `<tr>
+    <td>
+      <div style="font-weight:500">${esc(a.name||'Sin nombre')}</div>
+      <div class="mono muted">${esc(a.email)}</div>
+    </td>
+    <td>${score}</td>
+    <td>${rec}${an?`<div class="muted" style="margin-top:0.3rem;max-width:320px">${esc(an.summary||'')}</div>`:''}</td>
+    <td>${hr}</td>
+    <td class="muted">${fmtDate(a.cv_uploaded_at)}</td>
+    <td style="white-space:nowrap">
+      <button class="btn btn-emerald btn-sm" onclick="decide('${a.id}','approve')">Aprobar</button>
+      <button class="btn btn-danger btn-sm" onclick="decide('${a.id}','reject')">Descartar</button>
+      <button class="btn btn-ghost btn-sm" onclick="openDetail('${a.id}')">Ver</button>
+    </td>
+  </tr>`;
+}
+
+async function decide(id,decision){
+  if(decision==='reject'&&!confirm('Descartar esta candidatura? No se enviará ningún email.'))return;
+  if(decision==='approve'&&!confirm('Aprobar y enviar enlace de entrevista por email?'))return;
+  try{
+    const r=await fetch('/api/admin/review-decision',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({applicationId:id,decision}),
     });
-    const data = await res.json();
-    if (res.ok && data.success) {
-      c.emailStatus = 'sent';
-      showToast(`Invitación enviada a ${c.email}`);
-    } else {
-      c.emailStatus = 'email_error';
-      c.error = data.error || 'Error enviando email';
-      showToast(`Error: ${data.error || 'desconocido'}`);
-    }
-  } catch (err) {
-    c.emailStatus = 'email_error';
-    c.error = err.message;
+    const data=await r.json();
+    if(!r.ok){toast('Error: '+(data.error||'unknown'),true);return;}
+    toast(decision==='approve'?'Candidato aprobado, email enviado':'Candidato descartado');
+    loadReview();
+  }catch{toast('Error de red',true);}
+}
+
+// ───────────────────────────────────────────────────────────────────────────
+// All applications
+// ───────────────────────────────────────────────────────────────────────────
+let allDebounce=null;
+document.getElementById('filter-q').addEventListener('input',()=>{clearTimeout(allDebounce);allDebounce=setTimeout(loadAll,300);});
+document.getElementById('filter-status').addEventListener('change',loadAll);
+document.getElementById('filter-source').addEventListener('change',loadAll);
+
+async function loadAll(){
+  const target=document.getElementById('all-list');
+  target.innerHTML='<div class="empty">Cargando…</div>';
+  const q=document.getElementById('filter-q').value.trim();
+  const st=document.getElementById('filter-status').value;
+  const src=document.getElementById('filter-source').value;
+  const params=new URLSearchParams();
+  if(q)params.set('q',q);
+  if(st)params.set('status',st);
+  if(src)params.set('source',src);
+  params.set('limit','200');
+  try{
+    const r=await fetch('/api/admin/applications?'+params.toString());
+    const data=await r.json();
+    const apps=data.applications||[];
+    if(apps.length===0){target.innerHTML='<div class="empty">Sin resultados.</div>';return;}
+    target.innerHTML=`<div style="overflow-x:auto"><table class="tbl">
+      <thead><tr>
+        <th>Candidato</th><th>Estado</th><th>Score CV</th><th>Entrevista</th><th>Origen</th><th>Fecha</th><th></th>
+      </tr></thead>
+      <tbody>${apps.map(renderAllRow).join('')}</tbody>
+    </table></div>`;
+  }catch{target.innerHTML='<div class="empty">Error cargando datos.</div>';}
+}
+
+function renderAllRow(a){
+  const an=a.latest_analysis;
+  const iv=a.latest_interview;
+  const score=an?`<span class="mono"><strong>${an.score}/10</strong></span>`:'<span class="muted">—</span>';
+  const ivScore=iv&&iv.global_score!=null?`<span class="mono"><strong>${iv.global_score}</strong></span>${iv.flags>0?` <span class="badge b-red">${iv.flags} flags</span>`:''}`:'<span class="muted">—</span>';
+  return `<tr>
+    <td>
+      <div style="font-weight:500">${esc(a.name||'—')}</div>
+      <div class="mono muted">${esc(a.email)}</div>
+    </td>
+    <td>${statusBadge(a.status)}</td>
+    <td>${score}</td>
+    <td>${ivScore}</td>
+    <td><span class="muted">${esc(a.source)}</span></td>
+    <td class="muted">${fmtDate(a.created_at)}</td>
+    <td><button class="btn btn-ghost btn-sm" onclick="openDetail('${a.id}')">Ver →</button></td>
+  </tr>`;
+}
+
+// ───────────────────────────────────────────────────────────────────────────
+// Detail modal
+// ───────────────────────────────────────────────────────────────────────────
+async function openDetail(id){
+  const body=document.getElementById('m-body');
+  body.innerHTML='<div class="empty">Cargando…</div>';
+  document.getElementById('m-title').textContent='Detalle candidatura';
+  document.getElementById('modal').classList.add('show');
+  try{
+    const r=await fetch('/api/admin/application?id='+encodeURIComponent(id));
+    const data=await r.json();
+    if(!r.ok)throw new Error(data.error);
+    renderDetail(data);
+  }catch(e){body.innerHTML=`<div class="empty">Error: ${esc(e.message)}</div>`;}
+}
+
+function closeModal(){document.getElementById('modal').classList.remove('show');}
+document.getElementById('modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal();});
+
+function renderDetail(d){
+  const a=d.application;
+  const an=(d.analyses||[])[0];
+  const cv=(d.cvs||[])[0];
+  const iv=(d.interviews||[])[0];
+  document.getElementById('m-title').textContent=a.name?a.name:a.email;
+
+  const blocks=[];
+  blocks.push(`<div class="modal-sec"><h3>Datos generales</h3>
+    <dl class="kv">
+      <dt>Email</dt><dd class="mono">${esc(a.email)}</dd>
+      <dt>Estado</dt><dd>${statusBadge(a.status)}</dd>
+      <dt>Origen</dt><dd>${esc(a.source)}</dd>
+      <dt>Experiencia</dt><dd>${esc(a.experience||'—')}</dd>
+      <dt>Revisión humana</dt><dd>${a.requested_human_review?'Sí solicitada':'No'}</dd>
+      <dt>Aplicó</dt><dd>${fmtDate(a.created_at)}</dd>
+      <dt>Verificó email</dt><dd>${fmtDate(a.verified_at)}</dd>
+      <dt>Subió CV</dt><dd>${fmtDate(a.cv_uploaded_at)}</dd>
+      <dt>Analizado</dt><dd>${fmtDate(a.analyzed_at)}</dd>
+      <dt>Entrevista completada</dt><dd>${fmtDate(a.interview_completed_at)}</dd>
+      <dt>UTM</dt><dd class="muted">${esc([a.utm_source,a.utm_medium,a.utm_campaign].filter(Boolean).join(' · ')||'—')}</dd>
+    </dl>
+  </div>`);
+
+  if(cv){
+    blocks.push(`<div class="modal-sec"><h3>CV</h3>
+      <div>${esc(cv.filename)} · ${Math.round((cv.size_bytes||0)/1024)} KB · ${fmtDate(cv.uploaded_at)}</div>
+      <div style="margin-top:0.6rem"><button class="btn btn-ghost btn-sm" onclick="downloadCv('${cv.id}')">Descargar CV →</button></div>
+    </div>`);
   }
-  save(); render();
-}
 
-async function sendAllRecommended() {
-  const toSend = candidates.filter(c => c.status === 'done' && c.email && c.fit?.recommendation === 'enviar' && c.emailStatus !== 'sent' && c.emailStatus !== 'sending');
-  if (!toSend.length) { showToast('No hay candidatos recomendados pendientes de envío'); return; }
-  if (!confirm(`Enviar invitación a ${toSend.length} candidato${toSend.length > 1 ? 's' : ''} recomendados?`)) return;
-  for (const c of toSend) {
-    await sendInvite(c.id);
-  }
-  showToast(`Proceso completado: ${toSend.length} invitaciones`);
-}
-
-function updateExp(id, val) {
-  const c = candidates.find(x => x.id === id);
-  if (!c) return;
-  c.exp = val;
-  if (c.status === 'done' && c.name) {
-    c.link = `${BASE_URL}/?c=${encodeURIComponent(c.name)}&e=${encodeURIComponent(val)}&t=${c.token}`;
-  }
-  save(); render();
-}
-
-function copyLink(id) {
-  const c = candidates.find(x => x.id === id);
-  if (!c?.link) return;
-  navigator.clipboard.writeText(c.link).then(() => showToast('Link copiado')).catch(() => prompt('Copia este link:', c.link));
-}
-
-function removeCandidate(id) {
-  candidates = candidates.filter(x => x.id !== id);
-  save(); render();
-}
-
-function clearAll() {
-  if (!confirm('Eliminar todos los candidatos de la lista?')) return;
-  candidates = []; save(); render();
-}
-
-function save() { saveStorage('a5_candidates', candidates); }
-
-function render() {
-  const area = document.getElementById('candidates-area');
-  const clearBtn = document.getElementById('clear-btn');
-  const sendAllBtn = document.getElementById('send-all-btn');
-  const statsRow = document.getElementById('stats-row');
-
-  if (!candidates.length) {
-    area.innerHTML = `<div class="empty-state"><span class="empty-icon">👤</span><p>Aquí aparecerán los candidatos una vez<br>proceses sus CVs.</p></div>`;
-    clearBtn.style.display = 'none';
-    sendAllBtn.style.display = 'none';
-    statsRow.style.display = 'none';
-    return;
+  if(an){
+    blocks.push(`<div class="modal-sec"><h3>Análisis IA del CV</h3>
+      <div><strong style="font-family:var(--mono);font-size:1.2rem">${an.score}/10</strong> · <span class="badge ${an.recommendation==='enviar'?'b-green':an.recommendation==='revisar'?'b-amber':'b-red'}">${an.recommendation}</span></div>
+      <p style="margin-top:0.6rem;font-size:0.86rem;color:var(--text-muted);line-height:1.65">${esc(an.summary||'')}</p>
+    </div>`);
   }
 
-  clearBtn.style.display = '';
-  statsRow.style.display = '';
+  if(iv){
+    const dims=iv.dim_scores||{};
+    const dimHtml=Object.entries(dims).map(([k,v])=>`<span class="badge b-blue" style="margin:0.15rem">${esc(v.name||k)}: ${v.pct||0}%</span>`).join('');
+    blocks.push(`<div class="modal-sec"><h3>Entrevista</h3>
+      <dl class="kv">
+        <dt>Puntuación</dt><dd><strong style="font-family:var(--mono);font-size:1.1rem">${iv.global_score||'—'}/10</strong>${iv.flags>0?` <span class="badge b-red">${iv.flags} flags</span>`:''}</dd>
+        <dt>Veredicto</dt><dd>${esc(iv.verdict||'—')}</dd>
+        <dt>Completada</dt><dd>${fmtDate(iv.completed_at)}</dd>
+        <dt>Salario esperado</dt><dd>${esc(iv.salary||'—')}</dd>
+      </dl>
+      <div style="margin-top:0.5rem">${dimHtml}</div>
+      ${iv.ai_analysis_html?`<div class="ai-report" style="margin-top:0.85rem">${sanitizeHTML(iv.ai_analysis_html)}</div>`:`<div style="margin-top:0.85rem"><button class="btn btn-ghost btn-sm" onclick="reanalyze('${iv.id}')">Generar análisis IA de la entrevista →</button></div>`}
+    </div>`);
+  }
 
-  const done = candidates.filter(c => c.status === 'done' && c.fit);
-  const enviar = done.filter(c => c.fit.recommendation === 'enviar');
-  const revisar = done.filter(c => c.fit.recommendation === 'revisar');
-  const descartar = done.filter(c => c.fit.recommendation === 'descartar');
-  const sent = candidates.filter(c => c.emailStatus === 'sent');
-  const pendingSend = enviar.filter(c => c.email && c.emailStatus !== 'sent' && c.emailStatus !== 'sending');
+  const actions=[];
+  if(['analyzed_pending_review','analyzed_auto_rejected'].includes(a.status)){
+    actions.push(`<button class="btn btn-emerald btn-sm" onclick="decide('${a.id}','approve');closeModal();">Aprobar y enviar entrevista</button>`);
+  }
+  if(['analyzed_pending_review','analyzed_auto_invited'].includes(a.status)){
+    actions.push(`<button class="btn btn-danger btn-sm" onclick="decide('${a.id}','reject');closeModal();">Descartar</button>`);
+  }
+  if(actions.length)blocks.push(`<div class="modal-sec"><h3>Acciones</h3><div style="display:flex;gap:0.5rem;flex-wrap:wrap">${actions.join('')}</div></div>`);
 
-  document.getElementById('st-total').textContent = candidates.length;
-  document.getElementById('st-enviar').textContent = enviar.length;
-  document.getElementById('st-revisar').textContent = revisar.length;
-  document.getElementById('st-descartar').textContent = descartar.length;
-  document.getElementById('st-sent').textContent = sent.length;
-
-  sendAllBtn.style.display = pendingSend.length > 0 ? '' : 'none';
-
-  area.innerHTML = candidates.map(c => {
-    const safeName = esc(c.name);
-    const safeFile = esc(c.filename);
-    const safeEmail = esc(c.email);
-    const safeId = esc(c.id);
-    const safeError = esc(c.error);
-    const fit = c.fit;
-
-    if (c.status === 'processing') {
-      return `<div class="cand-card processing"><div class="cand-row"><div class="cand-info"><div class="cand-name"><span class="spinner"></span> Analizando CV...</div><div class="cand-file">${safeFile}</div></div></div></div>`;
-    }
-    if (c.status === 'error') {
-      return `<div class="cand-card error"><div class="cand-row"><div class="cand-info"><div class="cand-name">${safeFile}</div><div style="font-size:0.78rem;color:var(--red);margin-top:0.25rem">${safeError}</div></div><div class="cand-actions"><button class="btn btn-danger btn-sm" onclick="removeCandidate('${safeId}')">x</button></div></div></div>`;
-    }
-
-    const fitClass = fit ? `fit-${fit.recommendation}` : '';
-    const scoreClass = fit ? (fit.score >= 6 ? 'high' : fit.score >= 4 ? 'mid' : 'low') : '';
-    const recLabel = fit ? (fit.recommendation === 'enviar' ? 'Recomendado' : fit.recommendation === 'revisar' ? 'Revisar' : 'Descartar') : '';
-    const recBadge = fit ? `badge-${fit.recommendation}` : '';
-
-    let emailBtn = '';
-    if (c.emailStatus === 'sent') {
-      emailBtn = `<span class="badge badge-ok">Enviada</span>`;
-    } else if (c.emailStatus === 'sending') {
-      emailBtn = `<span class="spinner"></span>`;
-    } else if (c.email) {
-      emailBtn = `<button class="btn btn-emerald btn-sm" onclick="sendInvite('${safeId}')">Enviar invitación</button>`;
-    } else {
-      emailBtn = `<span class="badge badge-wait">Sin email</span>`;
-    }
-
-    return `<div class="cand-card ${fitClass}">
-      <div class="cand-row">
-        <div class="cand-info">
-          <div class="cand-name">${safeName || safeFile}</div>
-          ${safeName ? `<div class="cand-file">${safeFile}</div>` : ''}
-          ${c.email ? `<div class="cand-email">${safeEmail}</div>` : ''}
-        </div>
-        <div class="cand-actions">
-          ${fit ? `<span class="badge ${recBadge}">${fit.score}/10 · ${recLabel}</span>` : ''}
-          ${emailBtn}
-          <div style="display:flex;gap:0.35rem">
-            <button class="btn btn-ghost btn-sm" onclick="copyLink('${safeId}')">Link</button>
-            <button class="btn btn-danger btn-sm" onclick="removeCandidate('${safeId}')">x</button>
-          </div>
-        </div>
+  if(d.events&&d.events.length>0){
+    blocks.push(`<div class="modal-sec"><h3>Historial de eventos</h3>
+      <div style="max-height:240px;overflow-y:auto;font-size:0.82rem">
+      ${d.events.map(ev=>`<div style="padding:0.45rem 0;border-bottom:1px solid var(--border)"><span class="muted mono">${fmtDate(ev.created_at)}</span> · <strong>${esc(ev.event_type)}</strong> <span class="muted">(${esc(ev.actor||'')})</span></div>`).join('')}
       </div>
-      ${fit ? `<div class="cand-fit">
-        <div class="fit-score ${scoreClass}">${fit.score}</div>
-        <div class="fit-summary">${esc(fit.summary)}</div>
-      </div>` : ''}
-    </div>`;
-  }).join('');
+    </div>`);
+  }
+
+  document.getElementById('m-body').innerHTML=blocks.join('');
 }
 
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2500);
+async function downloadCv(cvId){
+  try{
+    const r=await fetch('/api/admin/cv-url?id='+encodeURIComponent(cvId));
+    const data=await r.json();
+    if(!r.ok)throw new Error(data.error);
+    window.open(data.url,'_blank','noopener');
+  }catch(e){toast('Error: '+e.message,true);}
 }
+
+async function reanalyze(interviewId){
+  toast('Generando análisis IA…');
+  try{
+    const r=await fetch('/api/admin/reanalyze-interview',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({interviewId})});
+    const data=await r.json();
+    if(!r.ok)throw new Error(data.error);
+    toast('Análisis generado');
+  }catch(e){toast('Error: '+e.message,true);}
+}
+
+// ───────────────────────────────────────────────────────────────────────────
+// Manual upload
+// ───────────────────────────────────────────────────────────────────────────
+const muDrop=document.getElementById('mu-drop');
+const muFile=document.getElementById('mu-file');
+const muInfo=document.getElementById('mu-file-info');
+let muBuffer=null;
+
+['dragenter','dragover'].forEach(ev=>muDrop.addEventListener(ev,e=>{e.preventDefault();e.stopPropagation();muDrop.classList.add('dragover');}));
+['dragleave','drop'].forEach(ev=>muDrop.addEventListener(ev,e=>{e.preventDefault();e.stopPropagation();muDrop.classList.remove('dragover');}));
+muDrop.addEventListener('drop',e=>{const f=e.dataTransfer?.files?.[0];if(f){muFile.files=e.dataTransfer.files;handleMuFile(f);}});
+muFile.addEventListener('change',e=>handleMuFile(e.target.files?.[0]));
+
+function handleMuFile(f){
+  if(!f){muInfo.textContent='';muBuffer=null;muDrop.classList.remove('has-file');return;}
+  if(f.type!=='application/pdf'&&!f.name.toLowerCase().endsWith('.pdf')){toast('Solo PDF',true);return;}
+  if(f.size>5*1024*1024){toast('Máximo 5 MB',true);return;}
+  muBuffer=f;
+  muInfo.textContent=`${f.name} · ${Math.round(f.size/1024)} KB`;
+  muDrop.classList.add('has-file');
+}
+
+document.getElementById('upload-form').addEventListener('submit',async e=>{
+  e.preventDefault();
+  const email=document.getElementById('mu-email').value.trim();
+  const name=document.getElementById('mu-name').value.trim();
+  const exp=document.getElementById('mu-exp').value;
+  const autoInvite=document.getElementById('mu-auto').checked;
+  if(!muBuffer){toast('Selecciona un PDF',true);return;}
+  const btn=document.getElementById('mu-submit');
+  btn.disabled=true;btn.textContent='Subiendo…';
+  try{
+    const fileBase64=await new Promise((res,rej)=>{
+      const fr=new FileReader();
+      fr.onload=()=>{const s=String(fr.result||'');const i=s.indexOf('base64,');res(i>=0?s.slice(i+7):'');};
+      fr.onerror=()=>rej(new Error('read'));fr.readAsDataURL(muBuffer);
+    });
+    const r=await fetch('/api/admin/manual-upload',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({email,name,experience:exp,fileBase64,filename:muBuffer.name,autoInvite}),
+    });
+    const data=await r.json();
+    if(!r.ok)throw new Error(data.error);
+    toast(`✓ Subido. Score: ${data.score||'—'} · Status: ${data.status}`);
+    document.getElementById('upload-form').reset();muBuffer=null;muInfo.textContent='';muDrop.classList.remove('has-file');
+  }catch(e){toast('Error: '+e.message,true);}
+  btn.disabled=false;btn.textContent='Subir y analizar →';
+});
+
+// ───────────────────────────────────────────────────────────────────────────
+// Initial load
+// ───────────────────────────────────────────────────────────────────────────
+loadReview();
 </script>
 </body>
 </html>

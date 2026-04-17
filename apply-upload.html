@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sube tu CV — Alter5</title>
+<meta name="robots" content="noindex">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0A1628;--navy2:#111f38;--emerald:#10B981;--emerald-dim:#0d9268;
+  --slate:#94A3B8;--slate-light:#CBD5E1;--red:#EF4444;--amber:#F59E0B;
+  --bg:#F8FAFC;--white:#ffffff;--border:#E2E8F0;
+  --text:#1E293B;--text-muted:#64748B;
+  --serif:'DM Serif Display',Georgia,serif;
+  --sans:'Instrument Sans',sans-serif;
+  --mono:'DM Mono',monospace;
+  --radius:12px;
+}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;line-height:1.5}
+.hdr{background:var(--navy);padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between}
+.hdr-logo{font-family:var(--serif);color:#fff;font-size:1.2rem;letter-spacing:-0.01em}
+.hdr-logo span{color:var(--emerald)}
+.hdr-badge{background:rgba(16,185,129,0.15);color:var(--emerald);padding:0.2rem 0.6rem;border-radius:4px;font-size:0.68rem;font-weight:500;letter-spacing:0.05em;text-transform:uppercase;font-family:var(--mono)}
+.main{flex:1;max-width:700px;width:100%;margin:0 auto;padding:2.5rem 1.5rem}
+.eyebrow{font-family:var(--mono);font-size:0.7rem;color:var(--emerald);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.75rem}
+h1{font-family:var(--serif);font-size:2rem;color:var(--navy);line-height:1.15;margin-bottom:0.75rem;letter-spacing:-0.02em}
+.lead{font-size:0.95rem;color:var(--text-muted);margin-bottom:2rem;line-height:1.7}
+
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;margin-bottom:1rem}
+
+.drop{
+  border:2px dashed var(--border);
+  border-radius:var(--radius);
+  padding:2.5rem 1.5rem;
+  text-align:center;
+  cursor:pointer;
+  transition:all 0.15s;
+  background:#F8FAFC;
+}
+.drop:hover,.drop.dragover{border-color:var(--emerald);background:#F0FDF4}
+.drop.has-file{border-color:var(--emerald);background:#F0FDF4;border-style:solid}
+.drop-icon{width:48px;height:48px;margin:0 auto 0.75rem;color:var(--text-muted)}
+.drop.has-file .drop-icon{color:var(--emerald)}
+.drop-title{font-size:1rem;font-weight:600;color:var(--navy);margin-bottom:0.25rem}
+.drop-hint{font-size:0.82rem;color:var(--text-muted)}
+.drop input[type=file]{display:none}
+
+.file-info{margin-top:1rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:0.75rem 1rem;background:#fff;border:1px solid var(--emerald);border-radius:8px;font-size:0.88rem}
+.file-info .fname{color:var(--navy);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+.file-info .fsize{color:var(--text-muted);font-family:var(--mono);font-size:0.78rem}
+.file-info .fclear{background:none;border:none;color:var(--red);font-size:1.1rem;cursor:pointer;padding:0 0.3rem}
+.file-info .fclear:hover{color:#b91c1c}
+
+.field{margin-top:1.5rem}
+.field label{display:block;font-size:0.82rem;font-weight:500;color:var(--text);margin-bottom:0.4rem}
+.field select{width:100%;padding:0.7rem 0.9rem;border:1px solid var(--border);border-radius:8px;font-family:var(--sans);font-size:0.95rem;color:var(--text);background:var(--white);outline:none;cursor:pointer}
+.field select:focus{border-color:var(--emerald)}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;padding:0.85rem 1.75rem;border-radius:8px;font-family:var(--sans);font-size:0.95rem;font-weight:600;cursor:pointer;border:none;transition:all 0.15s;width:100%;margin-top:1.5rem}
+.btn-primary{background:var(--navy);color:#fff}
+.btn-primary:hover:not(:disabled){background:var(--navy2);transform:translateY(-1px)}
+.btn-primary:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.err,.ok{padding:0.85rem 1rem;border-radius:8px;font-size:0.88rem;line-height:1.55;margin-top:1rem}
+.err{background:#FEF2F2;color:#991B1B;border:1px solid #FEE2E2}
+.ok{background:#F0FDF4;color:#166534;border:1px solid #BBF7D0}
+.hidden{display:none}
+
+.progress{margin-top:1rem;background:#F1F5F9;border-radius:8px;overflow:hidden;height:6px}
+.progress-bar{height:100%;background:var(--emerald);width:0%;transition:width 0.3s}
+
+.success-screen{text-align:center;padding:2rem 1rem}
+.success-icon{width:64px;height:64px;margin:0 auto 1rem;color:var(--emerald)}
+.success-screen h2{font-family:var(--serif);font-size:1.8rem;color:var(--navy);margin-bottom:0.75rem;letter-spacing:-0.01em}
+.success-screen p{color:var(--text-muted);font-size:0.95rem;line-height:1.7;max-width:480px;margin:0 auto 0.75rem}
+
+.privacy-note{font-size:0.75rem;color:var(--text-muted);line-height:1.6;margin-top:1.25rem;padding-top:1.25rem;border-top:1px solid var(--border)}
+.privacy-note a{color:var(--text-muted);text-decoration:underline}
+
+.ftr{text-align:center;padding:1.5rem 1rem;font-size:0.72rem;color:var(--text-muted);font-family:var(--mono);letter-spacing:0.05em}
+.ftr a{color:var(--text-muted);text-decoration:underline;margin:0 0.5rem}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="hdr-logo">Alter<span>5</span></div>
+  <div class="hdr-badge">Paso 2 de 3 · Subir CV</div>
+</header>
+
+<main class="main">
+
+  <div id="upload-view">
+    <div class="eyebrow">Email verificado · Siguiente paso</div>
+    <h1>Sube tu CV</h1>
+    <p class="lead">
+      Sube tu CV en PDF (máx. 5&nbsp;MB). Lo analizaremos automáticamente frente a los requisitos de
+      <strong>SW Architect / AI Head of Engineering</strong> y te contestaremos en los próximos minutos.
+    </p>
+
+    <div class="card">
+      <form id="upload-form" novalidate>
+        <label class="drop" id="drop-zone">
+          <svg class="drop-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"/>
+          </svg>
+          <div class="drop-title">Arrastra tu CV aquí o haz click para elegir</div>
+          <div class="drop-hint">Solo PDF · Máximo 5 MB</div>
+          <input type="file" id="file-input" accept="application/pdf,.pdf">
+        </label>
+
+        <div id="file-info" class="file-info hidden">
+          <span class="fname" id="file-name"></span>
+          <span class="fsize" id="file-size"></span>
+          <button type="button" class="fclear" id="file-clear" aria-label="Quitar archivo">&times;</button>
+        </div>
+
+        <div class="field">
+          <label for="experience">Años de experiencia total en desarrollo</label>
+          <select id="experience" name="experience" required>
+            <option value="">Selecciona…</option>
+            <option value="3-5">3 a 5 años</option>
+            <option value="5-8">5 a 8 años</option>
+            <option value="8-12">8 a 12 años</option>
+            <option value="12+">12 años o más</option>
+          </select>
+        </div>
+
+        <button type="submit" id="submit-btn" class="btn btn-primary" disabled>Enviar CV para análisis</button>
+
+        <div id="progress" class="progress hidden"><div class="progress-bar" id="progress-bar"></div></div>
+
+        <div id="err-box" class="err hidden"></div>
+      </form>
+
+      <p class="privacy-note">
+        Tu CV se almacena cifrado en la UE (Fráncfort) y se analiza con Claude (Anthropic) según la
+        <a href="/apply/privacy" target="_blank" rel="noopener">política de privacidad</a>. Retención máxima 12 meses.
+      </p>
+    </div>
+  </div>
+
+  <div id="success-view" class="card hidden">
+    <div class="success-screen">
+      <svg class="success-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+      </svg>
+      <h2>¡Gracias! Hemos recibido tu CV</h2>
+      <p>
+        Estamos analizándolo ahora. Te escribiremos al email que verificaste
+        <strong>si hay encaje con el puesto</strong>. Si tu perfil encaja, recibirás un enlace a una
+        entrevista técnica breve (~15&nbsp;min).
+      </p>
+      <p class="privacy-note" style="border:none;padding:0;margin-top:1.5rem;text-align:center">
+        Puedes consultar o borrar tus datos en cualquier momento en
+        <a href="/privacy/my-data">gestionar mis datos</a>.
+      </p>
+    </div>
+  </div>
+
+</main>
+
+<footer class="ftr">
+  Alter5 Financial Technologies, S.L. · Madrid ·
+  <a href="https://www.alter5.com/es/privacy" target="_blank" rel="noopener">Privacidad</a>
+  <a href="/apply/privacy" target="_blank" rel="noopener">Política candidatos</a>
+  <a href="/privacy/my-data">Mis datos</a>
+</footer>
+
+<script>
+(function () {
+  const form = document.getElementById('upload-form');
+  const dropZone = document.getElementById('drop-zone');
+  const fileInput = document.getElementById('file-input');
+  const fileInfo = document.getElementById('file-info');
+  const fileName = document.getElementById('file-name');
+  const fileSize = document.getElementById('file-size');
+  const fileClear = document.getElementById('file-clear');
+  const experienceSel = document.getElementById('experience');
+  const submitBtn = document.getElementById('submit-btn');
+  const errBox = document.getElementById('err-box');
+  const progress = document.getElementById('progress');
+  const progressBar = document.getElementById('progress-bar');
+  const uploadView = document.getElementById('upload-view');
+  const successView = document.getElementById('success-view');
+
+  const MAX_BYTES = 5 * 1024 * 1024; // 5MB
+
+  let currentFile = null;
+
+  const ERRORS = {
+    session_expired: 'Tu sesión ha caducado. Vuelve a <a href="/sw-architect">empezar el proceso</a> para recibir un nuevo enlace.',
+    missing_fields: 'Falta información. Revisa el archivo y vuelve a intentarlo.',
+    filename_too_long: 'El nombre del archivo es demasiado largo.',
+    file_too_large: 'El archivo supera el máximo de 5 MB.',
+    invalid_base64: 'No se pudo leer el archivo. Prueba a subirlo de nuevo.',
+    invalid_pdf: 'El archivo no parece un PDF válido.',
+    application_not_found: 'No encontramos tu candidatura. Vuelve a <a href="/sw-architect">empezar el proceso</a>.',
+    invalid_state: 'Tu candidatura ya está en otra fase. Si crees que es un error, escribe a <a href="mailto:careers@alter-5.com">careers@alter-5.com</a>.',
+    internal_error: 'Ha ocurrido un error inesperado. Inténtalo en unos minutos.',
+  };
+
+  function showError(code) {
+    const msg = ERRORS[code] || ERRORS.internal_error;
+    errBox.innerHTML = msg;
+    errBox.classList.remove('hidden');
+  }
+  function hideError() { errBox.classList.add('hidden'); errBox.innerHTML = ''; }
+
+  function formatSize(bytes) {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+  }
+
+  function updateSubmitState() {
+    submitBtn.disabled = !(currentFile && experienceSel.value);
+  }
+
+  function setFile(file) {
+    hideError();
+    if (!file) { clearFile(); return; }
+    if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+      showError('invalid_pdf');
+      return;
+    }
+    if (file.size > MAX_BYTES) {
+      showError('file_too_large');
+      return;
+    }
+    currentFile = file;
+    fileName.textContent = file.name;
+    fileSize.textContent = formatSize(file.size);
+    fileInfo.classList.remove('hidden');
+    dropZone.classList.add('has-file');
+    updateSubmitState();
+  }
+
+  function clearFile() {
+    currentFile = null;
+    fileInput.value = '';
+    fileInfo.classList.add('hidden');
+    dropZone.classList.remove('has-file');
+    updateSubmitState();
+  }
+
+  // Drag & drop
+  ['dragenter','dragover'].forEach(ev => {
+    dropZone.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); dropZone.classList.add('dragover'); });
+  });
+  ['dragleave','drop'].forEach(ev => {
+    dropZone.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); dropZone.classList.remove('dragover'); });
+  });
+  dropZone.addEventListener('drop', e => {
+    const f = e.dataTransfer?.files?.[0];
+    if (f) setFile(f);
+  });
+
+  fileInput.addEventListener('change', e => setFile(e.target.files?.[0]));
+  fileClear.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); clearFile(); });
+  experienceSel.addEventListener('change', updateSubmitState);
+
+  function readAsBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        // result looks like "data:application/pdf;base64,JVBERi0..."
+        const result = String(reader.result || '');
+        const idx = result.indexOf('base64,');
+        resolve(idx >= 0 ? result.slice(idx + 7) : '');
+      };
+      reader.onerror = () => reject(new Error('read_error'));
+      reader.readAsDataURL(file);
+    });
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!currentFile || !experienceSel.value) return;
+    hideError();
+
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="spinner"></span> Subiendo y analizando…';
+    progress.classList.remove('hidden');
+    progressBar.style.width = '20%';
+
+    let fileBase64;
+    try {
+      fileBase64 = await readAsBase64(currentFile);
+      progressBar.style.width = '45%';
+    } catch {
+      showError('invalid_base64');
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Enviar CV para análisis';
+      progress.classList.add('hidden');
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/upload-cv', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          fileBase64,
+          filename: currentFile.name,
+          experience: experienceSel.value,
+        }),
+      });
+
+      progressBar.style.width = '95%';
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        showError(data.error);
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Reintentar';
+        progress.classList.add('hidden');
+        return;
+      }
+
+      progressBar.style.width = '100%';
+      setTimeout(() => {
+        uploadView.classList.add('hidden');
+        successView.classList.remove('hidden');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 400);
+    } catch {
+      showError('internal_error');
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Reintentar';
+      progress.classList.add('hidden');
+    }
+  });
+})();
+</script>
+</body>
+</html>
