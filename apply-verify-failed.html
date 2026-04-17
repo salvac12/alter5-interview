@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Enlace no válido — Alter5</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Instrument Sans',sans-serif;background:#F8FAFC;color:#1E293B;min-height:100vh;display:flex;flex-direction:column}
+.hdr{background:#0A1628;padding:1rem 2rem}
+.hdr-logo{font-family:'DM Serif Display',serif;color:#fff;font-size:1.2rem}
+.hdr-logo span{color:#10B981}
+.main{flex:1;max-width:560px;width:100%;margin:0 auto;padding:3rem 1.5rem;text-align:center}
+.icon{width:72px;height:72px;background:#FEF2F2;border:2px solid #FECACA;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;font-size:2rem;color:#DC2626}
+h1{font-family:'DM Serif Display',serif;font-size:2.2rem;color:#0A1628;margin-bottom:1rem;letter-spacing:-0.02em}
+p{font-size:1rem;color:#64748B;line-height:1.7;margin-bottom:1rem}
+.btn{display:inline-flex;align-items:center;gap:0.5rem;padding:0.8rem 1.5rem;border-radius:8px;font-weight:600;background:#0A1628;color:#fff;text-decoration:none;margin-top:1rem}
+.btn:hover{background:#111f38}
+.ftr{text-align:center;padding:1.5rem;font-size:0.72rem;color:#94A3B8;font-family:monospace}
+</style>
+</head>
+<body>
+<header class="hdr"><div class="hdr-logo">Alter<span>5</span></div></header>
+<main class="main">
+  <div class="icon">!</div>
+  <h1 id="title">Enlace no válido</h1>
+  <p id="reason">Este enlace de verificación no se puede usar.</p>
+  <p>Por favor, vuelve a introducir tu email para recibir un enlace nuevo.</p>
+  <a href="/sw-architect" class="btn">Volver a empezar</a>
+</main>
+<footer class="ftr">Alter5 Financial Technologies, S.L.</footer>
+<script>
+const reasons = {
+  expired:  { title: 'Enlace caducado',  msg: 'El enlace ha expirado (vida máxima 30 minutos).' },
+  used:     { title: 'Enlace ya usado',  msg: 'Este enlace se usó anteriormente. Los enlaces son de un solo uso por seguridad.' },
+  invalid:  { title: 'Enlace no válido', msg: 'El enlace está corrupto o no es correcto.' },
+  deleted:  { title: 'Candidatura no disponible', msg: 'Esta candidatura ya no está activa en el sistema.' },
+  server:   { title: 'Error temporal',   msg: 'Se produjo un error al validar el enlace. Inténtalo de nuevo.' },
+};
+const p = new URLSearchParams(window.location.search);
+const r = reasons[p.get('reason')] || reasons.invalid;
+document.getElementById('title').textContent = r.title;
+document.getElementById('reason').textContent = r.msg;
+</script>
+</body>
+</html>

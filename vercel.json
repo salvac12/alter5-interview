@@ -2,6 +2,14 @@
   "rewrites": [
     { "source": "/admin", "destination": "/admin.html" },
     { "source": "/dashboard", "destination": "/dashboard.html" },
+    { "source": "/reports", "destination": "/reports.html" },
+    { "source": "/sw-architect", "destination": "/sw-architect.html" },
+    { "source": "/apply/thanks", "destination": "/apply-thanks.html" },
+    { "source": "/apply/verify-failed", "destination": "/apply-verify-failed.html" },
+    { "source": "/apply/privacy", "destination": "/apply-privacy.html" },
+    { "source": "/apply/upload", "destination": "/apply-upload.html" },
+    { "source": "/interview", "destination": "/interview.html" },
+    { "source": "/privacy/my-data", "destination": "/privacy-my-data.html" },
     { "source": "/", "destination": "/index.html" }
   ],
   "headers": [
@@ -15,5 +23,8 @@
         { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=()" }
       ]
     }
+  ],
+  "crons": [
+    { "path": "/api/cron/purge-expired", "schedule": "0 3 * * *" }
   ]
 }
