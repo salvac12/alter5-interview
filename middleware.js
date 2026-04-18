@@ -24,6 +24,9 @@ export const config = {
     '/api/interview/:path*',
     '/api/privacy/:path*',
     '/api/public-config',
+    // Cron self-authenticates with Bearer, but we still rate-limit at the
+    // edge so an unauthenticated flood doesn't keep waking the function.
+    '/api/cron/:path*',
   ],
 };
 
@@ -46,6 +49,7 @@ const RATE_LIMITS = {
   '/api/privacy/':          { max: 5,  windowSec: 60 },
   '/api/public-config':     { max: 60, windowSec: 60 },
   '/api/admin/':            { max: 60, windowSec: 60 },
+  '/api/cron/':             { max: 10, windowSec: 60 },
 };
 
 // ── In-memory rate-limit store (per-instance) ───────────────────────────────
@@ -100,15 +104,22 @@ function needsAuth(path) {
 }
 
 // Constant-time comparison of two strings (defends against timing attacks).
-// We can't use crypto.timingSafeEqual in the Edge runtime reliably, so we
-// implement it manually with constant-time XOR over equal-length buffers.
-function safeEqual(a, b) {
+//
+// We use SHA-256 of both inputs so we always XOR over fixed-length
+// 32-byte buffers — this avoids leaking the length of ADMIN_PASS via
+// the early-exit on `a.length !== b.length` that the previous version
+// had. SubtleCrypto.digest is available in the Vercel Edge runtime.
+async function safeEqual(a, b) {
   if (typeof a !== 'string' || typeof b !== 'string') return false;
-  if (a.length !== b.length) return false;
+  const enc = new TextEncoder();
+  const [ha, hb] = await Promise.all([
+    crypto.subtle.digest('SHA-256', enc.encode(a)),
+    crypto.subtle.digest('SHA-256', enc.encode(b)),
+  ]);
+  const ua = new Uint8Array(ha);
+  const ub = new Uint8Array(hb);
   let diff = 0;
-  for (let i = 0; i < a.length; i++) {
-    diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
-  }
+  for (let i = 0; i < ua.length; i++) diff |= ua[i] ^ ub[i];
   return diff === 0;
 }
 
@@ -116,10 +127,14 @@ function safeEqual(a, b) {
 // obvious garbage from spoofed X-Forwarded-For).
 function looksLikeIp(s) {
   if (!s) return false;
-  // IPv4
+  // IPv4 — four octets 0-255 (rough — accepts 999, but acceptable for a
+  // pre-DB-insert sanity check; Postgres `inet` will refuse the bad ones).
   if (/^(?:\d{1,3}\.){3}\d{1,3}$/.test(s)) return true;
-  // IPv6 — coarse check (presence of colons + valid hex)
-  if (/^[0-9a-fA-F:]+$/.test(s) && s.includes(':')) return true;
+  // IPv6 — require hex digits in addition to colons. The previous check
+  // accepted strings like ":::::" because it tested only "hex OR colon"
+  // and "contains colon". Now we require at least one hex digit AND at
+  // least two colons (every valid IPv6 form has ≥2 colons).
+  if (/^[0-9a-fA-F:]+$/.test(s) && /[0-9a-fA-F]/.test(s) && (s.match(/:/g) || []).length >= 2) return true;
   return false;
 }
 
@@ -130,7 +145,7 @@ function clientIp(req) {
 }
 
 // ── Middleware entry point ──────────────────────────────────────────────────
-export default function middleware(req) {
+export default async function middleware(req) {
   const url = new URL(req.url);
   const ip = clientIp(req);
 
@@ -170,7 +185,11 @@ export default function middleware(req) {
         if (idx > 0) {
           const user = decoded.slice(0, idx);
           const pass = decoded.slice(idx + 1);
-          if (safeEqual(user, AUTH_USER) && safeEqual(pass, AUTH_PASS)) return;
+          const [okUser, okPass] = await Promise.all([
+            safeEqual(user, AUTH_USER),
+            safeEqual(pass, AUTH_PASS),
+          ]);
+          if (okUser && okPass) return;
         }
       } catch {
         // Malformed base64 — fall through to 401

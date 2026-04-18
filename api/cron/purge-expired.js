@@ -26,22 +26,28 @@ module.exports.default = async function handler(req, res) {
   }
 
   try {
-    // 1. Snapshot expiring app IDs.
-    const nowIso = new Date().toISOString();
-    const { data: expiring, error: selErr } = await supabaseAdmin
-      .from('applications')
-      .select('id')
-      .lt('expires_at', nowIso)
-      .is('deleted_at', null);
-    if (selErr) throw selErr;
-    const ids = (expiring || []).map(r => r.id);
-
-    // 2. Run the DB-side scrub.
+    // 1. Run the DB-side scrub first.
     const { data, error } = await supabaseAdmin.rpc('purge_expired_applications');
     if (error) throw error;
     const affected = typeof data === 'number' ? data : (data?.[0] ?? 0);
 
-    // 3. Wipe CV storage + cvs rows for the snapshotted IDs.
+    // 2. Find every soft-deleted application that still has CV rows. This
+    //    is intentionally based on POST-RPC state (not a pre-RPC snapshot)
+    //    so we catch:
+    //      - records the RPC just scrubbed in this run, AND
+    //      - any orphans left behind by previous runs that crashed
+    //        between the RPC and the storage delete (self-healing).
+    //    The join through `cvs` keeps the result set bounded — we only
+    //    scan apps that actually have files to clean, regardless of how
+    //    long they have been soft-deleted.
+    const { data: orphans, error: orphanErr } = await supabaseAdmin
+      .from('cvs')
+      .select('application_id, applications!inner(id, deleted_at)')
+      .not('applications.deleted_at', 'is', null);
+    if (orphanErr) throw orphanErr;
+
+    const ids = Array.from(new Set((orphans || []).map(r => r.application_id)));
+
     let storageResult = { storage_deleted: 0, rows_deleted: 0, errors: [] };
     if (ids.length > 0) {
       try {

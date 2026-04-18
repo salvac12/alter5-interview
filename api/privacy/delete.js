@@ -64,11 +64,21 @@ module.exports.default = async function handler(req, res) {
     });
     if (rpcErr) {
       // Revert the consume so the candidate can retry their ARCO link.
-      await supabaseAdmin
+      // If the revert ITSELF fails, log loudly — the link is now permanently
+      // burned and the candidate must request a new one. We still throw the
+      // original RPC error so the user gets a 500 (not a misleading 200).
+      const { error: revertErr } = await supabaseAdmin
         .from('magic_links')
         .update({ used_at: null })
         .eq('id', link.id)
         .eq('used_at', consumedAt);
+      if (revertErr) {
+        console.error('[privacy/delete] CRITICAL: token revert failed after RPC error', {
+          link_id: link.id,
+          rpc_error: rpcErr.message,
+          revert_error: revertErr.message,
+        });
+      }
       throw rpcErr;
     }
 

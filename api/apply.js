@@ -46,6 +46,14 @@ module.exports.default = async function handler(req, res) {
 
   const turnstile = await verifyTurnstile(turnstile_token, ip);
   if (!turnstile.success) {
+    // Surface the Cloudflare error code in logs so we can distinguish
+    // expired tokens from secret/hostname misconfigurations. We do NOT
+    // leak the code to the client (it would help attackers craft retries).
+    console.error('[apply] turnstile_failed', {
+      code: turnstile.error || 'unknown',
+      ip_present: !!ip,
+      token_len: turnstile_token ? String(turnstile_token).length : 0,
+    });
     return res.status(400).json({ error: 'turnstile_failed' });
   }
 
@@ -130,32 +138,22 @@ module.exports.default = async function handler(req, res) {
     //    when + which policy version the candidate accepted). One row per
     //    declared consent; the booleans on `applications` remain for fast
     //    lookups but this table is the audit source of truth.
-    await supabaseAdmin.from('consent_events').insert([
-      {
-        application_id: applicationId,
-        consent_type: 'privacy',
-        granted: !!consent_privacy,
-        policy_version: POLICY_VERSION,
-        ip,
-        user_agent: ua,
-      },
-      {
-        application_id: applicationId,
-        consent_type: 'ai_decision',
-        granted: !!consent_ai_decision,
-        policy_version: POLICY_VERSION,
-        ip,
-        user_agent: ua,
-      },
-      {
-        application_id: applicationId,
-        consent_type: 'human_review',
-        granted: !!requested_human_review,
-        policy_version: POLICY_VERSION,
-        ip,
-        user_agent: ua,
-      },
+    //
+    //    A failure here is loud: if we cannot prove consent, we should know
+    //    immediately. We still let the apply succeed (the booleans on the
+    //    application row carry the consent data) but log loudly so an
+    //    accidental schema/RLS regression is visible in Vercel logs.
+    const { error: consentErr } = await supabaseAdmin.from('consent_events').insert([
+      { application_id: applicationId, consent_type: 'privacy',       granted: !!consent_privacy,        policy_version: POLICY_VERSION, ip, user_agent: ua },
+      { application_id: applicationId, consent_type: 'ai_decision',   granted: !!consent_ai_decision,    policy_version: POLICY_VERSION, ip, user_agent: ua },
+      { application_id: applicationId, consent_type: 'human_review',  granted: !!requested_human_review, policy_version: POLICY_VERSION, ip, user_agent: ua },
     ]);
+    if (consentErr) {
+      console.error('[apply] consent_events insert failed', {
+        application_id: applicationId,
+        message: consentErr.message,
+      });
+    }
 
     // 6. Audit event.
     await supabaseAdmin.from('application_events').insert({

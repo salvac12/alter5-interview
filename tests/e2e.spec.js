@@ -20,6 +20,12 @@ function assertSecurityHeaders(resp) {
   const h = resp.headers();
   for (const [k, v] of Object.entries(SEC_HEADERS)) expect(h[k]).toBe(v);
   expect(h['strict-transport-security']).toBeDefined();
+  // Hardened headers landed in commit 694b3b6 — guard against silent
+  // regressions that strip CSP/COOP/CORP from the global header block.
+  expect(h['content-security-policy']).toContain("default-src 'self'");
+  expect(h['content-security-policy']).toContain('https://challenges.cloudflare.com');
+  expect(h['cross-origin-opener-policy']).toBe('same-origin');
+  expect(h['cross-origin-resource-policy']).toBe('same-origin');
 }
 
 test.describe('Public pages', () => {
@@ -144,6 +150,50 @@ test.describe('Public API safety', () => {
       results.push(r.status());
     }
     expect(results.some(s => s === 429)).toBeTruthy();
+  });
+
+  test('/sw-architect legacy URL 308-redirects to /hoe', async ({ request }) => {
+    // Old public URL was renamed; the redirect must remain in place so any
+    // links that escaped into the wild keep landing on the form. 308
+    // (Permanent Redirect) preserves both method and SEO juice.
+    const r = await request.get(`${BASE}/sw-architect`, {
+      maxRedirects: 0,
+      failOnStatusCode: false,
+    });
+    expect(r.status()).toBe(308);
+    expect(r.headers()['location']).toMatch(/\/hoe$/);
+  });
+
+  test('/api/upload-cv rejects unauthenticated POST', async ({ request }) => {
+    // Should not accept arbitrary uploads without an apply session.
+    const r = await request.post(`${BASE}/api/upload-cv`, {
+      data: {},
+      failOnStatusCode: false,
+    });
+    // Either 400 (missing fields) or 401/403 (gated). Anything else (e.g.
+    // 200) means the endpoint is wide open.
+    expect([400, 401, 403, 429]).toContain(r.status());
+  });
+
+  test('/api/submit-interview with garbage token does not 200', async ({ request }) => {
+    const r = await request.post(`${BASE}/api/submit-interview`, {
+      data: { token: 'a'.repeat(64), answers: {} },
+      failOnStatusCode: false,
+    });
+    // 400/401/403/429 all acceptable — anything but a successful submit.
+    expect([400, 401, 403, 404, 429]).toContain(r.status());
+  });
+
+  test('/api/privacy/delete with invalid token returns {ok:false}', async ({ request }) => {
+    const r = await request.post(`${BASE}/api/privacy/delete`, {
+      data: { token: 'a'.repeat(64) },
+      failOnStatusCode: false,
+    });
+    expect([200, 429]).toContain(r.status());
+    if (r.status() === 200) {
+      const body = await r.json();
+      expect(body.ok).toBe(false);
+    }
   });
 });
 
