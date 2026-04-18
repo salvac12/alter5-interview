@@ -89,12 +89,12 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
     <div class="info-box">
       <h3>Requisitos mínimos</h3>
       <ul class="req-list">
-        <li>8+ años de experiencia como desarrollador, 3+ liderando equipos técnicos.</li>
+        <li>Experiencia liderando equipos técnicos.</li>
         <li>Arquitectura cloud en AWS (App Runner, RDS, ECS, PostgreSQL, observabilidad).</li>
         <li>Experiencia real aplicando LLMs: RAG, agentes, orquestación (LangChain, CrewAI, Vercel AI SDK).</li>
-        <li>Gestión de personas (&gt;3), remoto, evaluaciones de performance.</li>
+        <li>Gestión de personas, remoto, evaluaciones de performance.</li>
         <li>Colaboración con perfiles no técnicos y traducción de negocio a producto.</li>
-        <li>Dedicación exclusiva (obligatoria).</li>
+        <li>Dedicación exclusiva.</li>
       </ul>
     </div>
   </div>
@@ -133,23 +133,11 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
       <label class="consent">
         <input type="checkbox" id="consent-privacy" required>
         <span>
-          He leído y acepto la <a href="/apply/privacy" target="_blank" rel="noopener">política de privacidad para candidatos</a>
-          y el tratamiento de mis datos por Alter5 Financial Technologies, S.L. con la finalidad de gestionar
-          mi candidatura. *
+          He leído y acepto la <a href="/apply/privacy" target="_blank" rel="noopener">política de privacidad para candidatos</a>,
+          incluyendo el análisis automatizado de mi CV mediante IA para evaluar el encaje con el puesto,
+          y el tratamiento de mis datos por Alter5 Financial Technologies, S.L. con la finalidad de gestionar mi candidatura.
+          Puedo solicitar revisión humana en cualquier momento. *
         </span>
-      </label>
-
-      <label class="consent">
-        <input type="checkbox" id="consent-ai" required>
-        <span>
-          Entiendo que mi CV será analizado de forma <strong>automatizada mediante IA</strong> (Claude, Anthropic)
-          para evaluar el encaje con el puesto, y que puedo solicitar <strong>revisión humana</strong> de esa decisión. *
-        </span>
-      </label>
-
-      <label class="consent consent-opt">
-        <input type="checkbox" id="request-human-review">
-        <span>Prefiero que un miembro del equipo revise mi candidatura manualmente (opcional).</span>
       </label>
 
       <div id="turnstile-container"></div>
@@ -179,8 +167,6 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
   const form = document.getElementById('apply-form');
   const emailInput = document.getElementById('email');
   const consentPrivacy = document.getElementById('consent-privacy');
-  const consentAi = document.getElementById('consent-ai');
-  const requestHuman = document.getElementById('request-human-review');
   const submitBtn = document.getElementById('submit-btn');
   const errBox = document.getElementById('err-box');
   const okBox = document.getElementById('ok-box');
@@ -238,8 +224,8 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return showErr('Introduce un email válido.');
     }
-    if (!consentPrivacy.checked || !consentAi.checked) {
-      return showErr('Debes aceptar los consentimientos obligatorios para continuar.');
+    if (!consentPrivacy.checked) {
+      return showErr('Debes aceptar la política de privacidad para continuar.');
     }
     if (!turnstileToken) {
       return showErr('Completa la verificación anti-robot antes de enviar.');
@@ -255,8 +241,8 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
         body: JSON.stringify({
           email,
           consent_privacy: consentPrivacy.checked,
-          consent_ai_decision: consentAi.checked,
-          requested_human_review: requestHuman.checked,
+          consent_ai_decision: true,
+          requested_human_review: false,
           turnstile_token: turnstileToken,
           utm_source: utm.source,
           utm_medium: utm.medium,
