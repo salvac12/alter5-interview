@@ -10,105 +10,402 @@
 <link rel="stylesheet" href="/ds/tokens.css">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --navy:#13285B;--navy2:#0e1f48;--emerald:#51b6be;--emerald-dim:#3a99a1;
-  --slate:#94A3B8;--slate-light:#CBD5E1;--red:#EF4444;--amber:#F59E0B;
-  --bg:#fafbfc;--white:#ffffff;--border:#E2E8F0;
-  --text:#1E293B;--text-muted:#64748B;
-  --serif:'Figtree',sans-serif;
-  --sans:'Figtree',sans-serif;
-  --mono:'JetBrains Mono',monospace;
-  --radius:14px;
+body{
+  font-family:var(--a5-font-landing);
+  background:#fafbfc;
+  color:var(--a5-text-primary);
+  min-height:100vh;
+  display:flex;flex-direction:column;
+  line-height:var(--a5-leading-normal);
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
 }
-body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;line-height:1.5}
-.hdr{background:var(--navy);padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+
+/* ── Header (matches apply-upload.html) ─────────────────── */
+.hdr{
+  background:var(--a5-blue);
+  padding:14px 32px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;
+}
 .hdr-logo{display:inline-flex;align-items:center}
 .hdr-logo img{height:28px;width:auto;display:block}
-.hdr-right{display:flex;align-items:center;gap:0.75rem}
-.hdr-meta{font-family:var(--mono);font-size:0.72rem;color:var(--slate)}
-.hdr-badge{background:rgba(80,182,190,0.15);color:var(--emerald);padding:0.2rem 0.6rem;border-radius:4px;font-size:0.68rem;font-weight:500;letter-spacing:0.05em;text-transform:uppercase;font-family:var(--mono)}
-.hdr-candidate{font-family:var(--mono);font-size:0.72rem;color:#fff;background:rgba(255,255,255,0.08);padding:0.25rem 0.75rem;border-radius:4px}
-.main{flex:1;max-width:780px;width:100%;margin:0 auto;padding:2.5rem 1.5rem}
+.hdr-right{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:flex-end}
+.hdr-meta{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;
+  color:rgba(255,255,255,0.55);
+  letter-spacing:0.03em;
+}
+.hdr-badge{
+  background:rgba(81,182,190,0.18);
+  color:var(--a5-teal);
+  padding:6px 12px;
+  border-radius:var(--a5-radius-full);
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;font-weight:500;
+  letter-spacing:0.06em;text-transform:uppercase;
+}
+.hdr-candidate{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;color:#fff;
+  background:rgba(255,255,255,0.08);
+  padding:5px 12px;border-radius:var(--a5-radius-full);
+}
+
+/* ── Main ───────────────────────────────────────────────── */
+.main{flex:1;max-width:760px;width:100%;margin:0 auto;padding:48px 24px 40px}
 .screen{display:none}.screen.active{display:block}
-.eyebrow{font-family:var(--mono);font-size:0.7rem;color:var(--emerald);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.75rem}
-.big-title{font-family:var(--serif);font-size:2.4rem;color:var(--navy);line-height:1.15;margin-bottom:1rem;letter-spacing:-0.02em}
-.intro-body{font-size:0.95rem;color:var(--text-muted);line-height:1.75;margin-bottom:1.75rem;max-width:560px}
-.info-box{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;margin-bottom:1.25rem}
-.info-box h3{font-size:0.75rem;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.85rem}
-.info-row{display:flex;gap:0.65rem;align-items:flex-start;font-size:0.875rem;color:var(--text);margin-bottom:0.5rem;line-height:1.5}
-.dot{width:5px;height:5px;border-radius:50%;background:var(--emerald);margin-top:0.42rem;flex-shrink:0}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;padding:0.8rem 1.6rem;border-radius:8px;font-family:var(--sans);font-size:0.9rem;font-weight:600;cursor:pointer;border:none;transition:all 0.15s}
-.btn-primary{background:var(--navy);color:#fff}
-.btn-primary:hover:not(:disabled){background:var(--navy2);transform:translateY(-1px)}
-.btn-primary:disabled{opacity:0.5;cursor:not-allowed;transform:none}
-.btn-ghost{background:transparent;color:var(--text-muted);border:1px solid var(--border)}
-.btn-ghost:hover{background:var(--white);color:var(--text)}
-.btn-emerald{background:var(--emerald);color:#fff}
-.btn-emerald:hover:not(:disabled){background:var(--emerald-dim)}
-.btn-sm{padding:0.5rem 1rem;font-size:0.82rem}
-.prog-wrap{background:var(--border);height:3px;border-radius:2px;margin-bottom:2rem;overflow:hidden}
-.prog-fill{height:100%;background:var(--emerald);border-radius:2px;transition:width 0.4s ease}
-.block-intro{background:var(--navy);border-radius:var(--radius);padding:1.1rem 1.4rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem}
-.block-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;background:rgba(255,255,255,0.1);color:#fff}
-.block-text h3{font-size:0.9rem;font-weight:600;color:#fff;margin-bottom:0.15rem}
-.block-text p{font-size:0.78rem;color:var(--slate);line-height:1.4}
-.qheader{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem}
-.qmeta{display:flex;align-items:center;gap:0.65rem}
-.qnum{font-family:var(--mono);font-size:0.72rem;color:var(--text-muted)}
-.qcat{font-size:0.68rem;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;padding:0.18rem 0.55rem;border-radius:4px}
-.cat-tech{background:#EFF6FF;color:#1D4ED8}
-.cat-ai{background:#F0FDF4;color:#15803D}
-.cat-leadership{background:#FDF4FF;color:#7E22CE}
-.cat-product{background:#FFF7ED;color:#C2410C}
-.cat-multiwork{background:#FEF2F2;color:#DC2626}
-.cat-compensation{background:#FEFCE8;color:#854D0E}
-.timer{display:flex;align-items:center;gap:0.45rem;font-family:var(--mono);font-size:0.95rem;font-weight:500;color:var(--navy);transition:color 0.3s}
-.timer.warn{color:var(--amber)}.timer.danger{color:var(--red)}
-.tdot{width:7px;height:7px;border-radius:50%;background:var(--emerald);animation:pulse 1.2s infinite}
-.tdot.warn{background:var(--amber)}.tdot.danger{background:var(--red)}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.8)}}
-.qtext{font-family:var(--serif);font-size:1.5rem;color:var(--navy);line-height:1.4;margin-bottom:0.6rem;letter-spacing:-0.01em;-webkit-user-select:none;user-select:none}
-.qhint{font-size:0.84rem;color:var(--text-muted);margin-bottom:1.4rem;line-height:1.55;font-style:italic;-webkit-user-select:none;user-select:none}
-.atextarea{width:100%;min-height:150px;padding:0.9rem 1rem;border:1px solid var(--border);border-radius:var(--radius);font-family:var(--sans);font-size:0.9rem;color:var(--text);background:var(--white);resize:vertical;outline:none;transition:border-color 0.15s;line-height:1.7}
-.atextarea:focus{border-color:var(--emerald)}
-.opts{display:flex;flex-direction:column;gap:0.5rem}
-.opt{display:flex;align-items:center;gap:0.8rem;padding:0.85rem 0.95rem;border:1px solid var(--border);border-radius:8px;cursor:pointer;background:var(--white);transition:all 0.12s;font-size:0.88rem;color:var(--text);user-select:none}
-.opt:hover{border-color:var(--slate-light);background:#f8fafc}
-.opt.sel{border-color:var(--emerald);background:rgba(80,182,190,0.05);color:var(--navy);font-weight:500}
-.radio{width:17px;height:17px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.12s}
-.opt.sel .radio{border-color:var(--emerald);background:var(--emerald)}
-.rdot{width:5px;height:5px;border-radius:50%;background:#fff;opacity:0;transition:opacity 0.12s}
+
+.eyebrow{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;
+  color:var(--a5-teal-dark);
+  letter-spacing:0.14em;text-transform:uppercase;
+  margin-bottom:14px;font-weight:500;
+}
+.big-title{
+  font-family:var(--a5-font-landing);
+  font-weight:700;
+  font-size:40px;
+  color:var(--a5-blue);
+  line-height:1.1;
+  letter-spacing:-0.025em;
+  margin-bottom:20px;
+  text-wrap:balance;
+}
+.big-title em{font-style:normal;color:var(--a5-teal-dark)}
+.intro-body{
+  font-size:16px;
+  color:var(--a5-slate);
+  line-height:1.65;
+  margin-bottom:32px;
+  max-width:620px;
+}
+
+/* ── Info card (intro + generic) ────────────────────────── */
+.info-box{
+  background:var(--a5-light-card);
+  border:1px solid var(--a5-light-border);
+  border-radius:var(--a5-radius-xl);
+  padding:24px 28px;
+  margin-bottom:20px;
+  box-shadow:var(--a5-shadow-md);
+  position:relative;
+  overflow:hidden;
+}
+.info-box::before{
+  content:"";position:absolute;left:0;right:0;top:0;height:3px;
+  background:var(--a5-gradient-primary);
+}
+.info-box h3{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px;font-weight:500;
+  letter-spacing:0.08em;text-transform:uppercase;
+  color:var(--a5-teal-dark);
+  margin-bottom:14px;
+}
+.info-row{
+  display:flex;gap:12px;align-items:flex-start;
+  font-size:14.5px;color:var(--a5-text-primary);
+  margin-bottom:10px;line-height:1.55;
+}
+.info-row:last-child{margin-bottom:0}
+.dot{
+  width:6px;height:6px;border-radius:50%;
+  background:var(--a5-teal);
+  margin-top:8px;flex-shrink:0;
+}
+
+/* ── Buttons (tokens.css conventions) ───────────────────── */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  gap:8px;
+  font-family:var(--a5-font-landing);
+  font-weight:600;
+  cursor:pointer;border:0;
+  border-radius:var(--a5-radius-full);
+  transition:background-color var(--a5-ease-fast), color var(--a5-ease-fast),
+             opacity var(--a5-ease-fast), transform var(--a5-ease-fast),
+             box-shadow var(--a5-ease-fast);
+  padding:12px 28px;
+  font-size:15px;
+}
+.btn-primary{background:var(--a5-blue);color:#fff}
+.btn-primary:hover:not(:disabled){
+  background:#0e1f47;transform:translateY(-1px);
+  box-shadow:0 6px 16px rgba(19,40,91,0.25);
+}
+.btn-primary:disabled{opacity:0.45;cursor:not-allowed;transform:none;box-shadow:none}
+.btn-ghost{
+  background:transparent;color:var(--a5-text-secondary);
+  border:1px solid var(--a5-light-border);
+}
+.btn-ghost:hover{
+  background:var(--a5-light-hover);color:var(--a5-text-primary);
+  border-color:var(--a5-slate);
+}
+.btn-teal{background:var(--a5-teal);color:#fff}
+.btn-teal:hover:not(:disabled){background:var(--a5-teal-dark)}
+.btn-sm{padding:8px 16px;font-size:13px}
+
+/* ── Progress + block header ────────────────────────────── */
+.prog-wrap{
+  background:var(--a5-light-border);
+  height:4px;border-radius:2px;
+  margin-bottom:24px;overflow:hidden;
+}
+.prog-fill{
+  height:100%;
+  background:var(--a5-gradient-primary);
+  border-radius:2px;
+  transition:width 0.4s ease;
+}
+.block-intro{
+  background:var(--a5-blue);
+  border-radius:var(--a5-radius-lg);
+  padding:16px 20px;
+  margin-bottom:20px;
+  display:flex;align-items:center;gap:14px;
+  box-shadow:var(--a5-shadow-md);
+}
+.block-icon{
+  width:40px;height:40px;
+  border-radius:var(--a5-radius-md);
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;flex-shrink:0;
+  background:rgba(81,182,190,0.20);color:var(--a5-teal);
+}
+.block-text h3{
+  font-size:15px;font-weight:600;
+  color:#fff;margin-bottom:2px;letter-spacing:-0.01em;
+}
+.block-text p{
+  font-size:13px;color:rgba(255,255,255,0.7);line-height:1.4;
+}
+
+/* ── Question header ────────────────────────────────────── */
+.qheader{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:20px;flex-wrap:wrap;gap:12px;
+}
+.qmeta{display:flex;align-items:center;gap:10px}
+.qnum{
+  font-family:'JetBrains Mono',monospace;
+  font-size:12px;color:var(--a5-text-secondary);
+}
+.qcat{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px;font-weight:600;
+  letter-spacing:0.08em;text-transform:uppercase;
+  padding:4px 10px;border-radius:var(--a5-radius-full);
+}
+.cat-tech         {background:#EFF6FF;color:#1D4ED8}
+.cat-ai           {background:#F0FDF4;color:#15803D}
+.cat-leadership   {background:#FDF4FF;color:#7E22CE}
+.cat-product      {background:#FFF7ED;color:#C2410C}
+.cat-multiwork    {background:#FEF2F2;color:#DC2626}
+.cat-compensation {background:var(--a5-teal-light);color:var(--a5-teal-dark)}
+
+.timer{
+  display:flex;align-items:center;gap:6px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:14px;font-weight:500;
+  color:var(--a5-blue);transition:color 0.3s;
+}
+.timer.warn{color:var(--a5-accent-yellow)}
+.timer.danger{color:var(--a5-accent-red)}
+.tdot{
+  width:7px;height:7px;border-radius:50%;
+  background:var(--a5-teal);animation:pulse 1.2s infinite;
+}
+.tdot.warn{background:var(--a5-accent-yellow)}
+.tdot.danger{background:var(--a5-accent-red)}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.85)}}
+
+/* ── Question body ──────────────────────────────────────── */
+.qtext{
+  font-family:var(--a5-font-landing);
+  font-size:24px;font-weight:700;
+  color:var(--a5-blue);line-height:1.35;
+  margin-bottom:10px;letter-spacing:-0.015em;
+  text-wrap:balance;
+  -webkit-user-select:none;user-select:none;
+}
+.qhint{
+  font-size:14px;color:var(--a5-text-secondary);
+  margin-bottom:20px;line-height:1.5;
+  -webkit-user-select:none;user-select:none;
+}
+
+.atextarea{
+  width:100%;min-height:170px;
+  padding:14px 16px;
+  border:1px solid var(--a5-light-border);
+  border-radius:var(--a5-radius-lg);
+  font-family:var(--a5-font-landing);
+  font-size:15px;line-height:1.6;
+  color:var(--a5-text-primary);
+  background:var(--a5-light-card);
+  resize:vertical;outline:none;
+  transition:border-color var(--a5-ease-fast), box-shadow var(--a5-ease-fast);
+}
+.atextarea:focus{
+  border-color:var(--a5-teal);
+  box-shadow:0 0 0 3px rgba(81,182,190,0.18);
+}
+
+/* Salary input (compensation question) */
+.salary-field{
+  position:relative;max-width:360px;
+}
+.salary-field input{
+  width:100%;
+  padding:14px 16px;
+  border:1px solid var(--a5-light-border);
+  border-radius:var(--a5-radius-lg);
+  font-family:var(--a5-font-landing);
+  font-size:20px;font-weight:600;
+  color:var(--a5-blue);
+  background:var(--a5-light-card);
+  outline:none;text-align:left;
+  transition:border-color var(--a5-ease-fast), box-shadow var(--a5-ease-fast);
+  letter-spacing:0.01em;
+}
+.salary-field input:focus{
+  border-color:var(--a5-teal);
+  box-shadow:0 0 0 3px rgba(81,182,190,0.18);
+}
+.salary-field input::placeholder{color:var(--a5-text-muted);font-weight:500}
+
+/* Single/multi-choice options */
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{
+  display:flex;align-items:center;gap:12px;
+  padding:14px 16px;
+  border:1px solid var(--a5-light-border);
+  border-radius:var(--a5-radius-lg);
+  cursor:pointer;
+  background:var(--a5-light-card);
+  transition:all var(--a5-ease-fast);
+  font-size:14.5px;line-height:1.5;
+  color:var(--a5-text-primary);user-select:none;
+}
+.opt:hover{border-color:var(--a5-slate);background:var(--a5-light-hover)}
+.opt.sel{
+  border-color:var(--a5-teal);
+  background:var(--a5-teal-light);
+  color:var(--a5-blue);font-weight:500;
+}
+.radio{
+  width:18px;height:18px;border-radius:50%;
+  border:2px solid var(--a5-light-border);flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  transition:all var(--a5-ease-fast);
+}
+.opt.sel .radio{border-color:var(--a5-teal);background:var(--a5-teal)}
+.rdot{
+  width:6px;height:6px;border-radius:50%;background:#fff;
+  opacity:0;transition:opacity var(--a5-ease-fast);
+}
 .opt.sel .rdot{opacity:1}
-.chk{width:17px;height:17px;border-radius:4px;border:2px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.12s;font-size:10px;color:#fff}
-.opt.sel .chk{border-color:var(--emerald);background:var(--emerald)}
-.scale-row{display:flex;gap:0.4rem;margin-bottom:0.4rem}
-.sbtn{flex:1;padding:0.65rem 0;border:1px solid var(--border);border-radius:8px;background:var(--white);font-family:var(--mono);font-size:0.88rem;font-weight:500;cursor:pointer;transition:all 0.12s;color:var(--text-muted)}
-.sbtn:hover{border-color:var(--slate-light);color:var(--text)}
-.sbtn.sel{background:var(--navy);border-color:var(--navy);color:#fff}
-.scale-labels{display:flex;justify-content:space-between;font-size:0.7rem;color:var(--text-muted);padding:0 0.2rem}
-.aactions{display:flex;justify-content:space-between;align-items:center;margin-top:1.25rem;flex-wrap:wrap;gap:0.75rem}
-.chars{font-family:var(--mono);font-size:0.72rem;color:var(--text-muted)}
+.chk{
+  width:18px;height:18px;border-radius:4px;
+  border:2px solid var(--a5-light-border);flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  transition:all var(--a5-ease-fast);
+  font-size:11px;color:#fff;
+}
+.opt.sel .chk{border-color:var(--a5-teal);background:var(--a5-teal)}
 
-.blocker{min-height:60vh;display:flex;align-items:center;justify-content:center}
-.blocker-card{max-width:480px;width:100%;background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;text-align:center}
-.blocker-card h2{font-family:var(--serif);font-size:1.6rem;color:var(--navy);margin-bottom:0.75rem;letter-spacing:-0.01em}
-.blocker-card p{font-size:0.92rem;color:var(--text-muted);margin-bottom:1.25rem;line-height:1.65}
-.blocker-icon{width:56px;height:56px;margin:0 auto 1rem;color:var(--amber)}
+/* ── Actions + chars ────────────────────────────────────── */
+.aactions{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-top:20px;flex-wrap:wrap;gap:12px;
+}
+.chars{
+  font-family:'JetBrains Mono',monospace;
+  font-size:12px;color:var(--a5-text-secondary);
+}
+.chars.short{color:var(--a5-accent-yellow)}
+.chars.ok{color:var(--a5-teal-dark)}
 
-.success-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;text-align:center}
-.success-icon{width:64px;height:64px;margin:0 auto 1rem;color:var(--emerald)}
-.success-card h2{font-family:var(--serif);font-size:1.9rem;color:var(--navy);margin-bottom:0.75rem;letter-spacing:-0.02em}
-.success-card p{font-size:0.95rem;color:var(--text-muted);margin-bottom:0.75rem;line-height:1.7;max-width:540px;margin-left:auto;margin-right:auto}
+/* ── Blocker + success cards ────────────────────────────── */
+.blocker{
+  min-height:60vh;display:flex;
+  align-items:center;justify-content:center;
+}
+.blocker-card, .success-card{
+  max-width:520px;width:100%;
+  background:var(--a5-light-card);
+  border:1px solid var(--a5-light-border);
+  border-radius:var(--a5-radius-xl);
+  padding:40px 32px;text-align:center;
+  box-shadow:var(--a5-shadow-md);
+}
+.blocker-card h2, .success-card h2{
+  font-family:var(--a5-font-landing);
+  font-size:28px;font-weight:700;
+  color:var(--a5-blue);
+  margin-bottom:12px;letter-spacing:-0.02em;
+}
+.blocker-card p, .success-card p{
+  font-size:15px;color:var(--a5-slate);
+  margin-bottom:16px;line-height:1.65;
+  max-width:420px;margin-left:auto;margin-right:auto;
+}
+.blocker-icon{
+  width:56px;height:56px;margin:0 auto 16px;
+  color:var(--a5-accent-yellow);
+}
+.success-icon{
+  width:64px;height:64px;margin:0 auto 16px;
+  color:var(--a5-teal);
+}
 
 .hidden{display:none}
-.spinner-lg{display:inline-block;width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--emerald);border-radius:50%;animation:spin 0.8s linear infinite}
-.spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.8s linear infinite}
+.spinner-lg{
+  display:inline-block;width:32px;height:32px;
+  border:3px solid var(--a5-light-border);
+  border-top-color:var(--a5-teal);
+  border-radius:50%;animation:spin 0.8s linear infinite;
+}
+.spinner{
+  display:inline-block;width:14px;height:14px;
+  border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;
+  border-radius:50%;animation:spin 0.8s linear infinite;
+}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-.err{padding:0.85rem 1rem;border-radius:8px;font-size:0.88rem;line-height:1.55;margin-top:1rem;background:#FEF2F2;color:#991B1B;border:1px solid #FEE2E2}
+.err{
+  padding:12px 16px;border-radius:var(--a5-radius-md);
+  font-size:13.5px;line-height:1.55;margin-top:14px;
+  background:#FEF2F2;color:#991B1B;border:1px solid #FEE2E2;
+}
 
-.ftr{text-align:center;padding:1.5rem 1rem;font-size:0.72rem;color:var(--text-muted);font-family:var(--mono);letter-spacing:0.05em}
-.ftr a{color:var(--text-muted);text-decoration:underline;margin:0 0.5rem}
+/* ── Footer ─────────────────────────────────────────────── */
+.ftr{
+  text-align:center;padding:24px 16px;
+  font-size:12px;color:var(--a5-text-muted);
+  font-family:'JetBrains Mono',monospace;
+  letter-spacing:0.05em;
+}
+.ftr a{
+  color:var(--a5-text-secondary);
+  text-decoration:underline;text-underline-offset:2px;
+  margin:0 8px;
+}
+.ftr a:hover{color:var(--a5-blue)}
+
+/* ── Responsive ─────────────────────────────────────────── */
+@media (max-width:640px){
+  .hdr{padding:12px 20px}
+  .hdr-meta{display:none}
+  .main{padding:32px 20px 32px}
+  .big-title{font-size:30px}
+  .qtext{font-size:20px}
+  .block-intro{padding:14px 16px}
+}
 </style>
 </head>
 <body>
@@ -156,8 +453,8 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
     <h1 class="big-title">Entrevista técnica<br><em>Head of Engineering (AI &amp; Infrastructure)</em></h1>
     <p class="intro-body">
       Hola <strong id="intro-name">…</strong>. Gracias por llegar hasta aquí. Esta entrevista estructurada
-      nos ayuda a evaluar tu encaje de forma objetiva. Dedícale unos <strong>15-20 minutos</strong>
-      en un momento sin distracciones.
+      nos ayuda a evaluar tu encaje de forma objetiva. Dedícale unos <strong>25-35 minutos</strong>
+      en un momento sin distracciones — algunas preguntas pedirán respuestas con detalle real.
     </p>
     <div class="info-box">
       <h3>Instrucciones</h3>
@@ -254,28 +551,42 @@ const BLOCKS=[
   {id:'multiwork',label:'Compromiso y dedicación',icon:'◉',desc:'Evaluamos dedicación exclusiva y compromiso con el proyecto.'},
 ];
 
+// Questions redesigned 2026-04-18: scale-of-1-10 and "cuántos X" counters
+// were too easy to game without real experience. Replaced with depth probes
+// that demand specifics (named tools, numbers, trade-offs, timelines). Open
+// questions carry `minChars` — scoring enforces it so a "sí, mucho" answer
+// no longer earns full credit. `min`/`sus` times bumped accordingly.
 const QS=[
-  {block:'tech',type:'scale',w:2,text:'¿Cuál es tu nivel de conocimiento en gestión de infraestructura de Amazon Web Services?',hint:'Del 1 al 10.',labels:['1','2','3','4','5','6','7','8','9','10'],min:3,sus:30},
-  {block:'tech',type:'single',w:2,text:'Tienes 14 microservicios, cada uno con su propio pool de 5 conexiones a PostgreSQL RDS. Empiezas a ver timeouts intermitentes. ¿Cuál es tu primer paso?',hint:'',options:['Aumentar el max_connections de RDS','Implementar un connection pooler centralizado (PgBouncer o RDS Proxy)','Reducir el número de conexiones por servicio y añadir retry logic','Migrar a Aurora Serverless para que escale automáticamente'],correct:1,min:10,sus:90},
-  {block:'tech',type:'single',w:2,text:'Tu backend en App Runner tarda 8 segundos en arrancar en frío tras un pico de tráfico. ¿Qué investigas primero?',hint:'',options:['Configurar instancias mínimas activas en App Runner para evitar cold starts','Reducir el tamaño de la imagen Docker y optimizar el build','Revisar las conexiones que se establecen al inicio (DB, APIs externas, carga de configuración)','Migrar a ECS Fargate con provisioned capacity'],correct:2,min:10,sus:90},
-  {block:'tech',type:'open',w:1,text:'¿Cuántos servicios de AWS has configurado y mantenido tú directamente en producción?',hint:'Un número concreto.',min:5,sus:40},
-  {block:'tech',type:'single',w:2,text:'¿Qué stack de observabilidad implementarías en una plataforma en AWS que actualmente no tiene ninguno?',hint:'',options:['CloudWatch Logs + Alarms — suficiente para empezar','Sentry para errores + CloudWatch para métricas de infra','Stack completo: logging estructurado, Sentry, métricas custom (Datadog/Prometheus) y tracing distribuido','ELK Stack (Elasticsearch + Logstash + Kibana)'],correct:2,min:10,sus:80},
-  {block:'tech',type:'single',w:2,text:'Descubres credenciales de base de datos hardcodeadas en un script de migración que está en el repositorio. ¿Cuál es tu primer paso?',hint:'',options:['Rotar las credenciales inmediatamente, luego mover a Secrets Manager','Mover a variables de entorno y hacer un commit','Abrir un ticket para que se solucione en el próximo sprint','Revisar el historial de Git para ver si hay más credenciales expuestas antes de actuar'],correct:0,min:10,sus:80},
-  {block:'ai',type:'scale',w:2,text:'¿Cuál es tu nivel de experiencia con agentes de IA y orquestación de LLMs?',hint:'Del 1 al 10.',labels:['1','2','3','4','5','6','7','8','9','10'],min:3,sus:30},
-  {block:'ai',type:'multi',w:2,text:'¿Con qué frameworks de orquestación de agentes has trabajado en proyectos reales?',hint:'Selecciona solo los que hayas usado en producción o proyectos reales.',options:['LangChain / LangGraph','Mastra','AutoGen / AG2','CrewAI','Vercel AI SDK','Semantic Kernel','He construido mi propia orquestación','Ninguno todavía'],min:5,sus:60},
-  {block:'ai',type:'single',w:2,text:'Un agente de IA genera una respuesta incorrecta que llega a producción. ¿Cuál es la causa más probable?',hint:'',options:['El prompt estaba mal diseñado','Falta de guardrails y validación del output antes de ejecutar la acción','El modelo alucinó y no hay manera de prevenirlo','El contexto que recibió el agente estaba incompleto o mal estructurado'],correct:1,min:10,sus:70},
-  {block:'ai',type:'open',w:1,text:'¿Cuántos meses llevas usando herramientas de programación asistida por IA (Claude Code, Cursor, Copilot...) de forma habitual?',hint:'Un número concreto.',min:5,sus:40},
-  {block:'leadership',type:'open',w:1,text:'¿Cuántas personas has gestionado directamente con responsabilidad sobre su evaluación y desarrollo profesional?',hint:'Un número concreto.',min:5,sus:35},
-  {block:'leadership',type:'single',w:2,text:'Detectas que un developer del equipo entrega consistentemente tarde pero la calidad de su código es buena. ¿Cuál es tu primer paso?',hint:'',options:['Revisar si tiene demasiadas tareas asignadas y rebalancear la carga','Hablar con él en un one-on-one para entender qué lo bloquea','Establecer deadlines más cortos con checkpoints intermedios','Documentar el patrón y escalarlo como problema de rendimiento'],correct:1,min:10,sus:80},
-  {block:'leadership',type:'single',w:2,text:'¿Cómo garantizas la productividad y la alineación de un equipo de desarrollo 100% remoto?',hint:'',options:['Standups diarios cortos + entregables con granularidad diaria','Objetivos semanales claros + revisión asíncrona de código','Confianza total — mido solo por resultados finales, sin cadencias fijas','Combinación de dailies, entregables diarios y code reviews frecuentes'],correct:3,min:10,sus:80},
-  {block:'leadership',type:'single',w:2,text:'Si tu equipo multiplica x3 su velocidad de desarrollo gracias a la programación agéntica, ¿qué cambia en cómo organizas el trabajo?',hint:'',options:['Nada — el proceso es el mismo, solo que más rápido','Más tiempo a revisión y testing porque se genera más código','Rediseño el flujo completo: sprints más cortos, más foco en validación y arquitectura, menos en escritura de código','Reduzco el equipo y mantengo el mismo output'],correct:2,min:10,sus:80},
-  {block:'leadership',type:'single',w:2,text:'¿Tienes repositorios públicos en GitHub con proyectos propios relacionados con IA?',hint:'',options:['Sí, con contribuciones activas recientes','Sí, pero no los mantengo activamente','No, pero contribuyo a repos de otros proyectos de IA','No tengo repos públicos de IA'],correct:0,min:5,sus:50},
-  {block:'leadership',type:'scale',w:1,text:'¿Cuál es tu nivel de experiencia definiendo procesos de trabajo para equipos distribuidos (remotos)?',hint:'Del 1 al 10.',labels:['1','2','3','4','5','6','7','8','9','10'],min:3,sus:30},
-  {block:'product',type:'single',w:2,text:'Un perfil de negocio sin background técnico te pide una feature urgente. Su propuesta técnica no tiene sentido. ¿Qué haces?',hint:'',options:['Le explico por qué no es viable y propongo una alternativa técnica','Entiendo primero el problema de negocio que quiere resolver antes de evaluar la solución','Lo implemento como pide para no bloquear al negocio y lo refactorizo después','Lo derivo al Product Manager para que lo priorice y defina bien'],correct:1,min:10,sus:70},
-  {block:'product',type:'scale',w:1,text:'¿Cuál es tu nivel de experiencia colaborando con equipos de negocio (no técnicos) en la definición de producto?',hint:'Del 1 al 10.',labels:['1','2','3','4','5','6','7','8','9','10'],min:3,sus:30},
-  {block:'multiwork',type:'single',w:3,text:'¿Tienes actualmente algún compromiso profesional activo que compatibilizarías con este rol?',hint:'Respuesta directa.',options:['No, dedicación exclusiva','Tengo un compromiso menor que termina en menos de 30 días','Tengo compromisos activos pero puedo compatibilizarlos','Prefiero no responder'],correct:0,min:5,sus:60},
-  {block:'multiwork',type:'single',w:2,text:'Si detectas que uno de tus developers trabaja para otra empresa en paralelo sin haberlo declarado, ¿cómo actúas?',hint:'',options:['Conversación directa, primera advertencia formal, y si reincide, despido','Lo despido inmediatamente — es una falta de confianza irrecuperable','Analizo primero si afecta a su rendimiento antes de tomar acción','Lo escalo a RRHH o dirección para que lo gestionen'],correct:0,min:10,sus:70},
-  {block:'compensation',type:'open',w:1,text:'¿Cuál es tu expectativa de sueldo bruto al año?',hint:'La retribución variable se definirá en la oferta final.',min:5,sus:60},
+  // ── TECH — 6 preguntas ──────────────────────────────────────────────────
+  {block:'tech',type:'open',w:3,text:'Describe la decisión de arquitectura más compleja que has tomado en los últimos 12 meses en un sistema en producción.',hint:'Incluye: el trade-off concreto que evaluaste (al menos dos alternativas), qué elegiste y por qué, y el impacto medible (latencia, coste, incidentes evitados). Esperamos nombres concretos de servicios/tecnologías.',minChars:500,min:180,sus:600},
+  {block:'tech',type:'single',w:2,text:'Tienes 14 microservicios, cada uno con su propio pool de 5 conexiones a PostgreSQL RDS (70 conexiones simultáneas). Empiezas a ver timeouts intermitentes contra la BD. ¿Cuál es tu primer paso?',hint:'',options:['Aumentar max_connections en RDS al doble para absorber el pico','Introducir un connection pooler centralizado (PgBouncer o RDS Proxy) delante de RDS','Bajar las conexiones por servicio a 2 y añadir retry con backoff exponencial','Migrar a Aurora Serverless v2 para que max_connections escale solo'],correct:1,min:15,sus:90},
+  {block:'tech',type:'single',w:2,text:'Tu backend Node.js en App Runner tarda 8 s en arrancar en frío tras un pico. Ya tienes provisioned concurrency configurada pero el pico la desborda. ¿Qué investigas primero?',hint:'',options:['Reducir la imagen Docker con multi-stage build y base distroless','El coste real del arranque: handshake con RDS, SDKs de AWS, descarga de secretos, carga de configuración externa','Cambiar a ECS Fargate con capacity provider para tener instancias siempre calientes','Añadir un self-ping cada 30 s como warm-up'],correct:1,min:15,sus:90},
+  {block:'tech',type:'open',w:3,text:'Describe el último incidente de producción que tú lideraste.',hint:'Cuenta: qué alerta lo disparó, tus primeros 15 minutos, al menos 2 hipótesis que descartaste antes de dar con la causa raíz, y el cambio que introdujiste después para que no se repita (runbook, test, alerta, diseño).',minChars:500,min:180,sus:600},
+  {block:'tech',type:'single',w:2,text:'Heredas una plataforma AWS (Node + Postgres en App Runner) sin ninguna observabilidad. ¿Qué montas en las dos primeras semanas?',hint:'',options:['CloudWatch Logs + Alarms de CPU/memoria — suficiente para empezar','Sentry para errores + CloudWatch para métricas de infraestructura','Logging estructurado JSON, Sentry, métricas de negocio custom (Datadog/Grafana) y tracing distribuido (OpenTelemetry) en los endpoints críticos','Stack ELK self-hosted para tener control total del pipeline de logs'],correct:2,min:15,sus:90},
+  {block:'tech',type:'single',w:2,text:'Descubres credenciales de BD hardcodeadas en un script de migración que lleva 6 meses en el repo. ¿Cuál es tu primer paso?',hint:'',options:['Rotar las credenciales inmediatamente en RDS, después mover a Secrets Manager y purgar el histórico','Mover a variables de entorno y hacer un commit revirtiendo el script','Abrir un ticket en el backlog para el próximo sprint','Auditar el histórico de Git primero para detectar más secretos expuestos'],correct:0,min:15,sus:80},
+
+  // ── IA — 4 preguntas ────────────────────────────────────────────────────
+  {block:'ai',type:'open',w:3,text:'Describe el agente o pipeline de IA más complejo que has llevado a producción — no prototipos ni tutoriales.',hint:'Arquitectura (modelo, orquestación, tools), problema que resolvía, coste mensual aproximado en tokens, métrica de calidad que vigilabas y cómo la medías, y los guardrails concretos que implementaste.',minChars:500,min:180,sus:600},
+  {block:'ai',type:'multi',w:2,text:'¿Con qué frameworks de orquestación de agentes has trabajado en proyectos reales puestos en producción?',hint:'Marca solo los que hayas operado con usuarios finales — no tutoriales ni pruebas de concepto.',options:['LangChain / LangGraph','Mastra','AutoGen / AG2','CrewAI','Vercel AI SDK','Semantic Kernel','Claude Agent SDK','He construido mi propia orquestación','Ninguno todavía'],min:5,sus:60},
+  {block:'ai',type:'single',w:2,text:'Un agente en producción responde con información fabricada sobre un cliente (datos que no existen en la BD). Los logs muestran que el tool-call correcto se invocó y devolvió "not_found". ¿Cuál es la causa más probable?',hint:'',options:['El prompt no obligaba al agente a priorizar el resultado del tool sobre su conocimiento previo — el modelo rellenó el hueco','El modelo está mal afinado para tu dominio y hay que cambiar de proveedor','Falta un retry loop que reintente el tool al recibir "not_found"','El contexto se truncó y el modelo no llegó a ver la respuesta del tool'],correct:0,min:15,sus:80},
+  {block:'ai',type:'open',w:2,text:'Cuéntanos un caso concreto de los últimos 30 días en el que usar programación agéntica (Claude Code, Cursor, Aider o similar) te dio una mejora real.',hint:'Incluye: qué tarea, la iteración/prompt que funcionó, dónde la IA se equivocó o alucinó, y cómo validaste el output antes de mergear.',minChars:350,min:120,sus:420},
+
+  // ── LIDERAZGO — 4 preguntas ────────────────────────────────────────────
+  {block:'leadership',type:'open',w:3,text:'Describe el caso más difícil de gestión de personas que has tenido.',hint:'Sin nombres: contexto, qué intentaste primero, qué no funcionó, y el resultado final. Esperamos una situación concreta (bajo rendimiento sostenido, conflicto entre seniors, despido, retención) — no un resumen genérico.',minChars:500,min:180,sus:600},
+  {block:'leadership',type:'single',w:2,text:'Un developer senior entrega consistentemente tarde pero la calidad del código es buena y los reviews son limpios. Llevas 3 sprints detectando el patrón. ¿Cuál es tu primer paso?',hint:'',options:['Revisar en Jira si tiene sobrecarga o dependencias bloqueantes y rebalancear el sprint','Convocar un 1:1 para entender qué le bloquea — puede ser carga cognitiva, personal, alcance mal dimensionado o estimación optimista','Establecer deadlines más cortos con checkpoints cada 2 días para forzar granularidad','Documentar el patrón y escalarlo a RRHH como problema de rendimiento'],correct:1,min:15,sus:80},
+  {block:'leadership',type:'single',w:2,text:'¿Cómo garantizas productividad y alineación de un equipo de desarrollo 100% remoto repartido en 2-3 husos horarios?',hint:'',options:['Standup diario obligatorio por videollamada + entregables de granularidad diaria','Objetivos semanales escritos + revisión asíncrona de código + métrica de throughput por PR','Confianza total — mido solo por resultados trimestrales, sin cadencia fija','Objetivos semanales escritos, daily async en texto, PR review en <24 h y una call síncrona semanal'],correct:3,min:15,sus:80},
+  {block:'leadership',type:'single',w:2,text:'Tu equipo está escribiendo código x3 más rápido gracias a programación agéntica. ¿Qué cambia estructuralmente en cómo organizas el trabajo?',hint:'',options:['Nada estructural — mismo proceso, solo que caben más features en el sprint','Subo el listón de code review y añado más testing porque se genera más código','Rediseño el flujo: más tiempo en especificación y arquitectura antes de escribir, el code review pasa a ser el cuello de botella, y los sprints se miden en "problemas resueltos" y no en "tickets cerrados"','Reduzco el equipo a la mitad y mantengo el output — optimización de coste'],correct:2,min:15,sus:80},
+
+  // ── PRODUCTO — 2 preguntas ─────────────────────────────────────────────
+  {block:'product',type:'single',w:2,text:'Un stakeholder de negocio sin background técnico te pide una feature urgente. Su propuesta técnica no tiene sentido y bloquearía el roadmap. ¿Qué haces primero?',hint:'',options:['Le explico por qué no es viable y propongo una alternativa técnica','Entiendo primero el problema de negocio real que quiere resolver antes de evaluar si su solución es la correcta','Lo implemento como pide para no bloquear al negocio y lo refactorizo después','Lo escalo al Product Manager para que lo priorice y lo traduzca'],correct:1,min:15,sus:70},
+  {block:'product',type:'open',w:2,text:'Describe una decisión técnica reciente en la que elegiste deliberadamente la opción subóptima desde el punto de vista técnico por una razón de negocio.',hint:'Contexto, qué elegiste (subóptimo técnicamente), por qué lo hiciste (deadline, runway, cliente clave, time-to-market, coste) y qué deuda técnica aceptaste.',minChars:350,min:120,sus:480},
+
+  // ── COMPROMISO — 2 preguntas ───────────────────────────────────────────
+  {block:'multiwork',type:'single',w:3,text:'¿Tienes actualmente algún compromiso profesional activo que tendrías que compatibilizar con este rol?',hint:'Respuesta directa — el rol exige dedicación exclusiva.',options:['No, dedicación exclusiva desde el día 1','Tengo un compromiso menor que termina en menos de 30 días','Tengo compromisos activos pero creo que puedo compatibilizarlos','Prefiero no responder'],correct:0,min:5,sus:60},
+  {block:'multiwork',type:'single',w:2,text:'Detectas que uno de tus developers trabaja para otra empresa en paralelo sin haberlo declarado. ¿Cómo actúas?',hint:'',options:['Conversación directa, primera advertencia formal, y si reincide, despido','Despido inmediato — es una falta de confianza irrecuperable','Analizo primero si afecta a su rendimiento antes de tomar acción','Lo escalo a RRHH o dirección para que lo gestionen'],correct:0,min:12,sus:70},
+
+  // ── COMPENSACIÓN — 1 pregunta ──────────────────────────────────────────
+  {block:'compensation',type:'salary',w:1,text:'¿Cuál es tu expectativa de sueldo bruto anual?',hint:'La retribución variable se definirá en la oferta final. Escribe solo la cifra en euros — se formatea automáticamente.',min:3,sus:60},
 ];
 
 // ───────────────────────────────────────────────────────────────────────────
@@ -384,9 +695,37 @@ function showQ(){
   document.getElementById('qhint').textContent=q.hint;
   const area=document.getElementById('answer-area'),chars=document.getElementById('chars');
   if(q.type==='open'){
-    area.innerHTML=`<textarea class="atextarea" id="ainput" placeholder="Escribe tu respuesta aquí..." maxlength="10000"></textarea>`;
-    document.getElementById('ainput').addEventListener('input',e=>chars.textContent=`${e.target.value.length} caracteres`);
-    chars.textContent='0 caracteres';
+    const thr=q.minChars||0;
+    const ph=thr?`Mínimo recomendado: ${thr} caracteres. Sé concreto — nombra servicios, números y decisiones reales.`:'Escribe tu respuesta aquí...';
+    area.innerHTML=`<textarea class="atextarea" id="ainput" placeholder="${ph}" maxlength="10000"></textarea>`;
+    const inp=document.getElementById('ainput');
+    const paint=()=>{
+      const n=inp.value.length;
+      if(thr){
+        const pct=Math.min(100,Math.round((n/thr)*100));
+        chars.textContent=`${n} / ${thr} caracteres (${pct}%)`;
+        chars.className=n>=thr?'chars ok':(n>=thr*0.5?'chars':'chars short');
+      }else{
+        chars.textContent=`${n} caracteres`;
+        chars.className='chars';
+      }
+    };
+    inp.addEventListener('input',paint);
+    paint();
+  }else if(q.type==='salary'){
+    chars.textContent='';
+    area.innerHTML=`<div class="salary-field"><input type="text" id="ainput" inputmode="numeric" placeholder="Ej: 75.000 €" maxlength="15" autocomplete="off" aria-label="Sueldo bruto anual en euros"></div>`;
+    const inp=document.getElementById('ainput');
+    const fmt=new Intl.NumberFormat('es-ES');
+    inp.addEventListener('input',()=>{
+      const raw=inp.value.replace(/\D/g,'').slice(0,7); // hasta 9.999.999 €
+      if(!raw){inp.value='';inp.dataset.clean='';chars.textContent='';chars.className='chars';return;}
+      const n=parseInt(raw,10);
+      inp.value=fmt.format(n)+' €';
+      inp.dataset.clean=raw;
+      chars.textContent=`Bruto anual: ${fmt.format(n)} €`;
+      chars.className='chars ok';
+    });
   }else if(q.type==='single'){
     chars.textContent='';
     area.innerHTML=`<div class="opts" role="radiogroup">${q.options.map((o,i)=>`<div class="opt" role="radio" aria-checked="false" tabindex="0" onclick="selSingle(${i})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();selSingle(${i})}" id="opt${i}"><div class="radio" id="rad${i}"><div class="rdot"></div></div><span>${escapeHtml(o)}</span></div>`).join('')}</div>`;
@@ -418,6 +757,10 @@ function updateTimer(q,s){
 function getAnswer(){
   const q=QS[curQ];
   if(q.type==='open')return document.getElementById('ainput')?.value||'';
+  if(q.type==='salary'){
+    const v=document.getElementById('ainput')?.dataset?.clean||'';
+    return v||null;
+  }
   if(q.type==='scale')return selOpt===null?null:q.labels[selOpt];
   if(q.type==='single')return selOpt===null?null:q.options[selOpt];
   if(q.type==='multi')return selMulti.map(i=>q.options[i]);
@@ -477,7 +820,18 @@ function computeScores(){
     dims[a.q.block].max+=a.q.w*3;
     if(a.skipped||a.ans===null)return;
     let pts=0;
-    if(a.q.type==='open'){const len=typeof a.ans==='string'?a.ans.trim().length:0;if(len>0)pts=a.q.w*3;}
+    if(a.q.type==='open'){
+      // Depth-gated scoring. Before: any non-empty text = full credit — which
+      // meant a non-technical candidate could fake their way to high scores
+      // by typing "Sí, bastante experiencia." The server-side LLM grader
+      // catches genericness too, but the client-computed score was misleading.
+      const len=typeof a.ans==='string'?a.ans.trim().length:0;
+      const thr=a.q.minChars||50;
+      if(len>=thr)pts=a.q.w*3;
+      else if(len>=thr*0.5)pts=a.q.w*2;
+      else if(len>=thr*0.25)pts=a.q.w;
+      else pts=0;
+    }
     else if(a.q.type==='single'){if(a.q.correct!==undefined&&a.ans===a.q.options[a.q.correct])pts=a.q.w*3;else pts=a.q.w;}
     else if(a.q.type==='multi'){if(Array.isArray(a.ans)&&a.ans.length>=2)pts=a.q.w*3;else if(Array.isArray(a.ans)&&a.ans.length===1)pts=a.q.w*2;}
     else if(a.q.type==='scale'){const v=parseInt(a.ans)||0;if(v>=7)pts=a.q.w*3;else if(v>=4)pts=a.q.w*2;else pts=a.q.w;}
