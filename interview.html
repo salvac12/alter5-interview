@@ -99,10 +99,6 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 .success-icon{width:64px;height:64px;margin:0 auto 1rem;color:var(--emerald)}
 .success-card h2{font-family:var(--serif);font-size:1.9rem;color:var(--navy);margin-bottom:0.75rem;letter-spacing:-0.02em}
 .success-card p{font-size:0.95rem;color:var(--text-muted);margin-bottom:0.75rem;line-height:1.7;max-width:540px;margin-left:auto;margin-right:auto}
-.booking-box{background:#F0FDF4;border:1px solid rgba(80,182,190,0.3);border-radius:var(--radius);padding:1.5rem;margin:1.75rem auto 1rem;max-width:480px;text-align:left}
-.booking-box h3{font-size:0.88rem;font-weight:600;color:var(--navy);margin-bottom:0.6rem}
-.booking-box p{font-size:0.85rem;color:#166534;margin-bottom:1rem;line-height:1.55;text-align:left}
-.booking-box .btn{width:100%}
 
 .hidden{display:none}
 .spinner-lg{display:inline-block;width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--emerald);border-radius:50%;animation:spin 0.8s linear infinite}
@@ -217,14 +213,6 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
         <strong>en los próximos 2-3 días laborables</strong>.
       </p>
 
-      <div class="booking-box" id="booking-box">
-        <h3>Siguiente paso (opcional)</h3>
-        <p>Si quieres adelantar el proceso, puedes reservar directamente una videoconferencia de 30 min con Salva para conocernos mejor.</p>
-        <a class="btn btn-emerald" id="booking-link" href="#" target="_blank" rel="noopener">
-          Reservar videollamada →
-        </a>
-      </div>
-
       <p style="font-size:0.8rem;margin-top:1.25rem">
         También puedes cerrar esta pestaña con tranquilidad — tus respuestas están guardadas.
       </p>
@@ -258,7 +246,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 // Interview definition (ported from legacy index.html — same questions).
 // ───────────────────────────────────────────────────────────────────────────
 const BLOCKS=[
-  {id:'compensation',label:'Compensación',icon:'$',desc:'Alineamos expectativas económicas desde el inicio.'},
+  {id:'compensation',label:'Compensación',icon:'◆',desc:'Alineamos expectativas económicas desde el inicio.'},
   {id:'tech',label:'Arquitectura técnica',icon:'⬡',desc:'Evaluamos criterio técnico en backend, infraestructura y buenas prácticas.'},
   {id:'ai',label:'IA aplicada',icon:'◈',desc:'Evaluamos uso real de IA: agentes, orquestación y programación agéntica.'},
   {id:'leadership',label:'Liderazgo de equipo',icon:'◎',desc:'Evaluamos experiencia gestionando personas, no solo liderazgo técnico informal.'},
@@ -287,7 +275,7 @@ const QS=[
   {block:'product',type:'scale',w:1,text:'¿Cuál es tu nivel de experiencia colaborando con equipos de negocio (no técnicos) en la definición de producto?',hint:'Del 1 al 10.',labels:['1','2','3','4','5','6','7','8','9','10'],min:3,sus:30},
   {block:'multiwork',type:'single',w:3,text:'¿Tienes actualmente algún compromiso profesional activo que compatibilizarías con este rol?',hint:'Respuesta directa.',options:['No, dedicación exclusiva','Tengo un compromiso menor que termina en menos de 30 días','Tengo compromisos activos pero puedo compatibilizarlos','Prefiero no responder'],correct:0,min:5,sus:60},
   {block:'multiwork',type:'single',w:2,text:'Si detectas que uno de tus developers trabaja para otra empresa en paralelo sin haberlo declarado, ¿cómo actúas?',hint:'',options:['Conversación directa, primera advertencia formal, y si reincide, despido','Lo despido inmediatamente — es una falta de confianza irrecuperable','Analizo primero si afecta a su rendimiento antes de tomar acción','Lo escalo a RRHH o dirección para que lo gestionen'],correct:0,min:10,sus:70},
-  {block:'compensation',type:'open',w:1,text:'¿Cuál es tu expectativa salarial mensual en dólares (USD)?',hint:'Indica un número concreto en USD mensuales.',min:5,sus:60},
+  {block:'compensation',type:'open',w:1,text:'¿Cuál es tu expectativa de sueldo bruto al año?',hint:'La variable se definirá en la oferta final.',min:5,sus:60},
 ];
 
 // ───────────────────────────────────────────────────────────────────────────
@@ -366,18 +354,6 @@ window.addEventListener('DOMContentLoaded',async()=>{
     showScreen('screen-intro');
   }catch(e){
     showBlocker('server');
-  }
-
-  // Booking link (Google Meet placeholder). Fetched from /api/public-config.
-  try{
-    const cfg=await fetch('/api/public-config').then(r=>r.json()).catch(()=>null);
-    if(cfg&&cfg.booking_url){
-      document.getElementById('booking-link').href=cfg.booking_url;
-    }else{
-      document.getElementById('booking-box').style.display='none';
-    }
-  }catch{
-    document.getElementById('booking-box').style.display='none';
   }
 });
 
