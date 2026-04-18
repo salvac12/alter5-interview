@@ -184,6 +184,19 @@ test.describe('Public API safety', () => {
     expect([400, 401, 403, 404, 429]).toContain(r.status());
   });
 
+  test('/apply/verify routes to handler (not 404) and redirects', async ({ request }) => {
+    // Magic-link emails point candidates at /apply/verify?token=... — the
+    // handler lives at /api/apply/verify and is reached via vercel.json
+    // rewrite. Regression guard: the previous rewrite gap returned a hard
+    // 404 with the user staring at "NOT_FOUND" on Gmail's mobile preview.
+    const r = await request.get(`${BASE}/apply/verify?token=${'a'.repeat(64)}`, {
+      maxRedirects: 0,
+      failOnStatusCode: false,
+    });
+    expect(r.status(), `expected 302 redirect, got ${r.status()} (404 means rewrite is missing)`).toBe(302);
+    expect(r.headers()['location']).toMatch(/\/apply\/verify-failed/);
+  });
+
   test('/api/privacy/delete with invalid token returns {ok:false}', async ({ request }) => {
     const r = await request.post(`${BASE}/api/privacy/delete`, {
       data: { token: 'a'.repeat(64) },

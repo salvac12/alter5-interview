@@ -6,6 +6,7 @@
     { "source": "/hoe", "destination": "/hoe.html" },
     { "source": "/apply/thanks", "destination": "/apply-thanks.html" },
     { "source": "/apply/verify-failed", "destination": "/apply-verify-failed.html" },
+    { "source": "/apply/verify", "destination": "/api/apply/verify" },
     { "source": "/apply/privacy", "destination": "/apply-privacy.html" },
     { "source": "/apply/upload", "destination": "/apply-upload.html" },
     { "source": "/interview", "destination": "/interview.html" },
