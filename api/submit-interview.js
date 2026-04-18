@@ -155,7 +155,20 @@ module.exports.default = async function handler(req, res) {
         let ans = a.skipped ? 'Omitida' : (a.text || (Array.isArray(a.options) ? a.options.join(', ') : '')) || 'Sin respuesta';
         const mm = Math.floor((a.time || 0) / 60);
         const ss = String((a.time || 0) % 60).padStart(2, '0');
-        return `[${block}] ${a.questionText || ''}\nRespuesta: ${ans}\nTiempo: ${mm}:${ss}`;
+        // Surface the anti-extraction signals inline per-question so the
+        // grader can correlate "tried to copy the question" with "then gave
+        // a suspiciously polished answer" — the strongest AI-cheating tell
+        // we have short of keystroke playback.
+        const sig = [];
+        if (a.pasteCount > 0) sig.push(`pegó ${a.pasteCount}x (${a.pasteChars} chars)`);
+        if (a.copyBlocked > 0) sig.push(`intentó copiar ${a.copyBlocked}x (bloqueado)`);
+        if (a.rightClickBlocked > 0) sig.push(`click derecho ${a.rightClickBlocked}x (bloqueado)`);
+        if (a.shortcutBlocked > 0) sig.push(`atajos Cmd/Ctrl ${a.shortcutBlocked}x (bloqueado)`);
+        if (a.dragBlocked > 0) sig.push(`drag ${a.dragBlocked}x (bloqueado)`);
+        if (a.tabSwitches > 0) sig.push(`cambió pestaña ${a.tabSwitches}x`);
+        if (a.burstCount > 10) sig.push(`escritura en ráfaga (${a.burstCount})`);
+        const sigLine = sig.length ? `\nSeñales: ${sig.join(' · ')}` : '';
+        return `[${block}] ${a.questionText || ''}\nRespuesta: ${ans}\nTiempo: ${mm}:${ss}${sigLine}`;
       }).join('\n\n');
 
       const controller = new AbortController();

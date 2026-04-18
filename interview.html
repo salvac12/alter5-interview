@@ -614,18 +614,71 @@ const BLOCKER_MESSAGES={
 // ───────────────────────────────────────────────────────────────────────────
 // Anti-copy / anti-IA detection
 // ───────────────────────────────────────────────────────────────────────────
-document.addEventListener('contextmenu',(e)=>{if(e.target.tagName!=='TEXTAREA'&&e.target.tagName!=='INPUT')e.preventDefault();});
-document.addEventListener('copy',(e)=>{const sel=window.getSelection().toString();if(sel.length>10&&!['TEXTAREA','INPUT'].includes(document.activeElement?.tagName))e.preventDefault();});
+// Single source of truth for "is this event happening in an answer field".
+// The salary input and any future textareas need to keep native copy/paste/
+// context-menu so the candidate isn't fighting the UI for legitimate edits.
+function inAnswerField(t){return t&&(t.tagName==='TEXTAREA'||t.tagName==='INPUT');}
 
-let aiDetect={pasteCount:0,pasteChars:0,tabSwitches:0,tabAwayTime:0,tabLeftAt:null,keystrokes:0,lastKeystrokeTime:0,burstCount:0};
-function resetAiDetect(){aiDetect={pasteCount:0,pasteChars:0,tabSwitches:0,tabAwayTime:0,tabLeftAt:null,keystrokes:0,lastKeystrokeTime:0,burstCount:0};}
+let aiDetect={pasteCount:0,pasteChars:0,tabSwitches:0,tabAwayTime:0,tabLeftAt:null,keystrokes:0,lastKeystrokeTime:0,burstCount:0,copyBlocked:0,rightClickBlocked:0,shortcutBlocked:0,dragBlocked:0,selectAllBlocked:0};
+function resetAiDetect(){aiDetect={pasteCount:0,pasteChars:0,tabSwitches:0,tabAwayTime:0,tabLeftAt:null,keystrokes:0,lastKeystrokeTime:0,burstCount:0,copyBlocked:0,rightClickBlocked:0,shortcutBlocked:0,dragBlocked:0,selectAllBlocked:0};}
+
+// Right-click: block + count. Prior version blocked silently — "block without
+// detect" is the worst combination because we lose the signal that tells us
+// someone tried to extract the question.
+document.addEventListener('contextmenu',(e)=>{
+  if(inAnswerField(e.target))return;
+  aiDetect.rightClickBlocked++;
+  e.preventDefault();
+});
+
+// Drag-to-select-and-copy the question text. Block + count.
+document.addEventListener('copy',(e)=>{
+  if(inAnswerField(document.activeElement))return;
+  const sel=window.getSelection().toString();
+  if(sel.length>10){aiDetect.copyBlocked++;e.preventDefault();}
+});
+
+// Drag-and-drop of selected text into another tab / app.
+document.addEventListener('dragstart',(e)=>{
+  if(inAnswerField(e.target))return;
+  aiDetect.dragBlocked++;
+  e.preventDefault();
+});
+
 document.addEventListener('visibilitychange',()=>{if(document.hidden){aiDetect.tabSwitches++;aiDetect.tabLeftAt=Date.now();}else if(aiDetect.tabLeftAt){aiDetect.tabAwayTime+=Math.round((Date.now()-aiDetect.tabLeftAt)/1000);aiDetect.tabLeftAt=null;}});
 document.addEventListener('paste',(e)=>{const text=(e.clipboardData||window.clipboardData).getData('text');if(text.length>20){aiDetect.pasteCount++;aiDetect.pasteChars+=text.length;}});
-document.addEventListener('keydown',(e)=>{if(e.target.tagName==='TEXTAREA'){const now=Date.now();aiDetect.keystrokes++;if(now-aiDetect.lastKeystrokeTime<50)aiDetect.burstCount++;aiDetect.lastKeystrokeTime=now;}});
+
+// Keydown: (1) burst-typing heuristic inside textareas and (2) block extraction
+// shortcuts outside answer fields — Cmd/Ctrl + A (select-all the question),
+// C (copy), X (cut), S (save page), P (print to PDF), U (view-source). Each
+// blocked attempt is counted so the grader sees it even though nothing visible
+// happened. We deliberately DO NOT block Cmd+F (Find) or Cmd+R (reload) —
+// common harmless UX that would create noise without a clean signal.
+document.addEventListener('keydown',(e)=>{
+  if(inAnswerField(e.target)){
+    const now=Date.now();
+    aiDetect.keystrokes++;
+    if(now-aiDetect.lastKeystrokeTime<50)aiDetect.burstCount++;
+    aiDetect.lastKeystrokeTime=now;
+    return;
+  }
+  const mod=e.metaKey||e.ctrlKey;
+  if(!mod)return;
+  const k=(e.key||'').toLowerCase();
+  if(['a','c','x','s','p','u'].includes(k)){
+    aiDetect.shortcutBlocked++;
+    if(k==='a')aiDetect.selectAllBlocked++;
+    e.preventDefault();
+  }
+});
 
 function getAiFlags(){
   const flags=[];
   if(aiDetect.pasteCount>0)flags.push(`Pegó texto ${aiDetect.pasteCount} vez${aiDetect.pasteCount>1?'es':''} (${aiDetect.pasteChars} caracteres)`);
+  if(aiDetect.copyBlocked>0)flags.push(`Intentó copiar la pregunta ${aiDetect.copyBlocked} vez${aiDetect.copyBlocked>1?'es':''} (bloqueado)`);
+  if(aiDetect.rightClickBlocked>0)flags.push(`Click derecho bloqueado ${aiDetect.rightClickBlocked} vez${aiDetect.rightClickBlocked>1?'es':''}`);
+  if(aiDetect.shortcutBlocked>0)flags.push(`Atajos de teclado (Cmd/Ctrl+C/A/S/P/U) bloqueados: ${aiDetect.shortcutBlocked}`);
+  if(aiDetect.dragBlocked>0)flags.push(`Intento de arrastrar texto bloqueado ${aiDetect.dragBlocked} vez${aiDetect.dragBlocked>1?'es':''}`);
   if(aiDetect.tabSwitches>2)flags.push(`Cambió de pestaña ${aiDetect.tabSwitches} veces`);
   if(aiDetect.tabAwayTime>30)flags.push(`Fuera de la pestaña ${aiDetect.tabAwayTime}s en total`);
   if(aiDetect.burstCount>10)flags.push('Patrón de escritura irregular (posible pegado con teclado)');
@@ -888,6 +941,10 @@ function buildPayload(){
       pasteChars:a.aiData?.pasteChars||0,
       tabSwitches:a.aiData?.tabSwitches||0,
       burstCount:a.aiData?.burstCount||0,
+      copyBlocked:a.aiData?.copyBlocked||0,
+      rightClickBlocked:a.aiData?.rightClickBlocked||0,
+      shortcutBlocked:a.aiData?.shortcutBlocked||0,
+      dragBlocked:a.aiData?.dragBlocked||0,
       aiFlags:a.aiFlags||[],
     })),
   };
