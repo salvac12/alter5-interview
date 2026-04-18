@@ -24,7 +24,16 @@ const INTERVIEW_TTL_DAYS = 7;
 module.exports.default = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'method' });
 
-  const { email, name, experience, fileBase64, filename, autoInvite } = req.body || {};
+  const { email, name, experience, fileBase64, filename, autoInvite, source } = req.body || {};
+
+  // Whitelist of allowed source overrides. Prevents callers from spoofing
+  // arbitrary values via the API. Defaults to 'admin_manual' for every
+  // request that doesn't match an allowed source. The value must also exist
+  // in the application_source Postgres enum — see the paired migration
+  // 20260418150000_email_agent_source.sql.
+  const ALLOWED_SOURCES = new Set(['email_agent']);
+  const resolvedSource = ALLOWED_SOURCES.has(source) ? source : 'admin_manual';
+
   if (!email || !isValidEmail(email)) return res.status(400).json({ error: 'invalid_email' });
   if (!fileBase64 || !filename) return res.status(400).json({ error: 'missing_file' });
   if (String(fileBase64).length > 7_500_000) return res.status(400).json({ error: 'file_too_large' });
@@ -62,7 +71,7 @@ module.exports.default = async function handler(req, res) {
         .from('applications')
         .insert({
           email: normEmail,
-          source: 'admin_manual',
+          source: resolvedSource,
           status: 'cv_uploaded',
           consent_privacy: true,
           consent_ai_decision: true,
@@ -99,9 +108,9 @@ module.exports.default = async function handler(req, res) {
 
     await supabaseAdmin.from('application_events').insert({
       application_id: appRow.id,
-      event_type: 'admin_manual_upload',
+      event_type: resolvedSource === 'email_agent' ? 'email_agent_upload' : 'admin_manual_upload',
       event_data: { filename, size_bytes: sizeBytes },
-      actor: 'admin',
+      actor: resolvedSource === 'email_agent' ? 'agent' : 'admin',
       ip, user_agent: ua,
     });
 
