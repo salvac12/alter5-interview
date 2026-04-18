@@ -1,15 +1,29 @@
 // POST /api/admin/review-decision
 //
-// Admin action for manually-reviewed applications (score 4-6 or human review request).
+// Admin action for manually-reviewed candidates. Routes by current status:
+//
+//   CV stage  (analyzed_pending_review | analyzed_auto_rejected | analyzed_auto_invited)
+//     approve -> analyzed_manual_approved  + interview link email
+//     reject  -> analyzed_manual_rejected  + CV-stage rejection email
+//
+//   Interview stage  (interview_completed)
+//     reject  -> post_interview_rejected   + post-interview rejection email
+//     (approve is not a terminal action here — hiring happens outside the app)
+//
 // Body: { applicationId, decision: 'approve' | 'reject', note? }
-// - approve: status -> analyzed_manual_approved, creates interview magic link, sends email
-// - reject:  status -> analyzed_manual_rejected (silent, no email)
 
 const { supabaseAdmin } = require('../../lib/supabase');
 const { generateToken, hashToken } = require('../../lib/tokens');
-const { sendInterviewLinkEmail } = require('../../lib/email');
+const {
+  sendInterviewLinkEmail,
+  sendPostCvRejectionEmail,
+  sendPostInterviewRejectionEmail,
+} = require('../../lib/email');
 
 const INTERVIEW_TTL_DAYS = 7;
+
+const CV_STAGE_STATES = ['analyzed_pending_review', 'analyzed_auto_rejected', 'analyzed_auto_invited'];
+const INTERVIEW_STAGE_STATES = ['interview_completed'];
 
 module.exports.default = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'method' });
@@ -28,26 +42,46 @@ module.exports.default = async function handler(req, res) {
     if (aerr) throw aerr;
     if (!app || app.deleted_at) return res.status(404).json({ error: 'not_found' });
 
-    const allowed = ['analyzed_pending_review', 'analyzed_auto_rejected', 'analyzed_auto_invited'];
-    if (!allowed.includes(app.status)) {
+    const inCvStage = CV_STAGE_STATES.includes(app.status);
+    const inInterviewStage = INTERVIEW_STAGE_STATES.includes(app.status);
+    if (!inCvStage && !inInterviewStage) {
       return res.status(409).json({ error: 'invalid_state', state: app.status });
     }
 
+    // ── Reject ────────────────────────────────────────────────────────
     if (decision === 'reject') {
+      const nextStatus = inInterviewStage ? 'post_interview_rejected' : 'analyzed_manual_rejected';
+      const sendFn = inInterviewStage ? sendPostInterviewRejectionEmail : sendPostCvRejectionEmail;
+
       await supabaseAdmin
         .from('applications')
-        .update({ status: 'analyzed_manual_rejected' })
+        .update({ status: nextStatus })
         .eq('id', applicationId);
+
+      const mail = await sendFn({ to: app.email, name: app.name || '' });
+
       await supabaseAdmin.from('application_events').insert({
         application_id: applicationId,
-        event_type: 'manual_reject',
-        event_data: { note: note || null },
+        event_type: inInterviewStage ? 'post_interview_reject' : 'manual_reject',
+        event_data: {
+          note: note || null,
+          email_ok: mail.ok,
+          email_id: mail.id || null,
+          email_error: mail.error || null,
+        },
         actor: 'admin',
       });
-      return res.status(200).json({ ok: true, status: 'analyzed_manual_rejected' });
+
+      return res.status(200).json({ ok: true, status: nextStatus, email_ok: mail.ok });
     }
 
-    // Approve: create new interview magic link + send email.
+    // ── Approve ───────────────────────────────────────────────────────
+    // Approve only makes sense in CV stage — from interview_completed the
+    // next step is an out-of-band offer, not another app state.
+    if (inInterviewStage) {
+      return res.status(409).json({ error: 'approve_not_applicable_post_interview' });
+    }
+
     const token = generateToken();
     const expiresAt = new Date(Date.now() + INTERVIEW_TTL_DAYS * 24 * 60 * 60 * 1000).toISOString();
 

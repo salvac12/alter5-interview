@@ -165,6 +165,7 @@ h1{font-family:var(--serif);font-size:1.9rem;color:var(--navy);margin-bottom:0.3
           <option value="analyzed_manual_rejected">manual_rejected</option>
           <option value="interview_started">interview_started</option>
           <option value="interview_completed">interview_completed</option>
+          <option value="post_interview_rejected">post_interview_rejected</option>
         </select>
         <select id="filter-source">
           <option value="">Todos</option>
@@ -263,6 +264,7 @@ function statusBadge(s){
     analyzed_manual_rejected:['b-red','manual_rejected'],
     interview_started:['b-purple','iv_started'],
     interview_completed:['b-purple','iv_completed'],
+    post_interview_rejected:['b-red','post_iv_rejected'],
     deleted:['b-gray','deleted'],
   };
   const [cls,label]=map[s]||['b-gray',s||'—'];
@@ -338,7 +340,7 @@ function renderReviewRow(a){
 }
 
 async function decide(id,decision){
-  if(decision==='reject'&&!confirm('Descartar esta candidatura? No se enviará ningún email.'))return;
+  if(decision==='reject'&&!confirm('Descartar esta candidatura y enviar email formal de rechazo?'))return;
   if(decision==='approve'&&!confirm('Aprobar y enviar enlace de entrevista por email?'))return;
   try{
     const r=await fetch('/api/admin/review-decision',{
@@ -347,7 +349,8 @@ async function decide(id,decision){
     });
     const data=await r.json();
     if(!r.ok){toast('Error: '+(data.error||'unknown'),true);return;}
-    toast(decision==='approve'?'Candidato aprobado, email enviado':'Candidato descartado');
+    if(decision==='approve')toast('Candidato aprobado, email enviado');
+    else toast(data.email_ok?'Candidato descartado, email de rechazo enviado':'Descartado (email NO enviado — revisar logs)',!data.email_ok);
     loadReview();
   }catch{toast('Error de red',true);}
 }
@@ -481,7 +484,10 @@ function renderDetail(d){
     actions.push(`<button class="btn btn-emerald btn-sm" onclick="decide('${a.id}','approve');closeModal();">Aprobar y enviar entrevista</button>`);
   }
   if(['analyzed_pending_review','analyzed_auto_invited'].includes(a.status)){
-    actions.push(`<button class="btn btn-danger btn-sm" onclick="decide('${a.id}','reject');closeModal();">Descartar</button>`);
+    actions.push(`<button class="btn btn-danger btn-sm" onclick="decide('${a.id}','reject');closeModal();">Descartar (email de rechazo)</button>`);
+  }
+  if(a.status==='interview_completed'){
+    actions.push(`<button class="btn btn-danger btn-sm" onclick="decide('${a.id}','reject');closeModal();">Descartar tras entrevista (email de rechazo)</button>`);
   }
   if(actions.length)blocks.push(`<div class="modal-sec"><h3>Acciones</h3><div style="display:flex;gap:0.5rem;flex-wrap:wrap">${actions.join('')}</div></div>`);
 
