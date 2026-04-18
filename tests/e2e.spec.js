@@ -208,6 +208,35 @@ test.describe('Public API safety', () => {
       expect(body.ok).toBe(false);
     }
   });
+
+  test('/privacy/my-data surfaces a clear message when delete is rate-limited (429)', async ({ page }) => {
+    // Regression guard for commit 4874968: the edge limiter (5 req/min on
+    // /api/privacy/*) used to return {error:"Too many requests"}, which
+    // has no .reason, so the UI fell through to the generic "No se ha
+    // podido procesar el borrado." — masking the real cause. Now the
+    // frontend handles r.status===429 explicitly. If this test fails, the
+    // 429 branch was removed or the message changed.
+    const fake = 'a'.repeat(64);
+    await page.route('**/api/privacy/delete', route =>
+      route.fulfill({
+        status: 429,
+        contentType: 'application/json',
+        body: JSON.stringify({ error: 'Too many requests' }),
+      }),
+    );
+    await page.goto(`${BASE}/privacy/my-data?token=${fake}`);
+    // Wait for the data-load step to settle (it'll show mode-invalid for our
+    // fake token), then force the data view to be visible so we can click
+    // "Borrar mis datos". Easier than wiring a real ARCO link.
+    await page.waitForLoadState('networkidle');
+    await page.evaluate(() => {
+      ['mode-request','mode-loading','mode-data','mode-invalid','mode-deleted']
+        .forEach(m => document.getElementById(m).classList.toggle('hide', m !== 'mode-data'));
+    });
+    page.once('dialog', d => d.accept());
+    await page.locator('#btn-delete').click();
+    await expect(page.locator('#delete-msg')).toContainText(/demasiadas peticiones/i, { timeout: 5000 });
+  });
 });
 
 test.describe('Security headers', () => {
