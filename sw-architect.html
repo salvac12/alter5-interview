@@ -5,73 +5,77 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Alter5 — SW Architect / AI Head of Engineering</title>
 <meta name="description" content="Únete a Alter5 como SW Architect / AI Head of Engineering. Proceso de selección asíncrono: sube tu CV y, si encajas, te invitamos a una entrevista técnica online.">
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="icon" type="image/svg+xml" href="/alter-logo-blue.svg">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --navy:#0A1628;--navy2:#111f38;--emerald:#10B981;--emerald-dim:#0d9268;
+  --navy:#13285B;--navy2:#0e1f48;--teal:#50B6BE;--teal-dim:#3a99a1;
   --slate:#94A3B8;--slate-light:#CBD5E1;--red:#EF4444;--amber:#F59E0B;
-  --bg:#F8FAFC;--white:#ffffff;--border:#E2E8F0;
-  --text:#1E293B;--text-muted:#64748B;
-  --serif:'DM Serif Display',Georgia,serif;
+  --bg:#F5F7FA;--white:#ffffff;--border:#E2E8F0;
+  --text:#13285B;--text-muted:#64748B;
+  --serif:'Instrument Sans',sans-serif;
   --sans:'Instrument Sans',sans-serif;
   --mono:'DM Mono',monospace;
-  --radius:12px;
+  --radius:10px;
 }
-body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;line-height:1.5}
-.hdr{background:var(--navy);padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
-.hdr-logo{font-family:var(--serif);color:#fff;font-size:1.2rem;letter-spacing:-0.01em}
-.hdr-logo span{color:var(--emerald)}
-.hdr-badge{background:rgba(16,185,129,0.15);color:var(--emerald);padding:0.2rem 0.6rem;border-radius:4px;font-size:0.68rem;font-weight:500;letter-spacing:0.05em;text-transform:uppercase;font-family:var(--mono)}
-.main{flex:1;max-width:760px;width:100%;margin:0 auto;padding:2.5rem 1.5rem}
-.eyebrow{font-family:var(--mono);font-size:0.7rem;color:var(--emerald);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.75rem}
-.big-title{font-family:var(--serif);font-size:2.8rem;color:var(--navy);line-height:1.1;margin-bottom:1rem;letter-spacing:-0.02em}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;line-height:1.5;-webkit-font-smoothing:antialiased}
+.hdr{background:var(--white);border-bottom:1px solid var(--border);padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.hdr-logo{display:inline-flex;align-items:center}
+.hdr-logo img{height:32px;width:auto;display:block}
+.hdr-badge{background:rgba(80,182,190,0.12);color:var(--teal-dim);padding:0.25rem 0.7rem;border-radius:999px;font-size:0.68rem;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;font-family:var(--mono)}
+.main{flex:1;max-width:760px;width:100%;margin:0 auto;padding:3rem 1.5rem}
+.eyebrow{font-family:var(--mono);font-size:0.7rem;color:var(--teal-dim);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:0.85rem;font-weight:600}
+.big-title{font-family:var(--sans);font-weight:600;font-size:2.6rem;color:var(--navy);line-height:1.1;margin-bottom:1rem;letter-spacing:-0.025em}
 .intro-body{font-size:1rem;color:var(--text-muted);line-height:1.75;margin-bottom:2rem}
 .section{margin-bottom:2.25rem}
-.section h2{font-family:var(--serif);font-size:1.35rem;color:var(--navy);margin-bottom:0.85rem;letter-spacing:-0.01em}
-.info-box{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem 1.5rem;margin-bottom:1rem}
-.info-box h3{font-size:0.72rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.75rem;font-family:var(--mono)}
+.section h2{font-family:var(--sans);font-weight:600;font-size:1.3rem;color:var(--navy);margin-bottom:0.85rem;letter-spacing:-0.015em}
+.info-box{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:1.4rem 1.6rem;margin-bottom:1rem;box-shadow:0 1px 2px rgba(19,40,91,0.04)}
+.info-box h3{font-size:0.72rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.85rem;font-family:var(--mono)}
 .req-list{list-style:none;padding:0}
 .req-list li{display:flex;gap:0.75rem;align-items:flex-start;font-size:0.92rem;color:var(--text);margin-bottom:0.65rem;line-height:1.55}
-.req-list li::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--emerald);margin-top:0.55rem;flex-shrink:0}
+.req-list li::before{content:"";width:6px;height:6px;border-radius:1px;background:var(--teal);margin-top:0.55rem;flex-shrink:0}
 .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:2rem}
 @media (max-width:640px){.steps{grid-template-columns:1fr}}
-.step{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:1.1rem}
-.step-num{font-family:var(--mono);font-size:0.72rem;font-weight:600;color:var(--emerald);letter-spacing:0.1em;margin-bottom:0.4rem}
-.step-title{font-size:0.95rem;font-weight:600;color:var(--navy);margin-bottom:0.35rem}
+.step{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:1.2rem;box-shadow:0 1px 2px rgba(19,40,91,0.04);position:relative;overflow:hidden}
+.step::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--teal)}
+.step-num{font-family:var(--mono);font-size:0.72rem;font-weight:600;color:var(--teal-dim);letter-spacing:0.12em;margin-bottom:0.45rem}
+.step-title{font-size:0.95rem;font-weight:600;color:var(--navy);margin-bottom:0.35rem;letter-spacing:-0.01em}
 .step-desc{font-size:0.82rem;color:var(--text-muted);line-height:1.55}
-.apply-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;margin-top:1rem}
-.apply-card h2{font-family:var(--serif);font-size:1.5rem;color:var(--navy);margin-bottom:0.5rem;letter-spacing:-0.01em}
+.apply-card{background:var(--white);border:1px solid var(--border);border-top:3px solid var(--teal);border-radius:var(--radius);padding:2rem;margin-top:1rem;box-shadow:0 4px 12px rgba(19,40,91,0.06)}
+.apply-card h2{font-family:var(--sans);font-weight:600;font-size:1.5rem;color:var(--navy);margin-bottom:0.5rem;letter-spacing:-0.015em}
 .apply-card p.lead{font-size:0.9rem;color:var(--text-muted);margin-bottom:1.5rem;line-height:1.6}
 .cform{display:flex;flex-direction:column;gap:1rem}
 .cgrp{display:flex;flex-direction:column;gap:0.4rem}
-.cgrp label{font-size:0.78rem;font-weight:500;color:var(--text);letter-spacing:0.02em}
-.cgrp input[type=email]{padding:0.7rem 0.9rem;border:1px solid var(--border);border-radius:8px;font-family:var(--sans);font-size:0.95rem;color:var(--text);background:var(--white);outline:none;transition:border-color 0.15s}
-.cgrp input:focus{border-color:var(--emerald)}
+.cgrp label{font-size:0.78rem;font-weight:600;color:var(--navy);letter-spacing:0.02em}
+.cgrp input[type=email]{padding:0.75rem 0.9rem;border:1px solid var(--border);border-radius:8px;font-family:var(--sans);font-size:0.95rem;color:var(--text);background:var(--white);outline:none;transition:border-color 0.15s,box-shadow 0.15s}
+.cgrp input:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(80,182,190,0.18)}
 .consent{display:flex;gap:0.65rem;align-items:flex-start;font-size:0.83rem;color:var(--text);line-height:1.55}
-.consent input[type=checkbox]{width:16px;height:16px;margin-top:0.2rem;accent-color:var(--emerald);flex-shrink:0}
-.consent a{color:var(--emerald);text-decoration:underline}
-.consent a:hover{color:var(--emerald-dim)}
-.consent-opt{background:#F0FDF4;border:1px solid #BBF7D0;border-radius:8px;padding:0.85rem 1rem;font-size:0.82rem;color:#166534;line-height:1.55}
+.consent input[type=checkbox]{width:16px;height:16px;margin-top:0.2rem;accent-color:var(--teal);flex-shrink:0}
+.consent a{color:var(--teal-dim);text-decoration:underline}
+.consent a:hover{color:var(--navy)}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;padding:0.85rem 1.75rem;border-radius:8px;font-family:var(--sans);font-size:0.95rem;font-weight:600;cursor:pointer;border:none;transition:all 0.15s;width:100%}
 .btn-primary{background:var(--navy);color:#fff}
-.btn-primary:hover:not(:disabled){background:var(--navy2);transform:translateY(-1px)}
+.btn-primary:hover:not(:disabled){background:var(--navy2);transform:translateY(-1px);box-shadow:0 4px 12px rgba(19,40,91,0.25)}
 .btn-primary:disabled{opacity:0.5;cursor:not-allowed;transform:none}
 .err,.ok{padding:0.75rem 1rem;border-radius:8px;font-size:0.85rem;line-height:1.5;margin-top:0.75rem}
 .err{background:#FEF2F2;color:#991B1B;border:1px solid #FEE2E2}
-.ok{background:#F0FDF4;color:#166534;border:1px solid #BBF7D0}
+.ok{background:rgba(80,182,190,0.1);color:var(--navy);border:1px solid rgba(80,182,190,0.3)}
 .hidden{display:none}
 .privacy-note{font-size:0.75rem;color:var(--text-muted);line-height:1.6;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border)}
 .privacy-note a{color:var(--text-muted);text-decoration:underline}
 .ftr{text-align:center;padding:2rem 1rem;font-size:0.75rem;color:var(--text-muted);font-family:var(--mono);letter-spacing:0.05em}
 .ftr a{color:var(--text-muted);text-decoration:underline;margin:0 0.5rem}
+.ftr a:hover{color:var(--navy)}
 </style>
 </head>
 <body>
 
 <header class="hdr">
-  <div class="hdr-logo">Alter<span>5</span></div>
+  <a class="hdr-logo" href="https://www.alter5.com" target="_blank" rel="noopener" aria-label="Alter5">
+    <img src="/alter-logo-blue.svg" alt="Alter5">
+  </a>
   <div class="hdr-badge">Ofertas activas · 1</div>
 </header>
 
@@ -81,7 +85,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
   <p class="intro-body">
     Alter5 es una fintech que construye plataformas de inversión alternativa. Buscamos un líder
     técnico que combine arquitectura software sólida con visión de producto y aplicación práctica
-    de IA. Liderarás la plataforma tecnológica y un equipo pequeño pero muy senior.
+    de IA. Liderarás la plataforma tecnológica y un equipo, y trabajarás estrechamente con negocio.
   </p>
 
   <div class="section">
@@ -110,12 +114,12 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
       <div class="step">
         <div class="step-num">02</div>
         <div class="step-title">Subes tu CV</div>
-        <div class="step-desc">Analizamos tu CV con IA frente a los requisitos del puesto en unos segundos.</div>
+        <div class="step-desc">Analizamos los requisitos del puesto en unos segundos.</div>
       </div>
       <div class="step">
         <div class="step-num">03</div>
         <div class="step-title">Si encajas, entrevista</div>
-        <div class="step-desc">Recibes un link a una entrevista técnica estructurada online (~15 min).</div>
+        <div class="step-desc">Si encajas, recibirás un link para un pequeño cuestionario y una posterior entrevista.</div>
       </div>
     </div>
   </div>
