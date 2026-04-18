@@ -8,10 +8,14 @@
 //   4. Call Claude for CV analysis
 //   5. Insert analyses row
 //   6. Route by score:
-//      - >=7: create interview magic link (7 days), send email, status=analyzed_auto_invited
-//      - 4-6: status=analyzed_pending_review (manual review by admin)
+//      - >=4: status=analyzed_pending_review (admin decides whether to invite)
 //      - <=3: status=analyzed_auto_rejected (silent)
 //   7. Always respond "ok" — do not leak score.
+//
+// Note: auto-invitation for high scores was removed on purpose. All qualifying
+// candidates now go through manual admin review before an interview link is
+// emailed. The admin panel's review queue surfaces the score; approval there
+// creates the magic link and sends the email via /api/admin/review-decision.
 //
 // Max body ~8MB to fit base64-encoded PDFs up to ~5.5MB.
 
@@ -19,12 +23,7 @@ const crypto = require('crypto');
 const { supabaseAdmin } = require('../lib/supabase');
 const { getSession, clearCookieHeader } = require('../lib/session');
 const { analyzeCv } = require('../lib/cv-analysis');
-const { generateToken, hashToken } = require('../lib/tokens');
-const { sendInterviewLinkEmail } = require('../lib/email');
 const { getClientIp, getUserAgent } = require('../lib/validation');
-
-const INTERVIEW_TTL_DAYS = 7;
-const AUTO_INVITE_THRESHOLD = 7;
 
 module.exports.config = {
   api: { bodyParser: { sizeLimit: '8mb' } },
@@ -160,17 +159,12 @@ module.exports.default = async function handler(req, res) {
       updateApp.experience = experience;
     }
 
-    // 5. Route by score.
-    let nextStatus;
-    let interviewToken = null;
-    if (analysis.score >= AUTO_INVITE_THRESHOLD) {
-      nextStatus = 'analyzed_auto_invited';
-      interviewToken = generateToken();
-    } else if (analysis.score >= 4) {
-      nextStatus = 'analyzed_pending_review';
-    } else {
-      nextStatus = 'analyzed_auto_rejected';
-    }
+    // 5. Route by score. High scorers now wait for admin approval instead of
+    //    being auto-invited — admin reviews the score and sends the interview
+    //    link manually from the admin panel (/api/admin/review-decision).
+    const nextStatus = analysis.score >= 4
+      ? 'analyzed_pending_review'
+      : 'analyzed_auto_rejected';
     updateApp.status = nextStatus;
 
     await supabaseAdmin.from('applications').update(updateApp).eq('id', appId);
@@ -187,35 +181,7 @@ module.exports.default = async function handler(req, res) {
       actor: 'system',
     });
 
-    // 6. If auto-invited, create interview magic link and send email.
-    if (interviewToken) {
-      const expiresAt = new Date(Date.now() + INTERVIEW_TTL_DAYS * 24 * 60 * 60 * 1000).toISOString();
-      await supabaseAdmin.from('magic_links').insert({
-        application_id: appId,
-        purpose: 'interview',
-        token_hash: hashToken(interviewToken),
-        expires_at: expiresAt,
-      });
-
-      const baseUrl = process.env.INTERVIEW_BASE_URL || 'https://careers.alter-5.com';
-      const interviewUrl = `${baseUrl}/interview?token=${interviewToken}`;
-
-      const mail = await sendInterviewLinkEmail({
-        to: app.email,
-        name: analysis.name || '',
-        interviewUrl,
-        expiresDays: INTERVIEW_TTL_DAYS,
-      });
-
-      await supabaseAdmin.from('application_events').insert({
-        application_id: appId,
-        event_type: 'interview_sent',
-        event_data: { email_ok: mail.ok, email_id: mail.id || null, error: mail.error || null },
-        actor: 'system',
-      });
-    }
-
-    // 7. Clear candidate session cookie (upload flow is done).
+    // 6. Clear candidate session cookie (upload flow is done).
     res.setHeader('Set-Cookie', clearCookieHeader());
     return res.status(200).json({ ok: true, status: 'received' });
   } catch (e) {

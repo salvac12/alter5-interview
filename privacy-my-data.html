@@ -436,7 +436,12 @@ async function loadData() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ token: TOKEN }),
     });
-    const d = await r.json();
+    if (r.status === 429) {
+      $('invalid-msg').textContent = 'Demasiadas peticiones. Espera un minuto e inténtalo de nuevo.';
+      show('mode-invalid');
+      return;
+    }
+    const d = await r.json().catch(() => ({}));
     if (!d.ok) {
       const msgs = {
         invalid:   'El enlace no tiene un formato válido.',
@@ -484,17 +489,25 @@ $('btn-delete').addEventListener('click', async () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ token: TOKEN }),
     });
-    const d = await r.json();
+    if (r.status === 429) {
+      setMsg($('delete-msg'), 'Demasiadas peticiones. Espera un minuto e inténtalo de nuevo.', 'err');
+      $('btn-delete').disabled = false;
+      return;
+    }
+    const d = await r.json().catch(() => ({}));
     if (d.ok) {
       show('mode-deleted');
     } else {
       const msgs = {
+        invalid:   'El enlace no tiene un formato válido. Solicita uno nuevo.',
+        method:    'Petición no válida. Refresca la página e inténtalo de nuevo.',
         not_found: 'No hemos podido localizar la candidatura.',
-        used:      'Este enlace ya se ha usado.',
-        expired:   'Este enlace ha caducado.',
+        used:      'Este enlace ya se ha usado. Solicita uno nuevo.',
+        expired:   'Este enlace ha caducado. Solicita uno nuevo.',
         server:    'Error del servidor. Inténtalo de nuevo.',
       };
-      setMsg($('delete-msg'), msgs[d.reason] || 'No se ha podido procesar el borrado.', 'err');
+      const fallback = `No se ha podido procesar el borrado${d.reason ? ` (${d.reason})` : ''}.`;
+      setMsg($('delete-msg'), msgs[d.reason] || fallback, 'err');
       $('btn-delete').disabled = false;
     }
   } catch (_) {

@@ -4,7 +4,9 @@
 // Creates application + uploads CV + analyzes + routes. Behind Basic Auth via middleware.
 //
 // Body: { email, name?, experience?, fileBase64, filename, autoInvite? }
-// If autoInvite is true, always invites regardless of score.
+// Score-based auto-invite was removed — candidates with score>=4 land in the
+// review queue for manual approval. Only the explicit `autoInvite` flag (from
+// the admin's "Invitar siempre" checkbox) forces an immediate invitation.
 
 const crypto = require('crypto');
 const { supabaseAdmin } = require('../../lib/supabase');
@@ -18,7 +20,6 @@ module.exports.config = {
 };
 
 const INTERVIEW_TTL_DAYS = 7;
-const AUTO_INVITE_THRESHOLD = 7;
 
 module.exports.default = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'method' });
@@ -133,11 +134,11 @@ module.exports.default = async function handler(req, res) {
     if (analysis.name && !appRow.name) updateApp.name = analysis.name;
 
     let nextStatus;
-    const shouldInvite = !!autoInvite || analysis.score >= AUTO_INVITE_THRESHOLD;
+    const shouldInvite = !!autoInvite;
     let interviewUrl = null;
 
     if (shouldInvite) {
-      nextStatus = autoInvite ? 'analyzed_manual_approved' : 'analyzed_auto_invited';
+      nextStatus = 'analyzed_manual_approved';
       const token = generateToken();
       const expiresAt = new Date(Date.now() + INTERVIEW_TTL_DAYS * 24 * 60 * 60 * 1000).toISOString();
       await supabaseAdmin.from('magic_links').insert({
@@ -158,7 +159,7 @@ module.exports.default = async function handler(req, res) {
       await supabaseAdmin.from('application_events').insert({
         application_id: appRow.id,
         event_type: 'interview_sent',
-        event_data: { email_ok: mail.ok, email_id: mail.id || null, actor_reason: autoInvite ? 'admin_override' : 'auto_score' },
+        event_data: { email_ok: mail.ok, email_id: mail.id || null, actor_reason: 'admin_override' },
         actor: 'admin',
       });
     } else if (analysis.score >= 4) {
