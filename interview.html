@@ -5,26 +5,27 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Entrevista técnica — Alter5</title>
 <meta name="robots" content="noindex">
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="icon" type="image/svg+xml" href="/alter-logo-blue.svg">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --navy:#0A1628;--navy2:#111f38;--emerald:#10B981;--emerald-dim:#0d9268;
+  --navy:#13285B;--navy2:#0e1f48;--emerald:#50B6BE;--emerald-dim:#3a99a1;
   --slate:#94A3B8;--slate-light:#CBD5E1;--red:#EF4444;--amber:#F59E0B;
   --bg:#F8FAFC;--white:#ffffff;--border:#E2E8F0;
   --text:#1E293B;--text-muted:#64748B;
-  --serif:'DM Serif Display',Georgia,serif;
+  --serif:'Instrument Sans',sans-serif;
   --sans:'Instrument Sans',sans-serif;
   --mono:'DM Mono',monospace;
   --radius:12px;
 }
 body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;line-height:1.5}
 .hdr{background:var(--navy);padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
-.hdr-logo{font-family:var(--serif);color:#fff;font-size:1.2rem;letter-spacing:-0.01em}
-.hdr-logo span{color:var(--emerald)}
+.hdr-logo{display:inline-flex;align-items:center}
+.hdr-logo img{height:28px;width:auto;display:block}
 .hdr-right{display:flex;align-items:center;gap:0.75rem}
 .hdr-meta{font-family:var(--mono);font-size:0.72rem;color:var(--slate)}
-.hdr-badge{background:rgba(16,185,129,0.15);color:var(--emerald);padding:0.2rem 0.6rem;border-radius:4px;font-size:0.68rem;font-weight:500;letter-spacing:0.05em;text-transform:uppercase;font-family:var(--mono)}
+.hdr-badge{background:rgba(80,182,190,0.15);color:var(--emerald);padding:0.2rem 0.6rem;border-radius:4px;font-size:0.68rem;font-weight:500;letter-spacing:0.05em;text-transform:uppercase;font-family:var(--mono)}
 .hdr-candidate{font-family:var(--mono);font-size:0.72rem;color:#fff;background:rgba(255,255,255,0.08);padding:0.25rem 0.75rem;border-radius:4px}
 .main{flex:1;max-width:780px;width:100%;margin:0 auto;padding:2.5rem 1.5rem}
 .screen{display:none}.screen.active{display:block}
@@ -72,7 +73,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 .opts{display:flex;flex-direction:column;gap:0.5rem}
 .opt{display:flex;align-items:center;gap:0.8rem;padding:0.85rem 0.95rem;border:1px solid var(--border);border-radius:8px;cursor:pointer;background:var(--white);transition:all 0.12s;font-size:0.88rem;color:var(--text);user-select:none}
 .opt:hover{border-color:var(--slate-light);background:#f8fafc}
-.opt.sel{border-color:var(--emerald);background:rgba(16,185,129,0.05);color:var(--navy);font-weight:500}
+.opt.sel{border-color:var(--emerald);background:rgba(80,182,190,0.05);color:var(--navy);font-weight:500}
 .radio{width:17px;height:17px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.12s}
 .opt.sel .radio{border-color:var(--emerald);background:var(--emerald)}
 .rdot{width:5px;height:5px;border-radius:50%;background:#fff;opacity:0;transition:opacity 0.12s}
@@ -97,7 +98,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 .success-icon{width:64px;height:64px;margin:0 auto 1rem;color:var(--emerald)}
 .success-card h2{font-family:var(--serif);font-size:1.9rem;color:var(--navy);margin-bottom:0.75rem;letter-spacing:-0.02em}
 .success-card p{font-size:0.95rem;color:var(--text-muted);margin-bottom:0.75rem;line-height:1.7;max-width:540px;margin-left:auto;margin-right:auto}
-.booking-box{background:#F0FDF4;border:1px solid rgba(16,185,129,0.3);border-radius:var(--radius);padding:1.5rem;margin:1.75rem auto 1rem;max-width:480px;text-align:left}
+.booking-box{background:#F0FDF4;border:1px solid rgba(80,182,190,0.3);border-radius:var(--radius);padding:1.5rem;margin:1.75rem auto 1rem;max-width:480px;text-align:left}
 .booking-box h3{font-size:0.88rem;font-weight:600;color:var(--navy);margin-bottom:0.6rem}
 .booking-box p{font-size:0.85rem;color:#166534;margin-bottom:1rem;line-height:1.55;text-align:left}
 .booking-box .btn{width:100%}
@@ -116,7 +117,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 <body>
 
 <header class="hdr">
-  <div class="hdr-logo">Alter<span>5</span></div>
+  <a class="hdr-logo" href="https://www.alter5.com" target="_blank" rel="noopener" aria-label="Alter5"><img src="/alter-logo-white.svg" alt="Alter5"></a>
   <div class="hdr-right">
     <span class="hdr-meta">SW Architect / AI Head of Engineering</span>
     <span class="hdr-badge" id="hdr-status">Entrevista</span>
@@ -164,7 +165,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
     <div class="info-box">
       <h3>Instrucciones</h3>
       <div class="info-row"><div class="dot"></div><span>Responde con ejemplos reales y concretos. No buscamos respuestas perfectas — buscamos criterio y honestidad.</span></div>
-      <div class="info-row"><div class="dot"></div><span>El tiempo de cada respuesta se registra y aplicamos detectores anti-IA (pegados, cambios de pestaña, etc.).</span></div>
+      <div class="info-row"><div class="dot"></div><span>El tiempo de cada respuesta se registra y detectamos patrones irregulares (pegados, cambios de pestaña, etc.).</span></div>
       <div class="info-row"><div class="dot"></div><span>Una vez empieces, completa la entrevista de una sola sesión. No podrás retomarla después.</span></div>
     </div>
     <button class="btn btn-primary" onclick="startInterview()">Comenzar entrevista →</button>

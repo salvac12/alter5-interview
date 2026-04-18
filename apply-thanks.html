@@ -4,16 +4,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Revisa tu email — Alter5</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Instrument+Sans:wght@400;500;600&family=DM+Mono&display=swap" rel="stylesheet">
+<link rel="icon" type="image/svg+xml" href="/alter-logo-blue.svg">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=DM+Mono&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Instrument Sans',sans-serif;background:#F8FAFC;color:#1E293B;min-height:100vh;display:flex;flex-direction:column}
-.hdr{background:#0A1628;padding:1rem 2rem}
-.hdr-logo{font-family:'DM Serif Display',serif;color:#fff;font-size:1.2rem;letter-spacing:-0.01em}
-.hdr-logo span{color:#10B981}
+body{font-family:'Instrument Sans',sans-serif;background:#F5F7FA;color:#13285B;min-height:100vh;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased}
+.hdr{background:#13285B;padding:1rem 2rem;display:flex;align-items:center}
+.hdr-logo{display:inline-flex;align-items:center}
+.hdr-logo img{height:28px;width:auto;display:block}
 .main{flex:1;max-width:560px;width:100%;margin:0 auto;padding:3rem 1.5rem;text-align:center}
-.icon{width:72px;height:72px;background:#F0FDF4;border:2px solid #BBF7D0;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;font-size:2rem;color:#10B981}
-h1{font-family:'DM Serif Display',serif;font-size:2.2rem;color:#0A1628;margin-bottom:1rem;letter-spacing:-0.02em}
+.icon{width:72px;height:72px;background:rgba(80,182,190,0.12);border:2px solid rgba(80,182,190,0.35);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;font-size:2rem;color:#3a99a1}
+h1{font-family:'Instrument Sans',sans-serif;font-weight:700;font-size:2.2rem;color:#13285B;margin-bottom:1rem;letter-spacing:-0.025em}
 p{font-size:1rem;color:#64748B;line-height:1.7;margin-bottom:1rem}
 .email-out{font-family:'DM Mono',monospace;background:#fff;border:1px solid #E2E8F0;border-radius:8px;padding:0.75rem 1rem;font-size:0.9rem;color:#1E293B;display:inline-block;margin:0.5rem 0}
 .note{font-size:0.82rem;color:#94A3B8;margin-top:2rem;line-height:1.6;padding:1rem;background:#fff;border:1px solid #E2E8F0;border-radius:8px}
@@ -21,7 +22,7 @@ p{font-size:1rem;color:#64748B;line-height:1.7;margin-bottom:1rem}
 </style>
 </head>
 <body>
-<header class="hdr"><div class="hdr-logo">Alter<span>5</span></div></header>
+<header class="hdr"><a class="hdr-logo" href="https://www.alter5.com" target="_blank" rel="noopener" aria-label="Alter5"><img src="/alter-logo-white.svg" alt="Alter5"></a></header>
 <main class="main">
   <div class="icon">✉</div>
   <h1>Revisa tu email</h1>
@@ -30,7 +31,7 @@ p{font-size:1rem;color:#64748B;line-height:1.7;margin-bottom:1rem}
   <p>Haz click en el botón del email para verificar tu dirección y subir tu CV. El enlace caduca en <strong>30 minutos</strong>.</p>
   <div class="note">
     <strong>¿No lo encuentras?</strong> Revisa tu carpeta de spam o promociones. El remitente es <code>hiring@alter-5.com</code>.
-    Si no llega en unos minutos, puedes <a href="/sw-architect" style="color:#10B981">volver a empezar</a>.
+    Si no llega en unos minutos, puedes <a href="/sw-architect" style="color:#50B6BE">volver a empezar</a>.
   </div>
 </main>
 <footer class="ftr">Alter5 Financial Technologies, S.L. · Madrid</footer>

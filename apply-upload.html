@@ -5,24 +5,25 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sube tu CV — Alter5</title>
 <meta name="robots" content="noindex">
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="icon" type="image/svg+xml" href="/alter-logo-blue.svg">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --navy:#0A1628;--navy2:#111f38;--emerald:#10B981;--emerald-dim:#0d9268;
+  --navy:#13285B;--navy2:#0e1f48;--emerald:#50B6BE;--emerald-dim:#3a99a1;
   --slate:#94A3B8;--slate-light:#CBD5E1;--red:#EF4444;--amber:#F59E0B;
   --bg:#F8FAFC;--white:#ffffff;--border:#E2E8F0;
   --text:#1E293B;--text-muted:#64748B;
-  --serif:'DM Serif Display',Georgia,serif;
+  --serif:'Instrument Sans',sans-serif;
   --sans:'Instrument Sans',sans-serif;
   --mono:'DM Mono',monospace;
   --radius:12px;
 }
 body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;line-height:1.5}
 .hdr{background:var(--navy);padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between}
-.hdr-logo{font-family:var(--serif);color:#fff;font-size:1.2rem;letter-spacing:-0.01em}
-.hdr-logo span{color:var(--emerald)}
-.hdr-badge{background:rgba(16,185,129,0.15);color:var(--emerald);padding:0.2rem 0.6rem;border-radius:4px;font-size:0.68rem;font-weight:500;letter-spacing:0.05em;text-transform:uppercase;font-family:var(--mono)}
+.hdr-logo{display:inline-flex;align-items:center}
+.hdr-logo img{height:28px;width:auto;display:block}
+.hdr-badge{background:rgba(80,182,190,0.15);color:var(--emerald);padding:0.2rem 0.6rem;border-radius:4px;font-size:0.68rem;font-weight:500;letter-spacing:0.05em;text-transform:uppercase;font-family:var(--mono)}
 .main{flex:1;max-width:700px;width:100%;margin:0 auto;padding:2.5rem 1.5rem}
 .eyebrow{font-family:var(--mono);font-size:0.7rem;color:var(--emerald);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.75rem}
 h1{font-family:var(--serif);font-size:2rem;color:var(--navy);line-height:1.15;margin-bottom:0.75rem;letter-spacing:-0.02em}
@@ -89,7 +90,7 @@ h1{font-family:var(--serif);font-size:2rem;color:var(--navy);line-height:1.15;ma
 <body>
 
 <header class="hdr">
-  <div class="hdr-logo">Alter<span>5</span></div>
+  <a class="hdr-logo" href="https://www.alter5.com" target="_blank" rel="noopener" aria-label="Alter5"><img src="/alter-logo-white.svg" alt="Alter5"></a>
   <div class="hdr-badge">Paso 2 de 3 · Subir CV</div>
 </header>
 
@@ -99,8 +100,8 @@ h1{font-family:var(--serif);font-size:2rem;color:var(--navy);line-height:1.15;ma
     <div class="eyebrow">Email verificado · Siguiente paso</div>
     <h1>Sube tu CV</h1>
     <p class="lead">
-      Sube tu CV en PDF (máx. 5&nbsp;MB). Lo analizaremos automáticamente frente a los requisitos de
-      <strong>SW Architect / AI Head of Engineering</strong> y te contestaremos en los próximos minutos.
+      Sube tu CV en PDF (máx. 5&nbsp;MB). Revisaremos tu perfil frente a los requisitos de
+      <strong>SW Architect / AI Head of Engineering</strong> y te contestaremos por email.
     </p>
 
     <div class="card">
@@ -131,7 +132,7 @@ h1{font-family:var(--serif);font-size:2rem;color:var(--navy);line-height:1.15;ma
           </select>
         </div>
 
-        <button type="submit" id="submit-btn" class="btn btn-primary" disabled>Enviar CV para análisis</button>
+        <button type="submit" id="submit-btn" class="btn btn-primary" disabled>Enviar CV</button>
 
         <div id="progress" class="progress hidden"><div class="progress-bar" id="progress-bar"></div></div>
 
@@ -139,7 +140,7 @@ h1{font-family:var(--serif);font-size:2rem;color:var(--navy);line-height:1.15;ma
       </form>
 
       <p class="privacy-note">
-        Tu CV se almacena cifrado en la UE (Fráncfort) y se analiza con Claude (Anthropic) según la
+        Tu CV se almacena cifrado en la UE (Fráncfort) conforme a la
         <a href="/apply/privacy" target="_blank" rel="noopener">política de privacidad</a>. Retención máxima 12 meses.
       </p>
     </div>
@@ -152,9 +153,8 @@ h1{font-family:var(--serif);font-size:2rem;color:var(--navy);line-height:1.15;ma
       </svg>
       <h2>¡Gracias! Hemos recibido tu CV</h2>
       <p>
-        Estamos analizándolo ahora. Te escribiremos al email que verificaste
-        <strong>si hay encaje con el puesto</strong>. Si tu perfil encaja, recibirás un enlace a una
-        entrevista técnica breve (~15&nbsp;min).
+        Te escribiremos al email que verificaste <strong>si hay encaje con el puesto</strong>.
+        Si tu perfil encaja, recibirás un enlace a un pequeño cuestionario y una posterior entrevista.
       </p>
       <p class="privacy-note" style="border:none;padding:0;margin-top:1.5rem;text-align:center">
         Puedes consultar o borrar tus datos en cualquier momento en
@@ -285,7 +285,7 @@ h1{font-family:var(--serif);font-size:2rem;color:var(--navy);line-height:1.15;ma
     hideError();
 
     submitBtn.disabled = true;
-    submitBtn.innerHTML = '<span class="spinner"></span> Subiendo y analizando…';
+    submitBtn.innerHTML = '<span class="spinner"></span> Subiendo…';
     progress.classList.remove('hidden');
     progressBar.style.width = '20%';
 
@@ -296,7 +296,7 @@ h1{font-family:var(--serif);font-size:2rem;color:var(--navy);line-height:1.15;ma
     } catch {
       showError('invalid_base64');
       submitBtn.disabled = false;
-      submitBtn.textContent = 'Enviar CV para análisis';
+      submitBtn.textContent = 'Enviar CV';
       progress.classList.add('hidden');
       return;
     }
