@@ -23,6 +23,7 @@ export const config = {
     '/api/submit-interview',
     '/api/interview/:path*',
     '/api/privacy/:path*',
+    '/api/headhunter/:path*',
     '/api/public-config',
     // Cron self-authenticates with Bearer, but we still rate-limit at the
     // edge so an unauthenticated flood doesn't keep waking the function.
@@ -47,6 +48,10 @@ const RATE_LIMITS = {
   '/api/submit-interview':  { max: 3,  windowSec: 60 },
   '/api/interview/':        { max: 20, windowSec: 60 },
   '/api/privacy/':          { max: 5,  windowSec: 60 },
+  '/api/headhunter/login':       { max: 10, windowSec: 60 },
+  '/api/headhunter/register':    { max: 5,  windowSec: 60 },
+  '/api/headhunter/upload-cv':   { max: 10, windowSec: 60 },
+  '/api/headhunter/':            { max: 60, windowSec: 60 },
   '/api/public-config':     { max: 60, windowSec: 60 },
   '/api/admin/':            { max: 60, windowSec: 60 },
   '/api/cron/':             { max: 10, windowSec: 60 },

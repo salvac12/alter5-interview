@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Subir candidatos — Alter5 Partners</title>
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/svg+xml" href="/ds/alter5-mark.svg">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/ds/tokens.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--a5-font-landing);background:#fafbfc;color:var(--a5-text-primary);min-height:100vh;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased}
+.hdr{background:var(--a5-blue);padding:14px 32px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.hdr-logo img{height:28px;display:block}
+.hdr-right{display:flex;align-items:center;gap:14px;color:#fff;font-size:13px}
+.hdr-right .who{opacity:0.85}
+.hdr-right .who strong{color:var(--a5-teal)}
+.hdr-right button{background:transparent;border:1px solid rgba(255,255,255,0.25);color:#fff;font-size:12px;padding:6px 12px;border-radius:var(--a5-radius-full);cursor:pointer}
+.hdr-right button:hover{background:rgba(255,255,255,0.1)}
+.main{flex:1;max-width:760px;width:100%;margin:0 auto;padding:40px 24px}
+.eyebrow{font-size:11px;color:var(--a5-teal-dark);letter-spacing:0.14em;text-transform:uppercase;margin-bottom:14px;font-weight:500}
+h1{font-weight:700;font-size:28px;color:var(--a5-blue);margin-bottom:8px;letter-spacing:-0.02em}
+.lead{font-size:14px;color:var(--a5-slate);margin-bottom:28px;line-height:1.6}
+.card{background:var(--a5-light-card);border:1px solid var(--a5-light-border);border-radius:var(--a5-radius-xl);padding:28px;box-shadow:var(--a5-shadow-md)}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:11px;font-weight:600;color:var(--a5-text-secondary);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.06em}
+.field textarea{width:100%;padding:11px 14px;border:1px solid var(--a5-light-border);border-radius:var(--a5-radius-md);font-family:inherit;font-size:14px;outline:none;resize:vertical;min-height:72px}
+.field textarea:focus{border-color:var(--a5-teal);box-shadow:0 0 0 3px rgba(81,182,190,0.15)}
+.toggle{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--a5-slate);margin-top:6px}
+.toggle input{accent-color:var(--a5-teal)}
+.drop{border:2px dashed var(--a5-light-border);border-radius:var(--a5-radius-lg);padding:32px 24px;text-align:center;cursor:pointer;transition:all .15s;background:#F8FAFC;margin-top:14px}
+.drop:hover,.drop.dragover{border-color:var(--a5-teal);background:var(--a5-teal-light)}
+.drop.has-file{border-color:var(--a5-teal);background:var(--a5-teal-light);border-style:solid}
+.drop input[type=file]{display:none}
+.drop-title{font-size:14px;font-weight:600;color:var(--a5-blue)}
+.drop-hint{font-size:12px;color:var(--a5-text-secondary);margin-top:4px}
+.file-info{margin-top:10px;font-size:13px;color:var(--a5-text-secondary)}
+.btn{display:flex;align-items:center;justify-content:center;width:100%;padding:13px;border:0;border-radius:var(--a5-radius-full);font-weight:600;font-size:15px;cursor:pointer;background:var(--a5-blue);color:white;margin-top:18px}
+.btn:hover:not(:disabled){background:#0e1f47}
+.btn:disabled{opacity:0.55;cursor:not-allowed}
+.results{margin-top:18px;display:flex;flex-direction:column;gap:6px}
+.result-row{padding:9px 14px;border:1px solid var(--a5-light-border);border-radius:var(--a5-radius-md);font-size:13px;display:flex;justify-content:space-between;gap:12px;align-items:center;background:#fff}
+.result-row .name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--a5-blue);font-weight:500}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#13285B;color:#fff;padding:11px 22px;border-radius:var(--a5-radius-full);font-size:13px;opacity:0;transition:opacity .25s;pointer-events:none;z-index:50}
+.toast.show{opacity:1}
+.toast.err{background:#991B1B}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <a class="hdr-logo" href="/partners/upload"><img src="/ds/alter5-logo-white.svg" alt="Alter5"></a>
+  <div class="hdr-right">
+    <span class="who" id="hh-who">…</span>
+    <button id="logout-btn">Cerrar sesión</button>
+  </div>
+</div>
+<main class="main">
+  <div class="eyebrow">Partner Portal</div>
+  <h1>Sube candidatos</h1>
+  <p class="lead">Adjunta uno o varios CVs en PDF. Extraemos automáticamente el email del candidato del propio CV. Si quieres añadir contexto (cliente, motivación, etc.), úsalo en la nota — la verá nuestro equipo.</p>
+
+  <div class="card">
+    <form id="upload-form">
+      <div class="field">
+        <label for="up-note">Nota para nuestro equipo (opcional)</label>
+        <textarea id="up-note" maxlength="2000" placeholder="Ej: Candidato con experiencia en LLMs y AWS, valoración positiva de mi parte."></textarea>
+      </div>
+      <label class="toggle"><input type="checkbox" id="up-auto"> Invitar automáticamente a la entrevista (ignora el score)</label>
+
+      <label class="drop" id="up-drop">
+        <div class="drop-title">Arrastra los CVs aquí o haz click</div>
+        <div class="drop-hint">PDF, máx. 5 MB cada uno. Puedes seleccionar varios.</div>
+        <input type="file" id="up-file" accept="application/pdf,.pdf" multiple>
+      </label>
+      <div id="up-info" class="file-info"></div>
+
+      <button type="submit" class="btn" id="up-submit">Subir y enviar</button>
+      <div class="results" id="up-results"></div>
+    </form>
+  </div>
+</main>
+<div class="toast" id="toast"></div>
+
+<script>
+const $ = s => document.querySelector(s);
+let buffers = [];
+
+function toast(msg, isErr=false){const t=$('#toast');t.textContent=msg;t.className='toast show'+(isErr?' err':'');setTimeout(()=>t.classList.remove('show'),3000);}
+function esc(s){const d=document.createElement('div');d.textContent=s==null?'':String(s);return d.innerHTML;}
+
+(async () => {
+  const r = await fetch('/api/headhunter/me');
+  if (!r.ok) { location.href = '/partners'; return; }
+  const data = await r.json();
+  const hh = data.headhunter;
+  $('#hh-who').innerHTML = `${esc(hh.company)} — <strong>${esc(hh.name)}</strong>`;
+})();
+
+$('#logout-btn').addEventListener('click', async () => {
+  await fetch('/api/headhunter/logout', { method: 'POST' });
+  location.href = '/partners';
+});
+
+const drop = $('#up-drop');
+const fileInput = $('#up-file');
+const info = $('#up-info');
+
+['dragenter','dragover'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();e.stopPropagation();drop.classList.add('dragover');}));
+['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();e.stopPropagation();drop.classList.remove('dragover');}));
+drop.addEventListener('drop', e => { const fs = e.dataTransfer?.files; if (fs?.length) { fileInput.files = fs; handleFiles(fs); } });
+fileInput.addEventListener('change', e => handleFiles(e.target.files));
+
+function handleFiles(list) {
+  buffers = [];
+  if (!list?.length) { info.textContent = ''; drop.classList.remove('has-file'); return; }
+  const accepted=[], rejected=[];
+  for (const f of list) {
+    const isPdf = f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf');
+    if (!isPdf) { rejected.push(`${f.name} (no PDF)`); continue; }
+    if (f.size > 5*1024*1024) { rejected.push(`${f.name} (>5MB)`); continue; }
+    accepted.push(f);
+  }
+  buffers = accepted;
+  const parts = [`${accepted.length} PDF${accepted.length===1?'':'s'} listo${accepted.length===1?'':'s'}`];
+  if (rejected.length) parts.push(`Descartados: ${rejected.join(', ')}`);
+  info.textContent = parts.join(' · ');
+  drop.classList.toggle('has-file', accepted.length>0);
+}
+
+function fileToBase64(file) {
+  return new Promise((res, rej) => {
+    const fr = new FileReader();
+    fr.onload = () => { const s = String(fr.result || ''); const i = s.indexOf('base64,'); res(i>=0 ? s.slice(i+7) : ''); };
+    fr.onerror = () => rej(new Error('read'));
+    fr.readAsDataURL(file);
+  });
+}
+
+function renderRow(idx, file, state, detail) {
+  const id = 'row-' + idx;
+  let row = document.getElementById(id);
+  if (!row) {
+    row = document.createElement('div');
+    row.id = id;
+    row.className = 'result-row';
+    $('#up-results').appendChild(row);
+  }
+  const colors = {queued:'#94A3B8', processing:'#13285B', done:'#16A34A', error:'#DC2626'};
+  row.innerHTML = `<span class="name">${esc(file.name)}</span><span style="color:${colors[state]||'inherit'}">${esc(detail||state)}</span>`;
+}
+
+$('#upload-form').addEventListener('submit', async e => {
+  e.preventDefault();
+  if (!buffers.length) { toast('Selecciona al menos un PDF', true); return; }
+  const note = $('#up-note').value.trim();
+  const autoInvite = $('#up-auto').checked;
+  const btn = $('#up-submit'); btn.disabled = true; btn.textContent = 'Procesando…';
+  $('#up-results').innerHTML = '';
+  buffers.forEach((f,i) => renderRow(i, f, 'queued', 'En cola'));
+  let okCount=0, errCount=0;
+  for (let i=0; i<buffers.length; i++) {
+    const f = buffers[i];
+    renderRow(i, f, 'processing', 'Analizando…');
+    try {
+      const fileBase64 = await fileToBase64(f);
+      const r = await fetch('/api/headhunter/upload-cv', {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({fileBase64, filename: f.name, note, autoInvite}),
+      });
+      const data = await r.json();
+      if (!r.ok) {
+        errCount++;
+        const labels={email_not_found_in_cv:'Email no encontrado en el CV',analysis_failed:'No se pudo analizar el CV',invalid_pdf:'PDF no válido',file_too_large:'Fichero muy grande',unauthenticated:'Sesión expirada — vuelve a entrar'};
+        renderRow(i, f, 'error', '✗ ' + (labels[data.error]||data.error||'error'));
+        if (data.error === 'unauthenticated') { setTimeout(()=>location.href='/partners',1500); break; }
+      } else {
+        okCount++;
+        renderRow(i, f, 'done', `✓ Score ${data.score??'—'}`);
+      }
+    } catch (err) {
+      errCount++;
+      renderRow(i, f, 'error', '✗ ' + err.message);
+    }
+  }
+  toast(`Lote terminado: ${okCount} OK · ${errCount} con error`, errCount>0 && okCount===0);
+  btn.disabled = false; btn.textContent = 'Subir y enviar';
+  buffers = []; fileInput.value = ''; info.textContent = ''; drop.classList.remove('has-file');
+});
+</script>
+</body>
+</html>

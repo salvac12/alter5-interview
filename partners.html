@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Partners — Alter5</title>
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/svg+xml" href="/ds/alter5-mark.svg">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/ds/tokens.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--a5-font-landing);background:#fafbfc;color:var(--a5-text-primary);min-height:100vh;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased}
+.hdr{background:var(--a5-blue);padding:14px 32px;display:flex;align-items:center;justify-content:space-between}
+.hdr-logo img{height:28px;display:block}
+.hdr-badge{background:rgba(81,182,190,0.18);color:var(--a5-teal);padding:6px 12px;border-radius:var(--a5-radius-full);font-size:11px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase}
+.main{flex:1;max-width:480px;width:100%;margin:0 auto;padding:48px 24px}
+.eyebrow{font-size:11px;color:var(--a5-teal-dark);letter-spacing:0.14em;text-transform:uppercase;margin-bottom:14px;font-weight:500}
+h1{font-weight:700;font-size:30px;color:var(--a5-blue);margin-bottom:10px;letter-spacing:-0.02em}
+.lead{font-size:15px;color:var(--a5-slate);margin-bottom:28px;line-height:1.6}
+.card{background:var(--a5-light-card);border:1px solid var(--a5-light-border);border-radius:var(--a5-radius-xl);padding:28px;box-shadow:var(--a5-shadow-md)}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:11px;font-weight:600;color:var(--a5-text-secondary);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.06em}
+.field input{width:100%;padding:11px 14px;border:1px solid var(--a5-light-border);border-radius:var(--a5-radius-md);font-size:15px;outline:none;transition:border-color .15s}
+.field input:focus{border-color:var(--a5-teal);box-shadow:0 0 0 3px rgba(81,182,190,0.15)}
+.field input[disabled]{background:#f1f5f9;color:var(--a5-text-secondary)}
+.btn{display:flex;align-items:center;justify-content:center;width:100%;padding:13px;border:0;border-radius:var(--a5-radius-full);font-weight:600;font-size:15px;cursor:pointer;background:var(--a5-blue);color:white;margin-top:8px}
+.btn:hover:not(:disabled){background:#0e1f47}
+.btn:disabled{opacity:0.55;cursor:not-allowed}
+.err{background:#FEF2F2;color:#991B1B;border:1px solid #FECACA;padding:11px 14px;border-radius:var(--a5-radius-md);font-size:13px;margin-top:14px}
+.ok{background:#ECFDF5;color:#166534;border:1px solid #BBF7D0;padding:11px 14px;border-radius:var(--a5-radius-md);font-size:13px;margin-top:14px}
+.hidden{display:none}
+.muted{color:var(--a5-text-secondary);font-size:13px;text-align:center;margin-top:16px}
+.muted a{color:var(--a5-teal-dark);text-decoration:none}
+.hint{font-size:12px;color:var(--a5-text-secondary);margin-top:6px}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <a class="hdr-logo" href="/"><img src="/ds/alter5-logo-white.svg" alt="Alter5"></a>
+  <span class="hdr-badge">Portal de Partners</span>
+</div>
+<main class="main">
+  <div class="eyebrow">Partners</div>
+  <h1 id="title">Cargando…</h1>
+  <p class="lead" id="subtitle"></p>
+
+  <!-- Login form (default) -->
+  <div class="card hidden" id="login-card">
+    <form id="login-form">
+      <div class="field">
+        <label for="li-email">Email</label>
+        <input type="email" id="li-email" required autocomplete="email">
+      </div>
+      <div class="field">
+        <label for="li-password">Contraseña</label>
+        <input type="password" id="li-password" required autocomplete="current-password">
+      </div>
+      <button type="submit" class="btn" id="li-submit">Entrar</button>
+      <div id="li-error" class="err hidden"></div>
+    </form>
+    <p class="muted">¿No tienes cuenta? Solicita invitación a <a href="mailto:hiring@alter-5.com">hiring@alter-5.com</a>.</p>
+  </div>
+
+  <!-- Register form (when ?token=...) -->
+  <div class="card hidden" id="register-card">
+    <form id="register-form">
+      <div class="field">
+        <label for="rg-email">Email (de la invitación)</label>
+        <input type="email" id="rg-email" disabled>
+      </div>
+      <div class="field">
+        <label for="rg-name">Nombre y apellido</label>
+        <input type="text" id="rg-name" required maxlength="100" autocomplete="name">
+      </div>
+      <div class="field">
+        <label for="rg-company">Empresa</label>
+        <input type="text" id="rg-company" required maxlength="100" autocomplete="organization">
+      </div>
+      <div class="field">
+        <label for="rg-password">Contraseña</label>
+        <input type="password" id="rg-password" required minlength="10" autocomplete="new-password">
+        <div class="hint">Mínimo 10 caracteres.</div>
+      </div>
+      <div class="field">
+        <label for="rg-password2">Repite contraseña</label>
+        <input type="password" id="rg-password2" required minlength="10" autocomplete="new-password">
+      </div>
+      <button type="submit" class="btn" id="rg-submit">Activar cuenta</button>
+      <div id="rg-error" class="err hidden"></div>
+    </form>
+  </div>
+
+  <!-- Token error state -->
+  <div class="card hidden" id="token-error-card">
+    <div class="err" id="token-error-msg">Enlace no válido.</div>
+    <p class="muted" style="margin-top:18px">Solicita una nueva invitación a <a href="mailto:hiring@alter-5.com">hiring@alter-5.com</a>.</p>
+  </div>
+</main>
+
+<script>
+const params = new URLSearchParams(location.search);
+const token = params.get('token');
+
+const $ = s => document.querySelector(s);
+function show(id){document.querySelectorAll('.card').forEach(c=>c.classList.add('hidden'));$(id).classList.remove('hidden');}
+function setError(el, msg){el.textContent=msg;el.classList.remove('hidden');}
+
+async function bootstrap(){
+  if (token) {
+    const r = await fetch('/api/headhunter/invite-info?token=' + encodeURIComponent(token));
+    const data = await r.json();
+    if (!r.ok) {
+      $('#title').textContent = 'Enlace no válido';
+      $('#subtitle').textContent = 'El enlace ha caducado o ya fue utilizado.';
+      const map = {expired:'Este enlace ha caducado.',already_used:'Este enlace ya fue utilizado.',not_found:'Enlace no encontrado.',invalid_token:'Formato de enlace inválido.'};
+      setError($('#token-error-msg'), map[data.error] || data.error || 'Error');
+      show('#token-error-card');
+      return;
+    }
+    $('#title').textContent = 'Activa tu cuenta';
+    $('#subtitle').textContent = 'Completa tus datos para acceder al portal.';
+    $('#rg-email').value = data.email;
+    show('#register-card');
+  } else {
+    // Already logged in? jump to upload
+    const m = await fetch('/api/headhunter/me');
+    if (m.ok) { location.href = '/partners/upload'; return; }
+    $('#title').textContent = 'Acceso de partners';
+    $('#subtitle').textContent = 'Entra para subir candidatos a las posiciones abiertas.';
+    show('#login-card');
+  }
+}
+
+$('#login-form').addEventListener('submit', async e => {
+  e.preventDefault();
+  $('#li-error').classList.add('hidden');
+  const btn = $('#li-submit'); btn.disabled = true; btn.textContent = 'Entrando…';
+  try {
+    const r = await fetch('/api/headhunter/login', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({email: $('#li-email').value.trim(), password: $('#li-password').value}),
+    });
+    const data = await r.json();
+    if (!r.ok) {
+      const map = {invalid_credentials:'Email o contraseña incorrectos.',account_locked:'Cuenta bloqueada por demasiados intentos. Vuelve en 24h.',invalid:'Datos inválidos.'};
+      throw new Error(map[data.error] || data.error || 'Error');
+    }
+    location.href = '/partners/upload';
+  } catch (err) {
+    setError($('#li-error'), err.message);
+    btn.disabled = false; btn.textContent = 'Entrar';
+  }
+});
+
+$('#register-form').addEventListener('submit', async e => {
+  e.preventDefault();
+  $('#rg-error').classList.add('hidden');
+  const pw = $('#rg-password').value, pw2 = $('#rg-password2').value;
+  if (pw !== pw2) { setError($('#rg-error'), 'Las contraseñas no coinciden.'); return; }
+  const btn = $('#rg-submit'); btn.disabled = true; btn.textContent = 'Activando…';
+  try {
+    const r = await fetch('/api/headhunter/register', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        token,
+        name: $('#rg-name').value.trim(),
+        company: $('#rg-company').value.trim(),
+        password: pw,
+      }),
+    });
+    const data = await r.json();
+    if (!r.ok) {
+      const map = {invalid_token:'Enlace inválido.',missing_profile:'Faltan datos.',weak_password:'Contraseña demasiado corta (mín. 10 caracteres).',invite_used:'Este enlace ya fue utilizado.',invite_expired:'Este enlace ha caducado.'};
+      throw new Error(map[data.error] || data.error || 'Error');
+    }
+    location.href = '/partners/upload';
+  } catch (err) {
+    setError($('#rg-error'), err.message);
+    btn.disabled = false; btn.textContent = 'Activar cuenta';
+  }
+});
+
+bootstrap();
+</script>
+</body>
+</html>

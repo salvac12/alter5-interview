@@ -10,7 +10,9 @@
     { "source": "/apply/privacy", "destination": "/apply-privacy.html" },
     { "source": "/apply/upload", "destination": "/apply-upload.html" },
     { "source": "/interview", "destination": "/interview.html" },
-    { "source": "/privacy/my-data", "destination": "/privacy-my-data.html" }
+    { "source": "/privacy/my-data", "destination": "/privacy-my-data.html" },
+    { "source": "/partners", "destination": "/partners.html" },
+    { "source": "/partners/upload", "destination": "/partners-upload.html" }
   ],
   "redirects": [
     { "source": "/", "destination": "/hoe", "permanent": true },
@@ -20,7 +22,8 @@
     "api/upload-cv.js": { "maxDuration": 60 },
     "api/submit-interview.js": { "maxDuration": 60 },
     "api/admin/reanalyze-interview.js": { "maxDuration": 60 },
-    "api/admin/manual-upload.js": { "maxDuration": 60 }
+    "api/admin/manual-upload.js": { "maxDuration": 60 },
+    "api/headhunter/upload-cv.js": { "maxDuration": 60 }
   },
   "headers": [
     {

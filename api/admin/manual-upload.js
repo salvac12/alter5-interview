@@ -1,209 +1,59 @@
 // POST /api/admin/manual-upload
 //
-// Superadmin-only: uploads a CV on behalf of a candidate (source='admin_manual').
-// Creates application + uploads CV + analyzes + routes. Behind Basic Auth via middleware.
+// Superadmin-only entry point for ingesting a CV on behalf of a candidate.
+// Behind Basic Auth via middleware.js. The actual pipeline lives in
+// lib/cv-upload.js so the headhunter portal can reuse it.
 //
-// Body: { email, name?, experience?, fileBase64, filename, autoInvite? }
-// Score-based auto-invite was removed — candidates with score>=4 land in the
-// review queue for manual approval. Only the explicit `autoInvite` flag (from
-// the admin's "Invitar siempre" checkbox) forces an immediate invitation.
+// Body: { email?, name?, experience?, fileBase64, filename, autoInvite?, source? }
+//
+// `email` is optional — if omitted we extract it from the CV via the LLM.
+// `source` accepts the whitelist {'email_agent'} (Mastra HR agent ingest);
+// any other value falls back to 'admin_manual'.
 
-const crypto = require('crypto');
-const { supabaseAdmin } = require('../../lib/supabase');
-const { analyzeCv } = require('../../lib/cv-analysis');
-const { generateToken, hashToken } = require('../../lib/tokens');
-const { sendInterviewLinkEmail } = require('../../lib/email');
-const { isValidEmail, normalizeEmail, getClientIp, getUserAgent, isValidExperience } = require('../../lib/validation');
+const { processCvUpload } = require('../../lib/cv-upload');
+const { getClientIp, getUserAgent } = require('../../lib/validation');
 
 module.exports.config = {
   api: { bodyParser: { sizeLimit: '8mb' } },
 };
 
-const INTERVIEW_TTL_DAYS = 7;
+const ALLOWED_SOURCES = new Set(['email_agent']);
 
 module.exports.default = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'method' });
 
   const { email, name, experience, fileBase64, filename, autoInvite, source } = req.body || {};
-
-  // Whitelist of allowed source overrides. Prevents callers from spoofing
-  // arbitrary values via the API. Defaults to 'admin_manual' for every
-  // request that doesn't match an allowed source. The value must also exist
-  // in the application_source Postgres enum — see the paired migration
-  // 20260418150000_email_agent_source.sql.
-  const ALLOWED_SOURCES = new Set(['email_agent']);
   const resolvedSource = ALLOWED_SOURCES.has(source) ? source : 'admin_manual';
 
-  if (!fileBase64 || !filename) return res.status(400).json({ error: 'missing_file' });
-  if (String(fileBase64).length > 7_500_000) return res.status(400).json({ error: 'file_too_large' });
-
-  let buf;
-  try { buf = Buffer.from(fileBase64, 'base64'); }
-  catch { return res.status(400).json({ error: 'invalid_base64' }); }
-
-  if (buf.slice(0, 5).toString('ascii') !== '%PDF-') {
-    return res.status(400).json({ error: 'invalid_pdf' });
-  }
-
-  const sizeBytes = buf.length;
-  const contentHash = crypto.createHash('sha256').update(buf).digest('hex');
-  const ip = getClientIp(req);
-  const ua = getUserAgent(req);
-
-  // Resolve email. Either the caller supplied one (e.g. email_agent uses the
-  // From: header) or we extract it from the CV via the LLM. Doing the analysis
-  // up-front when no email is provided lets us bail early without writing to
-  // Storage if the CV is unparseable or anonymous.
-  let analysisPrefetched = null;
-  let resolvedEmail = email && isValidEmail(email) ? email : null;
-  if (!resolvedEmail) {
-    analysisPrefetched = await analyzeCv({ fileBase64, filename });
-    if (!analysisPrefetched.ok) {
-      return res.status(400).json({ error: 'analysis_failed', detail: analysisPrefetched.error });
-    }
-    if (!analysisPrefetched.email || !isValidEmail(analysisPrefetched.email)) {
-      return res.status(400).json({ error: 'email_not_found_in_cv' });
-    }
-    resolvedEmail = analysisPrefetched.email;
-  }
-
-  const normEmail = normalizeEmail(resolvedEmail);
-
   try {
-    // Find or create application.
-    // We only need a handful of fields downstream — don't pull the whole
-    // PII-laden row just to check existence.
-    let appRow;
-    const { data: existing } = await supabaseAdmin
-      .from('applications')
-      .select('id, email, name, experience')
-      .eq('email', normEmail)
-      .is('deleted_at', null)
-      .maybeSingle();
-
-    if (existing) {
-      appRow = existing;
-    } else {
-      const { data: created, error: cerr } = await supabaseAdmin
-        .from('applications')
-        .insert({
-          email: normEmail,
-          source: resolvedSource,
-          status: 'cv_uploaded',
-          consent_privacy: true,
-          consent_ai_decision: true,
-          name: name || null,
-          experience: isValidExperience(experience) ? experience : null,
-          apply_ip: ip,
-          apply_user_agent: ua,
-        })
-        .select('id, email, name, experience')
-        .single();
-      if (cerr) throw cerr;
-      appRow = created;
-    }
-
-    // Upload to Storage.
-    const ts = Date.now();
-    const storagePath = `${appRow.id}/${ts}.pdf`;
-    const { error: uplErr } = await supabaseAdmin.storage
-      .from('cvs')
-      .upload(storagePath, buf, { contentType: 'application/pdf', upsert: false });
-    if (uplErr) throw uplErr;
-
-    const { data: cvRow, error: cverr } = await supabaseAdmin
-      .from('cvs')
-      .insert({
-        application_id: appRow.id,
-        storage_path: storagePath,
-        filename: String(filename).slice(0, 255),
-        size_bytes: sizeBytes,
-        content_hash: contentHash,
-      })
-      .select('id').single();
-    if (cverr) throw cverr;
-
-    await supabaseAdmin.from('application_events').insert({
-      application_id: appRow.id,
-      event_type: resolvedSource === 'email_agent' ? 'email_agent_upload' : 'admin_manual_upload',
-      event_data: { filename, size_bytes: sizeBytes },
+    const result = await processCvUpload({
+      fileBase64,
+      filename,
+      source: resolvedSource,
+      prefilledEmail: email || null,
+      prefilledName: name || null,
+      prefilledExperience: experience || null,
+      autoInvite: !!autoInvite,
+      ip: getClientIp(req),
+      userAgent: getUserAgent(req),
       actor: resolvedSource === 'email_agent' ? 'agent' : 'admin',
-      ip, user_agent: ua,
     });
 
-    // Analyze (or reuse the prefetch we did to extract the email).
-    const analysis = analysisPrefetched || await analyzeCv({ fileBase64, filename });
-
-    let updateApp = { status: 'cv_uploaded', cv_uploaded_at: new Date().toISOString() };
-    if (name && !appRow.name) updateApp.name = name;
-    if (isValidExperience(experience) && !appRow.experience) updateApp.experience = experience;
-
-    if (!analysis.ok) {
-      await supabaseAdmin.from('applications').update(updateApp).eq('id', appRow.id);
-      return res.status(200).json({ ok: true, applicationId: appRow.id, analysis_error: analysis.error });
+    if (!result.ok) {
+      return res.status(result.status || 400).json({
+        error: result.error,
+        ...(result.detail ? { detail: result.detail } : {}),
+      });
     }
-
-    const { data: analysisRow } = await supabaseAdmin
-      .from('analyses')
-      .insert({
-        application_id: appRow.id,
-        cv_id: cvRow.id,
-        score: analysis.score,
-        recommendation: analysis.recommendation,
-        summary: analysis.summary,
-        raw_response: analysis.raw,
-        model: analysis.model,
-      })
-      .select('id').single();
-
-    updateApp.analyzed_at = new Date().toISOString();
-    if (analysis.name && !appRow.name) updateApp.name = analysis.name;
-
-    let nextStatus;
-    const shouldInvite = !!autoInvite;
-    let interviewUrl = null;
-
-    if (shouldInvite) {
-      nextStatus = 'analyzed_manual_approved';
-      const token = generateToken();
-      const expiresAt = new Date(Date.now() + INTERVIEW_TTL_DAYS * 24 * 60 * 60 * 1000).toISOString();
-      await supabaseAdmin.from('magic_links').insert({
-        application_id: appRow.id,
-        purpose: 'interview',
-        token_hash: hashToken(token),
-        expires_at: expiresAt,
-      });
-      const baseUrl = process.env.INTERVIEW_BASE_URL || 'https://careers.alter-5.com';
-      interviewUrl = `${baseUrl}/interview?token=${token}`;
-
-      const mail = await sendInterviewLinkEmail({
-        to: appRow.email,
-        name: (updateApp.name || appRow.name || ''),
-        interviewUrl,
-        expiresDays: INTERVIEW_TTL_DAYS,
-      });
-      await supabaseAdmin.from('application_events').insert({
-        application_id: appRow.id,
-        event_type: 'interview_sent',
-        event_data: { email_ok: mail.ok, email_id: mail.id || null, actor_reason: 'admin_override' },
-        actor: 'admin',
-      });
-    } else if (analysis.score >= 4) {
-      nextStatus = 'analyzed_pending_review';
-    } else {
-      nextStatus = 'analyzed_auto_rejected';
-    }
-    updateApp.status = nextStatus;
-
-    await supabaseAdmin.from('applications').update(updateApp).eq('id', appRow.id);
 
     return res.status(200).json({
       ok: true,
-      applicationId: appRow.id,
-      score: analysis.score,
-      recommendation: analysis.recommendation,
-      status: nextStatus,
-      interview_url: interviewUrl,
+      applicationId: result.applicationId,
+      score: result.score,
+      recommendation: result.recommendation,
+      status: result.appStatus,
+      interview_url: result.interview_url,
+      ...(result.analysis_error ? { analysis_error: result.analysis_error } : {}),
     });
   } catch (e) {
     console.error('[admin/manual-upload] error:', e.message);
