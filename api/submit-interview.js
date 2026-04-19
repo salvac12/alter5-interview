@@ -112,6 +112,10 @@ module.exports.default = async function handler(req, res) {
         paste_chars: Number.isFinite(a.pasteChars) ? Math.max(0, Math.floor(a.pasteChars)) : 0,
         tab_switches: Number.isFinite(a.tabSwitches) ? Math.max(0, Math.floor(a.tabSwitches)) : 0,
         burst_count: Number.isFinite(a.burstCount) ? Math.max(0, Math.floor(a.burstCount)) : 0,
+        copy_blocked: Number.isFinite(a.copyBlocked) ? Math.max(0, Math.floor(a.copyBlocked)) : 0,
+        right_click_blocked: Number.isFinite(a.rightClickBlocked) ? Math.max(0, Math.floor(a.rightClickBlocked)) : 0,
+        shortcut_blocked: Number.isFinite(a.shortcutBlocked) ? Math.max(0, Math.floor(a.shortcutBlocked)) : 0,
+        drag_blocked: Number.isFinite(a.dragBlocked) ? Math.max(0, Math.floor(a.dragBlocked)) : 0,
         ai_flags: aiFlags,
       };
     });
