@@ -34,11 +34,9 @@ module.exports.default = async function handler(req, res) {
   const ALLOWED_SOURCES = new Set(['email_agent']);
   const resolvedSource = ALLOWED_SOURCES.has(source) ? source : 'admin_manual';
 
-  if (!email || !isValidEmail(email)) return res.status(400).json({ error: 'invalid_email' });
   if (!fileBase64 || !filename) return res.status(400).json({ error: 'missing_file' });
   if (String(fileBase64).length > 7_500_000) return res.status(400).json({ error: 'file_too_large' });
 
-  const normEmail = normalizeEmail(email);
   let buf;
   try { buf = Buffer.from(fileBase64, 'base64'); }
   catch { return res.status(400).json({ error: 'invalid_base64' }); }
@@ -51,6 +49,25 @@ module.exports.default = async function handler(req, res) {
   const contentHash = crypto.createHash('sha256').update(buf).digest('hex');
   const ip = getClientIp(req);
   const ua = getUserAgent(req);
+
+  // Resolve email. Either the caller supplied one (e.g. email_agent uses the
+  // From: header) or we extract it from the CV via the LLM. Doing the analysis
+  // up-front when no email is provided lets us bail early without writing to
+  // Storage if the CV is unparseable or anonymous.
+  let analysisPrefetched = null;
+  let resolvedEmail = email && isValidEmail(email) ? email : null;
+  if (!resolvedEmail) {
+    analysisPrefetched = await analyzeCv({ fileBase64, filename });
+    if (!analysisPrefetched.ok) {
+      return res.status(400).json({ error: 'analysis_failed', detail: analysisPrefetched.error });
+    }
+    if (!analysisPrefetched.email || !isValidEmail(analysisPrefetched.email)) {
+      return res.status(400).json({ error: 'email_not_found_in_cv' });
+    }
+    resolvedEmail = analysisPrefetched.email;
+  }
+
+  const normEmail = normalizeEmail(resolvedEmail);
 
   try {
     // Find or create application.
@@ -114,8 +131,8 @@ module.exports.default = async function handler(req, res) {
       ip, user_agent: ua,
     });
 
-    // Analyze.
-    const analysis = await analyzeCv({ fileBase64, filename });
+    // Analyze (or reuse the prefetch we did to extract the email).
+    const analysis = analysisPrefetched || await analyzeCv({ fileBase64, filename });
 
     let updateApp = { status: 'cv_uploaded', cv_uploaded_at: new Date().toISOString() };
     if (name && !appRow.name) updateApp.name = name;

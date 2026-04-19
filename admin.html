@@ -186,33 +186,16 @@ h1{font-family:var(--serif);font-size:1.9rem;color:var(--navy);margin-bottom:0.3
       <form id="upload-form">
         <div class="form-grid">
           <div class="field">
-            <label for="mu-email">Email del candidato *</label>
-            <input type="email" id="mu-email" required placeholder="candidato@dominio.com">
-          </div>
-          <div class="field">
-            <label for="mu-name">Nombre (opcional)</label>
-            <input type="text" id="mu-name" maxlength="100" placeholder="Nombre y apellido">
-          </div>
-          <div class="field">
-            <label for="mu-exp">Experiencia</label>
-            <select id="mu-exp">
-              <option value="">—</option>
-              <option value="3-5">3-5 años</option>
-              <option value="5-8">5-8 años</option>
-              <option value="8-12">8-12 años</option>
-              <option value="12+">12+ años</option>
-            </select>
-          </div>
-          <div class="field">
-            <label><input type="checkbox" id="mu-auto" style="margin-right:0.4rem">Invitar siempre (ignora score)</label>
+            <label><input type="checkbox" id="mu-auto" style="margin-right:0.4rem">Invitar siempre (ignora score, aplica a todo el lote)</label>
           </div>
         </div>
         <label class="drop" id="mu-drop">
-          <div class="drop-label"><strong>Arrastra aquí el CV</strong> o haz click para elegir un PDF (máx. 5 MB)</div>
-          <input type="file" id="mu-file" accept="application/pdf,.pdf">
+          <div class="drop-label"><strong>Arrastra aquí los CVs</strong> o haz click para elegir uno o varios PDFs (máx. 5 MB cada uno). El email y nombre se extraen del CV automáticamente.</div>
+          <input type="file" id="mu-file" accept="application/pdf,.pdf" multiple>
         </label>
         <div id="mu-file-info" class="muted" style="font-size:0.82rem;margin-bottom:0.75rem"></div>
         <button type="submit" class="btn btn-primary" id="mu-submit">Subir y analizar →</button>
+        <div id="mu-results" style="margin-top:1rem"></div>
       </form>
     </div>
   </section>
@@ -527,47 +510,81 @@ async function reanalyze(interviewId){
 const muDrop=document.getElementById('mu-drop');
 const muFile=document.getElementById('mu-file');
 const muInfo=document.getElementById('mu-file-info');
-let muBuffer=null;
+const muResults=document.getElementById('mu-results');
+let muBuffers=[];
 
 ['dragenter','dragover'].forEach(ev=>muDrop.addEventListener(ev,e=>{e.preventDefault();e.stopPropagation();muDrop.classList.add('dragover');}));
 ['dragleave','drop'].forEach(ev=>muDrop.addEventListener(ev,e=>{e.preventDefault();e.stopPropagation();muDrop.classList.remove('dragover');}));
-muDrop.addEventListener('drop',e=>{const f=e.dataTransfer?.files?.[0];if(f){muFile.files=e.dataTransfer.files;handleMuFile(f);}});
-muFile.addEventListener('change',e=>handleMuFile(e.target.files?.[0]));
+muDrop.addEventListener('drop',e=>{const fs=e.dataTransfer?.files;if(fs?.length){muFile.files=fs;handleMuFiles(fs);}});
+muFile.addEventListener('change',e=>handleMuFiles(e.target.files));
 
-function handleMuFile(f){
-  if(!f){muInfo.textContent='';muBuffer=null;muDrop.classList.remove('has-file');return;}
-  if(f.type!=='application/pdf'&&!f.name.toLowerCase().endsWith('.pdf')){toast('Solo PDF',true);return;}
-  if(f.size>5*1024*1024){toast('Máximo 5 MB',true);return;}
-  muBuffer=f;
-  muInfo.textContent=`${f.name} · ${Math.round(f.size/1024)} KB`;
-  muDrop.classList.add('has-file');
+function handleMuFiles(fileList){
+  muBuffers=[];
+  if(!fileList||!fileList.length){muInfo.textContent='';muDrop.classList.remove('has-file');return;}
+  const accepted=[];const rejected=[];
+  for(const f of fileList){
+    const isPdf=f.type==='application/pdf'||f.name.toLowerCase().endsWith('.pdf');
+    if(!isPdf){rejected.push(`${f.name} (no PDF)`);continue;}
+    if(f.size>5*1024*1024){rejected.push(`${f.name} (>5MB)`);continue;}
+    accepted.push(f);
+  }
+  muBuffers=accepted;
+  const parts=[`${accepted.length} PDF${accepted.length===1?'':'s'} listo${accepted.length===1?'':'s'}`];
+  if(rejected.length)parts.push(`Descartados: ${rejected.join(', ')}`);
+  muInfo.textContent=parts.join(' · ');
+  muDrop.classList.toggle('has-file',accepted.length>0);
+}
+
+function fileToBase64(file){
+  return new Promise((res,rej)=>{
+    const fr=new FileReader();
+    fr.onload=()=>{const s=String(fr.result||'');const i=s.indexOf('base64,');res(i>=0?s.slice(i+7):'');};
+    fr.onerror=()=>rej(new Error('read'));
+    fr.readAsDataURL(file);
+  });
+}
+
+function renderMuRow(idx,file,state,detail){
+  const row=document.getElementById('mu-row-'+idx)||(()=>{const d=document.createElement('div');d.id='mu-row-'+idx;d.style.cssText='padding:0.5rem 0.75rem;border:1px solid var(--border);border-radius:8px;margin-bottom:0.4rem;font-size:0.85rem;display:flex;justify-content:space-between;gap:0.75rem;align-items:center';muResults.appendChild(d);return d;})();
+  const colors={queued:'var(--text-muted)',processing:'var(--brand-navy)',done:'#16A34A',error:'#DC2626'};
+  row.innerHTML=`<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><strong>${esc(file.name)}</strong> · ${Math.round(file.size/1024)} KB</span><span style="color:${colors[state]||'inherit'}">${esc(detail||state)}</span>`;
 }
 
 document.getElementById('upload-form').addEventListener('submit',async e=>{
   e.preventDefault();
-  const email=document.getElementById('mu-email').value.trim();
-  const name=document.getElementById('mu-name').value.trim();
-  const exp=document.getElementById('mu-exp').value;
   const autoInvite=document.getElementById('mu-auto').checked;
-  if(!muBuffer){toast('Selecciona un PDF',true);return;}
+  if(!muBuffers.length){toast('Selecciona al menos un PDF',true);return;}
   const btn=document.getElementById('mu-submit');
-  btn.disabled=true;btn.textContent='Subiendo…';
-  try{
-    const fileBase64=await new Promise((res,rej)=>{
-      const fr=new FileReader();
-      fr.onload=()=>{const s=String(fr.result||'');const i=s.indexOf('base64,');res(i>=0?s.slice(i+7):'');};
-      fr.onerror=()=>rej(new Error('read'));fr.readAsDataURL(muBuffer);
-    });
-    const r=await fetch('/api/admin/manual-upload',{
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({email,name,experience:exp,fileBase64,filename:muBuffer.name,autoInvite}),
-    });
-    const data=await r.json();
-    if(!r.ok)throw new Error(data.error);
-    toast(`✓ Subido. Score: ${data.score||'—'} · Status: ${data.status}`);
-    document.getElementById('upload-form').reset();muBuffer=null;muInfo.textContent='';muDrop.classList.remove('has-file');
-  }catch(e){toast('Error: '+e.message,true);}
+  btn.disabled=true;btn.textContent='Procesando…';
+  muResults.innerHTML='';
+  muBuffers.forEach((f,i)=>renderMuRow(i,f,'queued','En cola'));
+  let okCount=0,errCount=0;
+  for(let i=0;i<muBuffers.length;i++){
+    const f=muBuffers[i];
+    renderMuRow(i,f,'processing','Analizando…');
+    try{
+      const fileBase64=await fileToBase64(f);
+      const r=await fetch('/api/admin/manual-upload',{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({fileBase64,filename:f.name,autoInvite}),
+      });
+      const data=await r.json();
+      if(!r.ok){
+        errCount++;
+        const labels={email_not_found_in_cv:'Email no encontrado en el CV',analysis_failed:'No se pudo analizar el CV',invalid_pdf:'PDF no válido',file_too_large:'Fichero muy grande'};
+        renderMuRow(i,f,'error','✗ '+(labels[data.error]||data.error||'error'));
+      }else{
+        okCount++;
+        renderMuRow(i,f,'done',`✓ Score ${data.score??'—'} · ${data.status}`);
+      }
+    }catch(err){
+      errCount++;
+      renderMuRow(i,f,'error','✗ '+err.message);
+    }
+  }
+  toast(`Lote terminado: ${okCount} OK · ${errCount} con error`,errCount>0&&okCount===0);
   btn.disabled=false;btn.textContent='Subir y analizar →';
+  muBuffers=[];muFile.value='';muInfo.textContent='';muDrop.classList.remove('has-file');
 });
 
 // ───────────────────────────────────────────────────────────────────────────
