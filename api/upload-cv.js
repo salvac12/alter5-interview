@@ -78,7 +78,7 @@ module.exports.default = async function handler(req, res) {
       .maybeSingle();
     if (selErr) throw selErr;
     if (!app || app.deleted_at) return res.status(404).json({ error: 'application_not_found' });
-    if (!['verified', 'cv_uploaded', 'analyzed_pending_review', 'analyzed_manual_rejected'].includes(app.status)) {
+    if (!['verified', 'cv_uploaded', 'analyzed_pending_review', 'analyzed_auto_rejected'].includes(app.status)) {
       return res.status(409).json({ error: 'invalid_state', state: app.status });
     }
 
