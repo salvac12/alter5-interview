@@ -12,7 +12,8 @@
     { "source": "/interview", "destination": "/interview.html" },
     { "source": "/privacy/my-data", "destination": "/privacy-my-data.html" },
     { "source": "/partners", "destination": "/partners.html" },
-    { "source": "/partners/upload", "destination": "/partners-upload.html" }
+    { "source": "/partners/upload", "destination": "/partners-upload.html" },
+    { "source": "/positions/:slug", "destination": "/positions.html" }
   ],
   "redirects": [
     { "source": "/", "destination": "/hoe", "permanent": true },

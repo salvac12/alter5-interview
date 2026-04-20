@@ -14,11 +14,17 @@
 
 const { supabaseAdmin } = require('../../lib/supabase');
 const { generateToken, hashToken } = require('../../lib/tokens');
+const { getPositionByApplication } = require('../../lib/positions');
 const {
   sendInterviewLinkEmail,
   sendPostCvRejectionEmail,
   sendPostInterviewRejectionEmail,
 } = require('../../lib/email');
+
+function positionTitleOf(p) {
+  if (!p) return null;
+  return p.subtitle ? `${p.title} · ${p.subtitle}` : p.title;
+}
 
 const INTERVIEW_TTL_DAYS = 7;
 
@@ -48,6 +54,9 @@ module.exports.default = async function handler(req, res) {
       return res.status(409).json({ error: 'invalid_state', state: app.status });
     }
 
+    const position = await getPositionByApplication(applicationId);
+    const positionTitle = positionTitleOf(position);
+
     // ── Reject ────────────────────────────────────────────────────────
     if (decision === 'reject') {
       const nextStatus = inInterviewStage ? 'post_interview_rejected' : 'analyzed_manual_rejected';
@@ -58,7 +67,7 @@ module.exports.default = async function handler(req, res) {
         .update({ status: nextStatus })
         .eq('id', applicationId);
 
-      const mail = await sendFn({ to: app.email, name: app.name || '' });
+      const mail = await sendFn({ to: app.email, name: app.name || '', positionTitle });
 
       await supabaseAdmin.from('application_events').insert({
         application_id: applicationId,
@@ -105,6 +114,7 @@ module.exports.default = async function handler(req, res) {
       name: app.name || '',
       interviewUrl,
       expiresDays: INTERVIEW_TTL_DAYS,
+      positionTitle,
     });
 
     await supabaseAdmin.from('application_events').insert({

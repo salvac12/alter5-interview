@@ -10,6 +10,9 @@ const { isValidEmail, normalizeEmail, getClientIp, getUserAgent } = require('../
 const { generateToken, hashToken } = require('../lib/tokens');
 const { verifyTurnstile } = require('../lib/turnstile');
 const { sendMagicLinkEmail } = require('../lib/email');
+const { getPositionBySlug } = require('../lib/positions');
+
+const SLUG_RE = /^[a-z0-9][a-z0-9\-]{1,40}$/;
 
 const MAGIC_LINK_TTL_MINUTES = 30;
 
@@ -28,6 +31,7 @@ module.exports.default = async function handler(req, res) {
     consent_ai_decision,
     requested_human_review,
     turnstile_token,
+    position_slug,
     utm_source,
     utm_medium,
     utm_campaign,
@@ -39,6 +43,21 @@ module.exports.default = async function handler(req, res) {
   }
   if (!consent_privacy || !consent_ai_decision) {
     return res.status(400).json({ error: 'consent_required' });
+  }
+
+  // Resolve target position. Defaults to 'hoe' so the legacy /hoe form and
+  // any bookmarked apply link without a slug keep working. Unknown / inactive
+  // slug is a hard 400 — we don't silently downgrade to HoE because a
+  // candidate arriving from a shared /positions/senior-backend link deserves
+  // to know the posting is closed.
+  const slugRaw = typeof position_slug === 'string' ? position_slug.trim().toLowerCase() : '';
+  const slug = slugRaw || 'hoe';
+  if (!SLUG_RE.test(slug)) {
+    return res.status(400).json({ error: 'invalid_position' });
+  }
+  const position = await getPositionBySlug(slug);
+  if (!position || position.status !== 'active') {
+    return res.status(400).json({ error: 'invalid_position' });
   }
 
   const ip = getClientIp(req);
@@ -95,6 +114,7 @@ module.exports.default = async function handler(req, res) {
           requested_human_review: !!requested_human_review,
           apply_ip: ip,
           apply_user_agent: ua,
+          position_id: position.id,
           utm_source: utm_source || null,
           utm_medium: utm_medium || null,
           utm_campaign: utm_campaign || null,
@@ -132,6 +152,9 @@ module.exports.default = async function handler(req, res) {
       to: email,
       verifyUrl,
       ttlMinutes: MAGIC_LINK_TTL_MINUTES,
+      positionTitle: position.subtitle
+        ? `${position.title} · ${position.subtitle}`
+        : position.title,
     });
 
     // 5. Record consent events (GDPR Art.7(1) — we must be able to prove

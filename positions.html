@@ -3,16 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Alter5 — Head of Engineering (AI & Infrastructure)</title>
-<meta name="description" content="Únete a Alter5 como Head of Engineering (AI & Infrastructure). Proceso de selección asíncrono: sube tu CV y, si encajas, te invitamos a una entrevista técnica online.">
+<title>Alter5 — Posiciones abiertas</title>
+<meta name="description" content="Únete a Alter5. Proceso de selección asíncrono: sube tu CV y, si encajas, te invitamos a una entrevista técnica online.">
 <link rel="icon" type="image/svg+xml" href="/ds/alter5-mark.svg">
 <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/ds/tokens.css">
-<!-- Cloudflare Turnstile. NOTE: SRI cannot be used — Cloudflare publishes
-     transparent updates to api.js without versioning and explicitly does
-     not provide a stable hash. Defense-in-depth: CSP script-src restricts
-     this URL to challenges.cloudflare.com only, and crossorigin/referrerpolicy
-     attributes block Referer leakage and isolate cross-origin loading. -->
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" crossorigin="anonymous" referrerpolicy="no-referrer" async defer></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -27,7 +22,6 @@ body{
   text-rendering:optimizeLegibility;
 }
 
-/* ── Header ─────────────────────────────────────────────── */
 .hdr{
   background:rgba(255,255,255,0.85);
   backdrop-filter:blur(12px);
@@ -49,7 +43,6 @@ body{
   letter-spacing:0.06em;text-transform:uppercase;
 }
 
-/* ── Main ───────────────────────────────────────────────── */
 .main{flex:1;max-width:760px;width:100%;margin:0 auto;padding:64px 24px 40px}
 
 .eyebrow{
@@ -71,225 +64,129 @@ body{
   margin-bottom:20px;
   text-wrap:balance;
 }
-.intro-body{
+.subtitle{
   font-size:17px;
   color:var(--a5-slate);
   line-height:1.65;
-  margin-bottom:48px;
+  margin-bottom:32px;
   max-width:640px;
   text-wrap:pretty;
 }
 
-/* ── Sections ───────────────────────────────────────────── */
-.section{margin-bottom:40px}
-.section h2{
-  font-family:var(--a5-font-landing);
-  font-weight:700;
-  font-size:24px;
-  color:var(--a5-blue);
-  margin-bottom:16px;
-  letter-spacing:-0.02em;
+/* Admin-authored intro HTML. Constrained enough that a reasonable
+   submission doesn't break the layout. */
+.intro-html{
+  color:var(--a5-text-primary);
+  line-height:1.65;
+  font-size:15px;
 }
+.intro-html h2{
+  font-family:var(--a5-font-landing);font-weight:700;
+  font-size:24px;color:var(--a5-blue);
+  margin:32px 0 12px;letter-spacing:-0.02em;
+}
+.intro-html h3{
+  font-size:18px;font-weight:600;color:var(--a5-blue);
+  margin:24px 0 10px;
+}
+.intro-html p{margin:0 0 14px}
+.intro-html ul,.intro-html ol{margin:0 0 14px 22px}
+.intro-html li{margin-bottom:6px}
+.intro-html strong{font-weight:600;color:var(--a5-blue)}
+.intro-html a{color:var(--a5-teal-dark);text-decoration:underline;text-underline-offset:2px}
 
-.info-box{
-  background:var(--a5-light-card);
-  border:1px solid var(--a5-light-border);
-  border-radius:var(--a5-radius-lg);
-  padding:24px 28px;
-}
-.info-box h3{
-  font-family:'JetBrains Mono',monospace;
-  font-size:10px;
-  font-weight:500;
-  letter-spacing:0.08em;
-  text-transform:uppercase;
-  color:var(--a5-teal-dark);
-  margin-bottom:14px;
-}
-.req-list{list-style:none;padding:0}
-.req-list li{
-  display:flex;gap:12px;align-items:flex-start;
-  font-size:15px;color:var(--a5-text-primary);
-  margin-bottom:10px;line-height:1.55;
-}
-.req-list li::before{
-  content:"";
-  width:6px;height:6px;border-radius:2px;
-  background:var(--a5-teal);
-  margin-top:9px;flex-shrink:0;
-}
-
-/* ── Steps ──────────────────────────────────────────────── */
+/* Default steps block used when position has no public_intro_html — keeps
+   the landing useful even for a freshly-created position without marketing
+   copy. */
 .steps{
   display:grid;
   grid-template-columns:repeat(3,1fr);
   gap:14px;
+  margin:24px 0 32px;
 }
 @media (max-width:640px){.steps{grid-template-columns:1fr}}
 .step{
   background:var(--a5-light-card);
   border:1px solid var(--a5-light-border);
   border-radius:var(--a5-radius-lg);
-  padding:20px;
-  position:relative;
-  overflow:hidden;
-  transition:box-shadow var(--a5-ease), transform var(--a5-ease);
+  padding:20px;position:relative;overflow:hidden;
 }
-.step:hover{box-shadow:var(--a5-shadow-md);transform:translateY(-2px)}
-.step::before{
-  content:"";
-  position:absolute;left:0;top:0;bottom:0;
-  width:3px;background:var(--a5-teal);
-}
-.step-num{
-  font-family:'JetBrains Mono',monospace;
-  font-size:11px;font-weight:500;
-  color:var(--a5-teal-dark);
-  letter-spacing:0.12em;
-  margin-bottom:8px;
-}
-.step-title{
-  font-size:16px;font-weight:600;
-  color:var(--a5-blue);
-  margin-bottom:6px;
-  letter-spacing:-0.01em;
-}
-.step-desc{
-  font-size:14px;
-  color:var(--a5-slate);
-  line-height:1.55;
-}
+.step::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--a5-teal)}
+.step-num{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:500;color:var(--a5-teal-dark);letter-spacing:0.12em;margin-bottom:8px}
+.step-title{font-size:16px;font-weight:600;color:var(--a5-blue);margin-bottom:6px;letter-spacing:-0.01em}
+.step-desc{font-size:14px;color:var(--a5-slate);line-height:1.55}
 
-/* ── Apply card ─────────────────────────────────────────── */
 .apply-card{
   background:var(--a5-light-card);
   border:1px solid var(--a5-light-border);
   border-radius:var(--a5-radius-xl);
   padding:36px 36px 32px;
-  margin-top:16px;
+  margin-top:32px;
   box-shadow:var(--a5-shadow-md);
-  position:relative;
-  overflow:hidden;
+  position:relative;overflow:hidden;
 }
-.apply-card::before{
-  content:"";
-  position:absolute;left:0;right:0;top:0;height:3px;
-  background:var(--a5-gradient-primary);
-}
+.apply-card::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:var(--a5-gradient-primary)}
 .apply-card h2{
-  font-family:var(--a5-font-landing);
-  font-weight:700;
-  font-size:26px;
-  color:var(--a5-blue);
-  margin-bottom:8px;
-  letter-spacing:-0.02em;
+  font-family:var(--a5-font-landing);font-weight:700;
+  font-size:26px;color:var(--a5-blue);
+  margin-bottom:8px;letter-spacing:-0.02em;
 }
-.apply-card p.lead{
-  font-size:15px;
-  color:var(--a5-slate);
-  margin-bottom:24px;
-  line-height:1.6;
-}
+.apply-card p.lead{font-size:15px;color:var(--a5-slate);margin-bottom:24px;line-height:1.6}
 
 .cform{display:flex;flex-direction:column;gap:18px}
 .cgrp{display:flex;flex-direction:column;gap:8px}
-.cgrp label{
-  font-size:11px;font-weight:600;
-  color:var(--a5-text-secondary);
-  text-transform:uppercase;
-  letter-spacing:0.06em;
-}
+.cgrp label{font-size:11px;font-weight:600;color:var(--a5-text-secondary);text-transform:uppercase;letter-spacing:0.06em}
 .cgrp input[type=email]{
-  font-family:var(--a5-font-landing);
-  font-size:15px;
+  font-family:var(--a5-font-landing);font-size:15px;
   padding:14px 20px;
   border:1px solid var(--a5-light-border);
   border-radius:var(--a5-radius-full);
-  background:white;
-  color:var(--a5-text-primary);
-  outline:none;
+  background:white;color:var(--a5-text-primary);
+  outline:none;width:100%;
   transition:border-color var(--a5-ease-fast), box-shadow var(--a5-ease-fast);
-  width:100%;
 }
-.cgrp input[type=email]:focus{
-  border-color:var(--a5-accent-blue);
-  box-shadow:0 0 0 3px rgba(59,130,246,0.12);
-}
+.cgrp input[type=email]:focus{border-color:var(--a5-accent-blue);box-shadow:0 0 0 3px rgba(59,130,246,0.12)}
 
-.consent{
-  display:flex;gap:10px;align-items:flex-start;
-  font-size:13.5px;color:var(--a5-text-primary);
-  line-height:1.55;
-  padding:4px 2px;
-}
-.consent input[type=checkbox]{
-  width:16px;height:16px;
-  margin-top:3px;
-  accent-color:var(--a5-teal);
-  flex-shrink:0;
-  cursor:pointer;
-}
-.consent a{
-  color:var(--a5-teal-dark);
-  text-decoration:underline;
-  text-underline-offset:2px;
-}
+.consent{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;color:var(--a5-text-primary);line-height:1.55;padding:4px 2px}
+.consent input[type=checkbox]{width:16px;height:16px;margin-top:3px;accent-color:var(--a5-teal);flex-shrink:0;cursor:pointer}
+.consent a{color:var(--a5-teal-dark);text-decoration:underline;text-underline-offset:2px}
 .consent a:hover{color:var(--a5-blue)}
 
-/* ── Buttons (DS landing family — lb-*) ─────────────────── */
 .btn{
-  display:inline-flex;align-items:center;justify-content:center;
-  gap:8px;
-  font-family:var(--a5-font-landing);
-  font-weight:600;
-  cursor:pointer;
-  border:0;
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  font-family:var(--a5-font-landing);font-weight:600;cursor:pointer;border:0;
   border-radius:var(--a5-radius-full);
   transition:background-color var(--a5-ease-fast), color var(--a5-ease-fast), opacity var(--a5-ease-fast), transform var(--a5-ease-fast), box-shadow var(--a5-ease-fast);
-  width:100%;
-  padding:14px 32px;
-  font-size:16px;
+  width:100%;padding:14px 32px;font-size:16px;
 }
 .btn-primary{background:var(--a5-blue);color:white}
 .btn-primary:hover:not(:disabled){background:#0e1f47;transform:translateY(-1px);box-shadow:0 6px 16px rgba(19,40,91,0.25)}
 .btn-primary:disabled{opacity:0.55;cursor:not-allowed;transform:none;box-shadow:none}
 
-/* ── Status messages ────────────────────────────────────── */
-.err,.ok{
-  padding:12px 16px;
-  border-radius:var(--a5-radius-md);
-  font-size:14px;
-  line-height:1.5;
-  margin-top:4px;
-}
+.err,.ok{padding:12px 16px;border-radius:var(--a5-radius-md);font-size:14px;line-height:1.5;margin-top:4px}
 .err{background:#FEF2F2;color:#991B1B;border:1px solid #FECACA}
 .ok{background:var(--a5-teal-light);color:var(--a5-blue);border:1px solid rgba(81,182,190,0.3)}
 .hidden{display:none}
 
 .privacy-note{
-  font-size:12px;
-  color:var(--a5-text-secondary);
-  line-height:1.65;
-  margin-top:20px;
-  padding-top:16px;
-  border-top:1px solid var(--a5-light-border);
+  font-size:12px;color:var(--a5-text-secondary);line-height:1.65;
+  margin-top:20px;padding-top:16px;border-top:1px solid var(--a5-light-border);
 }
 .privacy-note a{color:var(--a5-text-secondary);text-decoration:underline;text-underline-offset:2px}
 .privacy-note a:hover{color:var(--a5-blue)}
 
-/* ── Footer ─────────────────────────────────────────────── */
-.ftr{
-  text-align:center;
-  padding:32px 16px;
-  font-size:12px;
-  color:var(--a5-text-muted);
-  font-family:'JetBrains Mono',monospace;
-  letter-spacing:0.05em;
-}
+.ftr{text-align:center;padding:32px 16px;font-size:12px;color:var(--a5-text-muted);font-family:'JetBrains Mono',monospace;letter-spacing:0.05em}
 .ftr a{color:var(--a5-text-muted);text-decoration:underline;text-underline-offset:2px;margin:0 8px}
 .ftr a:hover{color:var(--a5-blue)}
 
-/* ── Responsive ─────────────────────────────────────────── */
+.not-found{
+  max-width:520px;margin:120px auto;padding:40px 32px;
+  text-align:center;background:var(--a5-light-card);
+  border:1px solid var(--a5-light-border);border-radius:var(--a5-radius-xl);
+}
+.not-found h1{font-size:28px;color:var(--a5-blue);margin-bottom:12px}
+.not-found p{color:var(--a5-slate);line-height:1.6;margin-bottom:18px}
+
 @media (max-width:640px){
   .hdr{padding:12px 20px}
   .main{padding:40px 20px}
@@ -305,37 +202,30 @@ body{
   <a class="hdr-logo" href="https://www.alter5.com" target="_blank" rel="noopener" aria-label="Alter5">
     <img src="/ds/alter5-logo-dark.svg" alt="Alter5">
   </a>
-  <div class="hdr-badge">Ofertas activas · 1</div>
+  <div class="hdr-badge">Posición abierta</div>
 </header>
 
 <main class="main">
-  <div class="eyebrow">Posición abierta · Remoto desde España</div>
-  <h1 class="big-title">Head of Engineering<br>(AI &amp; Infrastructure)</h1>
-  <p class="intro-body">
-    Alter5 es una fintech que promueve la digitalización y automatización de la inversión
-    institucional en deuda y capital. Buscamos un líder técnico que combine arquitectura software
-    sólida con visión de producto y aplicación práctica de IA. Liderarás la plataforma tecnológica
-    y un equipo, y trabajarás estrechamente con negocio.
-  </p>
+  <!-- Skeleton until we know whether the slug exists. -->
+  <div id="loading" style="text-align:center;padding:60px 0;color:var(--a5-text-muted)">Cargando posición…</div>
 
-  <div class="section">
-    <h2>Lo que esperamos de ti</h2>
-    <div class="info-box">
-      <h3>Requisitos mínimos</h3>
-      <ul class="req-list">
-        <li>Experiencia liderando equipos técnicos.</li>
-        <li>Arquitectura cloud en AWS (App Runner, RDS, ECS, PostgreSQL, observabilidad).</li>
-        <li>Experiencia real aplicando LLMs: RAG, agentes, orquestación (LangChain, CrewAI, Vercel AI SDK).</li>
-        <li>Gestión de personas, remoto, evaluaciones de performance.</li>
-        <li>Colaboración con perfiles no técnicos y traducción de negocio a producto.</li>
-        <li>Dedicación exclusiva.</li>
-      </ul>
-    </div>
+  <!-- Not-found state -->
+  <div id="not-found" class="not-found hidden">
+    <h1>Esta vacante no está disponible</h1>
+    <p>La posición que buscas no existe, ha sido archivada o todavía no se ha publicado.</p>
+    <p><a href="https://www.alter5.com/es/careers" style="color:var(--a5-teal-dark);text-decoration:underline">Ver todas las ofertas activas en alter5.com</a></p>
   </div>
 
-  <div class="section">
-    <h2>Cómo funciona el proceso</h2>
-    <div class="steps">
+  <!-- Live content -->
+  <div id="content" class="hidden">
+    <div class="eyebrow" id="eyebrow">Posición abierta · Remoto desde España</div>
+    <h1 class="big-title" id="title">…</h1>
+    <p class="subtitle" id="subtitle" style="display:none"></p>
+
+    <div class="intro-html" id="intro-html"></div>
+
+    <!-- Default steps shown only when public_intro_html is empty. -->
+    <div class="steps hidden" id="default-steps">
       <div class="step">
         <div class="step-num">01</div>
         <div class="step-title">Verificas tu email</div>
@@ -352,38 +242,38 @@ body{
         <div class="step-desc">Si encajas, recibirás un link para un pequeño cuestionario y una posterior entrevista.</div>
       </div>
     </div>
-  </div>
 
-  <div class="apply-card">
-    <h2>Aplica ahora</h2>
-    <p class="lead">Introduce tu email profesional para empezar. Te enviaremos un enlace único para verificar tu dirección y subir tu CV.</p>
+    <div class="apply-card">
+      <h2>Aplica ahora</h2>
+      <p class="lead">Introduce tu email profesional para empezar. Te enviaremos un enlace único para verificar tu dirección y subir tu CV.</p>
 
-    <form id="apply-form" class="cform" autocomplete="on" novalidate>
-      <div class="cgrp">
-        <label for="email">Email *</label>
-        <input type="email" id="email" name="email" required autocomplete="email" placeholder="tu@dominio.com" maxlength="254">
-      </div>
+      <form id="apply-form" class="cform" autocomplete="on" novalidate>
+        <div class="cgrp">
+          <label for="email">Email *</label>
+          <input type="email" id="email" name="email" required autocomplete="email" placeholder="tu@dominio.com" maxlength="254">
+        </div>
 
-      <label class="consent">
-        <input type="checkbox" id="consent-privacy" required>
-        <span>
-          He leído y acepto la <a href="/apply/privacy" target="_blank" rel="noopener">política de privacidad para candidatos</a>
-          y el tratamiento de mis datos por Alter5 Financial Technologies, S.L. con la finalidad de gestionar mi candidatura. *
-        </span>
-      </label>
+        <label class="consent">
+          <input type="checkbox" id="consent-privacy" required>
+          <span>
+            He leído y acepto la <a href="/apply/privacy" target="_blank" rel="noopener">política de privacidad para candidatos</a>
+            y el tratamiento de mis datos por Alter5 Financial Technologies, S.L. con la finalidad de gestionar mi candidatura. *
+          </span>
+        </label>
 
-      <div id="turnstile-container"></div>
+        <div id="turnstile-container"></div>
 
-      <button type="submit" id="submit-btn" class="btn btn-primary">Enviar y verificar email</button>
+        <button type="submit" id="submit-btn" class="btn btn-primary">Enviar y verificar email</button>
 
-      <div id="err-box" class="err hidden"></div>
-      <div id="ok-box" class="ok hidden"></div>
-    </form>
+        <div id="err-box" class="err hidden"></div>
+        <div id="ok-box" class="ok hidden"></div>
+      </form>
 
-    <p class="privacy-note">
-      * Campos obligatorios. Procesamos tus datos en la UE (Fráncfort). Retención máxima 12 meses.
-      Derechos GDPR: <a href="/privacy/my-data">gestionar mis datos</a> o escribe a <a href="mailto:privacy@alter-5.com">privacy@alter-5.com</a>.
-    </p>
+      <p class="privacy-note">
+        * Campos obligatorios. Procesamos tus datos en la UE (Fráncfort). Retención máxima 12 meses.
+        Derechos GDPR: <a href="/privacy/my-data">gestionar mis datos</a> o escribe a <a href="mailto:privacy@alter-5.com">privacy@alter-5.com</a>.
+      </p>
+    </div>
   </div>
 </main>
 
@@ -396,6 +286,57 @@ body{
 
 <script>
 (async function () {
+  const loading = document.getElementById('loading');
+  const notFound = document.getElementById('not-found');
+  const content = document.getElementById('content');
+
+  // Slug from /positions/<slug>. The vercel rewrite routes both shapes here.
+  const parts = window.location.pathname.split('/').filter(Boolean);
+  const slug = parts[parts.length - 1];
+  if (!slug || slug === 'positions' || !/^[a-z0-9][a-z0-9\-]{1,40}$/.test(slug)) {
+    loading.classList.add('hidden');
+    notFound.classList.remove('hidden');
+    return;
+  }
+
+  let position;
+  try {
+    const r = await fetch('/api/positions/' + encodeURIComponent(slug), { cache: 'no-store' });
+    if (!r.ok) throw new Error('not_found');
+    const data = await r.json();
+    if (!data.ok || !data.position) throw new Error('not_found');
+    position = data.position;
+  } catch {
+    loading.classList.add('hidden');
+    notFound.classList.remove('hidden');
+    return;
+  }
+
+  // Paint content.
+  document.title = 'Alter5 — ' + position.title + (position.subtitle ? ' (' + position.subtitle + ')' : '');
+  document.getElementById('title').textContent = position.title;
+  if (position.subtitle) {
+    const sub = document.getElementById('subtitle');
+    sub.textContent = position.subtitle;
+    sub.style.display = 'block';
+  }
+
+  const introHtmlEl = document.getElementById('intro-html');
+  if (position.public_intro_html && position.public_intro_html.trim()) {
+    // Admin-authored HTML. Treated as trusted — admin basic-auth gate
+    // means only an authenticated superuser can set this field. If we
+    // ever expose the editor to a less-trusted role, sanitize here.
+    introHtmlEl.innerHTML = position.public_intro_html;
+  } else {
+    // Empty intro → show the generic "how it works" steps so the page
+    // still has enough context for a candidate to decide to apply.
+    document.getElementById('default-steps').classList.remove('hidden');
+  }
+
+  loading.classList.add('hidden');
+  content.classList.remove('hidden');
+
+  // ── Apply form ────────────────────────────────────────────
   const form = document.getElementById('apply-form');
   const emailInput = document.getElementById('email');
   const consentPrivacy = document.getElementById('consent-privacy');
@@ -407,7 +348,6 @@ body{
   let turnstileWidgetId = null;
   let turnstileToken = null;
 
-  // Fetch public config, then render Turnstile.
   let cfg;
   try {
     cfg = await (await fetch('/api/public-config', { cache: 'no-store' })).json();
@@ -428,7 +368,6 @@ body{
   }
   renderTurnstile();
 
-  // Read UTM params for attribution (LinkedIn tracking).
   const params = new URLSearchParams(window.location.search);
   const utm = {
     source: params.get('utm_source') || null,
@@ -440,11 +379,6 @@ body{
     errBox.textContent = msg;
     errBox.classList.remove('hidden');
     okBox.classList.add('hidden');
-  }
-  function showOk(msg) {
-    okBox.textContent = msg;
-    okBox.classList.remove('hidden');
-    errBox.classList.add('hidden');
   }
 
   form.addEventListener('submit', async (e) => {
@@ -476,7 +410,7 @@ body{
           consent_ai_decision: true,
           requested_human_review: false,
           turnstile_token: turnstileToken,
-          position_slug: 'hoe',
+          position_slug: position.slug,
           utm_source: utm.source,
           utm_medium: utm.medium,
           utm_campaign: utm.campaign,
@@ -485,7 +419,6 @@ body{
       const data = await r.json().catch(() => ({}));
 
       if (r.ok) {
-        // Redirect to "check your email" page.
         window.location.href = '/apply/thanks?email=' + encodeURIComponent(email);
         return;
       }
@@ -495,6 +428,7 @@ body{
         consent_required: 'Debes aceptar los consentimientos obligatorios.',
         turnstile_failed: 'La verificación anti-robot falló. Recarga e inténtalo de nuevo.',
         email_send_failed: 'No pudimos enviar el email. Revisa tu dirección e inténtalo de nuevo en unos minutos.',
+        invalid_position: 'Esta vacante ya no está disponible.',
       };
       showErr(msgs[data.error] || 'Error al procesar la solicitud. Inténtalo de nuevo.');
       if (turnstileWidgetId !== null && window.turnstile) window.turnstile.reset(turnstileWidgetId);
