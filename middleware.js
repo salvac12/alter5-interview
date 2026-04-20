@@ -1,10 +1,13 @@
 // Vercel Edge middleware. Runs in front of every request that matches `config.matcher`.
 //
-// Two responsibilities:
-//   1. Per-IP, per-route rate limiting (in-memory, per-instance).
+// Three responsibilities:
+//   1. Maintenance mode short-circuit (MAINTENANCE_MODE=1) — returns 503 with
+//      Retry-After for every matched route except /api/cron/*, so scheduled
+//      GDPR retention keeps running during planned secret rotations.
+//   2. Per-IP, per-route rate limiting (in-memory, per-instance).
 //      NOTE: in production with multiple instances, this gives best-effort
 //      protection. For hard guarantees we'd need Vercel KV / Upstash.
-//   2. Basic Auth for the admin/back-office surface.
+//   3. Basic Auth for the admin/back-office surface.
 //      Fail-CLOSED: if ADMIN_PASS is missing, the request is rejected.
 
 export const config = {
@@ -153,6 +156,23 @@ function clientIp(req) {
 export default async function middleware(req) {
   const url = new URL(req.url);
   const ip = clientIp(req);
+
+  // Maintenance mode — set MAINTENANCE_MODE=1 in Vercel env to short-circuit
+  // every matched route with 503 + Retry-After. /api/cron/* bypasses so that
+  // the daily GDPR purge keeps running during planned rotations.
+  if (process.env.MAINTENANCE_MODE === '1' && !url.pathname.startsWith('/api/cron/')) {
+    return new Response(
+      JSON.stringify({ error: 'maintenance', retry_after: 60 }),
+      {
+        status: 503,
+        headers: {
+          'Content-Type': 'application/json',
+          'Retry-After': '60',
+          'Cache-Control': 'no-store',
+        },
+      }
+    );
+  }
 
   cleanup();
   const retryAfter = checkRateLimit(ip, url.pathname);
