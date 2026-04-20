@@ -116,6 +116,26 @@ h1{font-family:var(--serif);font-size:1.9rem;color:var(--navy);margin-bottom:0.3
 .ai-report .sp-green{background:#F0FDF4;color:#15803D}
 .ai-report .sp-amber{background:#FFF7ED;color:#92400E}
 .ai-report .sp-red{background:#FEF2F2;color:#DC2626}
+
+/* Global position filter bar */
+.pos-bar{display:flex;align-items:center;gap:0.6rem;margin-bottom:1rem;padding:0.55rem 0.8rem;background:var(--white);border:1px solid var(--border);border-radius:8px}
+.pos-bar label{font-size:0.78rem;font-weight:500;color:var(--text-muted)}
+.pos-bar select{padding:0.45rem 0.7rem;border:1px solid var(--border);border-radius:6px;font-family:var(--sans);font-size:0.85rem;background:var(--white);outline:none;flex:1;min-width:200px}
+.pos-bar select:focus{border-color:var(--emerald)}
+
+/* Positions editor modal — wider + taller than the detail modal */
+.modal-wide .modal-card{max-width:860px}
+.pos-form{display:grid;grid-template-columns:1fr 1fr;gap:0.85rem 1rem}
+.pos-form .span-all{grid-column:1 / -1}
+.pos-form label{font-size:0.76rem;font-weight:500;color:var(--text-muted);display:block;margin-bottom:0.25rem}
+.pos-form input[type=text],.pos-form input[type=number],.pos-form select,.pos-form textarea{width:100%;padding:0.55rem 0.75rem;border:1px solid var(--border);border-radius:7px;font-family:var(--sans);font-size:0.86rem;background:var(--white);outline:none;color:var(--text)}
+.pos-form textarea{font-family:var(--mono);font-size:0.78rem;line-height:1.55;min-height:120px;resize:vertical}
+.pos-form input:focus,.pos-form select:focus,.pos-form textarea:focus{border-color:var(--emerald)}
+.pos-form .hint{font-size:0.72rem;color:var(--text-muted);margin-top:0.2rem;line-height:1.4}
+.pos-form .chk-row{display:flex;align-items:center;gap:0.4rem;font-size:0.82rem}
+.pos-form .chk-row input{margin:0}
+.pos-err{background:#FEF2F2;color:#DC2626;border:1px solid #FCA5A5;border-radius:6px;padding:0.55rem 0.75rem;font-size:0.82rem;margin-bottom:0.8rem;display:none}
+.pos-err.show{display:block}
 </style>
 </head>
 <body>
@@ -133,11 +153,20 @@ h1{font-family:var(--serif);font-size:1.9rem;color:var(--navy);margin-bottom:0.3
   <h1>Panel de administración</h1>
   <p class="page-sub">Candidaturas en curso — revisa, aprueba/descarta y gestiona subidas manuales.</p>
 
+  <div class="pos-bar" id="pos-bar">
+    <label for="global-position-filter">Posición:</label>
+    <select id="global-position-filter">
+      <option value="">Todas las posiciones</option>
+    </select>
+    <span class="muted" style="font-size:0.72rem">Filtra Cola de revisión y Todas las candidaturas.</span>
+  </div>
+
   <div class="tabs">
     <button class="tab active" data-view="review">Cola de revisión <span class="tab-badge" id="review-count" style="display:none">0</span></button>
     <button class="tab" data-view="all">Todas las candidaturas</button>
     <button class="tab" data-view="upload">Subir CV manual</button>
     <button class="tab" data-view="headhunters">Headhunters</button>
+    <button class="tab" data-view="positions">Posiciones</button>
   </div>
 
   <!-- ── Review queue ──────────────────────────────────────────────── -->
@@ -200,6 +229,30 @@ h1{font-family:var(--serif);font-size:1.9rem;color:var(--navy);margin-bottom:0.3
     </div>
   </section>
 
+  <!-- ── Positions ─────────────────────────────────────────────────── -->
+  <section class="view" id="view-positions">
+    <div class="card">
+      <div class="card-title" style="display:flex;justify-content:space-between;align-items:center">
+        <span>Posiciones abiertas</span>
+        <span style="display:flex;gap:0.4rem">
+          <button class="btn btn-ghost btn-sm" onclick="loadPositions()">Actualizar</button>
+          <button class="btn btn-primary btn-sm" onclick="openPositionEditor(null)">+ Nueva posición</button>
+        </span>
+      </div>
+      <div id="positions-list"><div class="empty">Cargando…</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Qué define una posición</div>
+      <p style="font-size:0.84rem;color:var(--text-muted);line-height:1.65">
+        Una posición agrupa <strong>landing pública</strong>, <strong>prompt de análisis de CV</strong>,
+        <strong>prompt de análisis de entrevista</strong> y la <strong>definición del test</strong> (bloques + preguntas).
+        Cuando creas una nueva posición puedes duplicar los prompts y preguntas de la HoE actual y editarlos.
+        El slug determina la URL pública (<span class="mono">/positions/&lt;slug&gt;</span>). Para que una posición
+        sea seleccionable por headhunters tiene que tener <em>Compartir con headhunters</em> activado.
+      </p>
+    </div>
+  </section>
+
   <!-- ── Manual upload ─────────────────────────────────────────────── -->
   <section class="view" id="view-upload">
     <div class="card">
@@ -236,6 +289,83 @@ h1{font-family:var(--serif);font-size:1.9rem;color:var(--navy);margin-bottom:0.3
   </div>
 </div>
 
+<!-- Position editor modal -->
+<div class="modal modal-wide" id="pos-modal">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h2 id="pm-title">Nueva posición</h2>
+      <button class="modal-close" onclick="closePositionEditor()">×</button>
+    </div>
+    <div id="pm-err" class="pos-err"></div>
+    <form class="pos-form" id="pos-form" onsubmit="event.preventDefault();savePosition();">
+      <div>
+        <label for="pm-slug">Slug (URL)</label>
+        <input type="text" id="pm-slug" placeholder="senior-backend" required>
+        <div class="hint">Sólo minúsculas, números y guiones. Aparece en <span class="mono">/positions/&lt;slug&gt;</span>.</div>
+      </div>
+      <div>
+        <label for="pm-status">Estado</label>
+        <select id="pm-status">
+          <option value="active">active</option>
+          <option value="paused">paused</option>
+          <option value="closed">closed</option>
+        </select>
+      </div>
+      <div>
+        <label for="pm-title">Título</label>
+        <input type="text" id="pm-title" placeholder="Senior Backend Engineer" required>
+      </div>
+      <div>
+        <label for="pm-subtitle">Subtítulo</label>
+        <input type="text" id="pm-subtitle" placeholder="Platform team">
+      </div>
+      <div>
+        <label for="pm-min-score">Score mínimo para invitar (1-10)</label>
+        <input type="number" id="pm-min-score" min="1" max="10" value="7">
+      </div>
+      <div>
+        <label class="chk-row"><input type="checkbox" id="pm-share-hh"> Compartir con headhunters</label>
+        <div class="hint">Si está activo, los headhunters podrán seleccionar esta posición al subir un CV.</div>
+      </div>
+      <div class="span-all">
+        <label for="pm-intro">Intro HTML (landing pública)</label>
+        <textarea id="pm-intro" placeholder="&lt;p&gt;Buscamos...&lt;/p&gt;"></textarea>
+        <div class="hint">HTML simple que se insertará en <span class="mono">/positions/&lt;slug&gt;</span>. Si lo dejas vacío se usa un fallback genérico.</div>
+      </div>
+      <div class="span-all">
+        <label for="pm-cv-prompt">Prompt de análisis de CV</label>
+        <textarea id="pm-cv-prompt" required></textarea>
+        <div class="hint">System prompt enviado al LLM para puntuar el CV. Verbatim — sin placeholders.</div>
+      </div>
+      <div class="span-all">
+        <label for="pm-iv-prompt">Prompt de análisis de entrevista</label>
+        <textarea id="pm-iv-prompt" required></textarea>
+        <div class="hint">System prompt para evaluar las respuestas de la entrevista. Verbatim.</div>
+      </div>
+      <div class="span-all">
+        <label for="pm-blocks">Bloques (JSON)</label>
+        <textarea id="pm-blocks" required placeholder='[{"id":"tech","label":"Técnica","icon":"⚙","desc":"…"}]'></textarea>
+        <div class="hint"><span class="mono">[{id,label,icon,desc}]</span> — los <span class="mono">id</span> se referencian desde cada pregunta.</div>
+      </div>
+      <div class="span-all">
+        <label for="pm-questions">Preguntas (JSON)</label>
+        <textarea id="pm-questions" required placeholder='[{"block":"tech","type":"single","w":3,"text":"…","options":["A","B"],"correct":0,"min":15,"sus":5}]'></textarea>
+        <div class="hint"><span class="mono">type</span>: <span class="mono">single</span> (con <span class="mono">correct</span>), <span class="mono">multi</span> o <span class="mono">salary</span>. <span class="mono">w</span> ∈ 1-5.</div>
+      </div>
+      <div class="span-all" style="display:flex;justify-content:space-between;align-items:center;gap:0.5rem;flex-wrap:wrap">
+        <div>
+          <button type="button" class="btn btn-ghost btn-sm" id="pm-dup-hoe" onclick="duplicateFromHoe()">Duplicar prompts + preguntas desde HoE</button>
+          <button type="button" class="btn btn-danger btn-sm" id="pm-archive" style="display:none" onclick="archivePosition()">Archivar</button>
+        </div>
+        <div style="display:flex;gap:0.4rem">
+          <button type="button" class="btn btn-ghost btn-sm" onclick="closePositionEditor()">Cancelar</button>
+          <button type="submit" class="btn btn-emerald btn-sm" id="pm-save">Guardar</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
 <script>
 // ───────────────────────────────────────────────────────────────────────────
 // Tab switching
@@ -245,10 +375,62 @@ document.querySelectorAll('.tab').forEach(t => {
     const v = t.dataset.view;
     document.querySelectorAll('.tab').forEach(x => x.classList.toggle('active', x === t));
     document.querySelectorAll('.view').forEach(x => x.classList.toggle('active', x.id === 'view-' + v));
+    // The global position filter is only meaningful for candidate-list views.
+    const posBar = document.getElementById('pos-bar');
+    posBar.style.display = (v === 'review' || v === 'all') ? '' : 'none';
     if (v === 'review') loadReview();
     if (v === 'all') loadAll();
     if (v === 'headhunters') loadHeadhunters();
+    if (v === 'positions') loadPositions();
   });
+});
+
+// ───────────────────────────────────────────────────────────────────────────
+// Global position filter (shared across Cola de revisión + Todas)
+// ───────────────────────────────────────────────────────────────────────────
+const POS_FILTER_KEY = 'adminPositionFilter';
+let positionsCache = null; // populated by loadPositionsDropdown + loadPositions
+
+function currentPositionFilter(){
+  return localStorage.getItem(POS_FILTER_KEY) || '';
+}
+
+async function loadPositionsDropdown(){
+  try{
+    // Use admin endpoint so paused/closed positions still appear (filter
+    // may be stale after archive). Fallback to /api/positions on error.
+    const r = await fetch('/api/admin/positions');
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error || 'error');
+    positionsCache = data.positions || [];
+  }catch{
+    positionsCache = [];
+  }
+  const sel = document.getElementById('global-position-filter');
+  const saved = currentPositionFilter();
+  const opts = ['<option value="">Todas las posiciones</option>'];
+  for (const p of positionsCache) {
+    const label = p.subtitle ? `${p.title} · ${p.subtitle}` : p.title;
+    const suffix = p.status !== 'active' ? ` (${p.status})` : '';
+    opts.push(`<option value="${esc(p.id)}">${esc(label)}${esc(suffix)}</option>`);
+  }
+  sel.innerHTML = opts.join('');
+  if (saved && positionsCache.some(p => p.id === saved)) {
+    sel.value = saved;
+  } else if (saved) {
+    // stale id (position archived, wiped, etc) — clear silently
+    localStorage.removeItem(POS_FILTER_KEY);
+  }
+}
+
+document.getElementById('global-position-filter').addEventListener('change', e => {
+  const v = e.target.value;
+  if (v) localStorage.setItem(POS_FILTER_KEY, v);
+  else localStorage.removeItem(POS_FILTER_KEY);
+  // Re-run whichever list view is currently visible.
+  const active = document.querySelector('.tab.active')?.dataset.view;
+  if (active === 'review') loadReview();
+  if (active === 'all') loadAll();
 });
 
 // ───────────────────────────────────────────────────────────────────────────
@@ -301,7 +483,12 @@ async function loadReview(){
   const target=document.getElementById('review-list');
   target.innerHTML='<div class="empty">Cargando…</div>';
   try{
-    const r=await fetch('/api/admin/applications?status=analyzed_pending_review&limit=100');
+    const params=new URLSearchParams();
+    params.set('status','analyzed_pending_review');
+    params.set('limit','100');
+    const pos=currentPositionFilter();
+    if(pos)params.set('position_id',pos);
+    const r=await fetch('/api/admin/applications?'+params.toString());
     const data=await r.json();
     const apps=data.applications||[];
     const badge=document.getElementById('review-count');
@@ -328,10 +515,12 @@ function renderReviewRow(a){
   const rec=an?`<span class="badge ${an.recommendation==='enviar'?'b-green':an.recommendation==='revisar'?'b-amber':'b-red'}">${an.recommendation}</span>`:'—';
   const hr=a.requested_human_review?'<span class="badge b-purple">sí</span>':'<span class="muted">no</span>';
   const origin=a.headhunter?`<div style="margin-top:0.3rem"><span class="badge b-purple">Headhunter · ${esc(a.headhunter.company||a.headhunter.name||'')}</span></div>`:'';
+  const posLabel=a.position?`<div style="margin-top:0.3rem"><span class="badge b-blue">${esc(a.position.title)}</span></div>`:'';
   return `<tr>
     <td>
       <div style="font-weight:500">${esc(a.name||'Sin nombre')}</div>
       <div class="mono muted">${esc(a.email)}</div>
+      ${posLabel}
       ${origin}
     </td>
     <td>${score}</td>
@@ -380,6 +569,8 @@ async function loadAll(){
   if(q)params.set('q',q);
   if(st)params.set('status',st);
   if(src)params.set('source',src);
+  const pos=currentPositionFilter();
+  if(pos)params.set('position_id',pos);
   params.set('limit','200');
   try{
     const r=await fetch('/api/admin/applications?'+params.toString());
@@ -388,7 +579,7 @@ async function loadAll(){
     if(apps.length===0){target.innerHTML='<div class="empty">Sin resultados.</div>';return;}
     target.innerHTML=`<div style="overflow-x:auto"><table class="tbl">
       <thead><tr>
-        <th>Candidato</th><th>Estado</th><th>Score CV</th><th>Entrevista</th><th>Origen</th><th>Fecha</th><th></th>
+        <th>Candidato</th><th>Estado</th><th>Posición</th><th>Score CV</th><th>Entrevista</th><th>Origen</th><th>Fecha</th><th></th>
       </tr></thead>
       <tbody>${apps.map(renderAllRow).join('')}</tbody>
     </table></div>`;
@@ -400,12 +591,14 @@ function renderAllRow(a){
   const iv=a.latest_interview;
   const score=an?`<span class="mono"><strong>${an.score}/10</strong></span>`:'<span class="muted">—</span>';
   const ivScore=iv&&iv.global_score!=null?`<span class="mono"><strong>${iv.global_score}</strong></span>${iv.flags>0?` <span class="badge b-red">${iv.flags} flags</span>`:''}`:'<span class="muted">—</span>';
+  const posCell=a.position?`<span class="badge b-blue" title="${esc(a.position.slug)}">${esc(a.position.title)}</span>`:'<span class="muted">—</span>';
   return `<tr>
     <td>
       <div style="font-weight:500">${esc(a.name||'—')}</div>
       <div class="mono muted">${esc(a.email)}</div>
     </td>
     <td>${statusBadge(a.status)}</td>
+    <td>${posCell}</td>
     <td>${score}</td>
     <td>${ivScore}</td>
     <td>${originCell(a)}</td>
@@ -452,10 +645,14 @@ function renderDetail(d){
   document.getElementById('m-title').textContent=a.name?a.name:a.email;
 
   const blocks=[];
+  const posLine=d.position
+    ? `${esc(d.position.title)}${d.position.subtitle?' · '+esc(d.position.subtitle):''} <span class="muted mono">(${esc(d.position.slug)})</span>`
+    : '<span class="muted">—</span>';
   blocks.push(`<div class="modal-sec"><h3>Datos generales</h3>
     <dl class="kv">
       <dt>Email</dt><dd class="mono">${esc(a.email)}</dd>
       <dt>Estado</dt><dd>${statusBadge(a.status)}</dd>
+      <dt>Posición</dt><dd>${posLine}</dd>
       <dt>Origen</dt><dd>${d.headhunter?`<strong>Headhunter</strong> — ${esc(d.headhunter.company||'')} (${esc(d.headhunter.name||'')}) <span class="muted mono">${esc(d.headhunter.email)}</span>`:esc(a.source)}</dd>
       <dt>Experiencia</dt><dd>${esc(a.experience||'—')}</dd>
       <dt>Revisión humana</dt><dd>${a.requested_human_review?'Sí solicitada':'No'}</dd>
@@ -740,9 +937,209 @@ document.getElementById('hh-invite-form').addEventListener('submit',async e=>{
 });
 
 // ───────────────────────────────────────────────────────────────────────────
+// Positions (admin CRUD)
+// ───────────────────────────────────────────────────────────────────────────
+let editingPositionId = null;
+
+async function loadPositions(){
+  const target=document.getElementById('positions-list');
+  target.innerHTML='<div class="empty">Cargando…</div>';
+  try{
+    const r=await fetch('/api/admin/positions');
+    const data=await r.json();
+    if(!r.ok)throw new Error(data.error||'error');
+    positionsCache=data.positions||[];
+    if(!positionsCache.length){
+      target.innerHTML='<div class="empty">Aún no hay posiciones.</div>';
+      return;
+    }
+    target.innerHTML=`<div style="overflow-x:auto"><table class="tbl">
+      <thead><tr>
+        <th>Slug</th><th>Título</th><th>Estado</th><th>Candidatos</th><th>Headhunters</th><th>Última candidatura</th><th></th>
+      </tr></thead>
+      <tbody>${positionsCache.map(renderPositionRow).join('')}</tbody>
+    </table></div>`;
+    // Keep the global filter dropdown in sync if we just learned about new positions.
+    const sel=document.getElementById('global-position-filter');
+    const saved=currentPositionFilter();
+    const opts=['<option value="">Todas las posiciones</option>'];
+    for(const p of positionsCache){
+      const label=p.subtitle?`${p.title} · ${p.subtitle}`:p.title;
+      const suffix=p.status!=='active'?` (${p.status})`:'';
+      opts.push(`<option value="${esc(p.id)}">${esc(label)}${esc(suffix)}</option>`);
+    }
+    sel.innerHTML=opts.join('');
+    if(saved&&positionsCache.some(p=>p.id===saved))sel.value=saved;
+  }catch(e){
+    target.innerHTML='<div class="empty">Error: '+esc(e.message)+'</div>';
+  }
+}
+
+function renderPositionRow(p){
+  const statusCls=p.status==='active'?'b-green':p.status==='paused'?'b-amber':'b-gray';
+  const share=p.share_with_headhunters?'<span class="badge b-blue">sí</span>':'<span class="muted">no</span>';
+  return `<tr>
+    <td class="mono">${esc(p.slug)}</td>
+    <td>
+      <div style="font-weight:500">${esc(p.title)}</div>
+      ${p.subtitle?`<div class="muted" style="font-size:0.78rem">${esc(p.subtitle)}</div>`:''}
+    </td>
+    <td><span class="badge ${statusCls}">${esc(p.status)}</span></td>
+    <td><strong>${p.candidates_count||0}</strong></td>
+    <td>${share}</td>
+    <td class="muted">${fmtDate(p.last_application_at)}</td>
+    <td style="white-space:nowrap">
+      <button class="btn btn-ghost btn-sm" onclick="openPositionEditor('${esc(p.id)}')">Editar</button>
+    </td>
+  </tr>`;
+}
+
+function openPositionEditor(id){
+  editingPositionId=id||null;
+  const err=document.getElementById('pm-err');err.classList.remove('show');err.textContent='';
+  const title=document.getElementById('pm-title');
+  const archiveBtn=document.getElementById('pm-archive');
+  const slugInput=document.getElementById('pm-slug');
+  if(id){
+    title.textContent='Editar posición';
+    archiveBtn.style.display='';
+    slugInput.disabled=false;
+    fetch('/api/admin/positions/'+encodeURIComponent(id)).then(r=>r.json()).then(data=>{
+      if(!data||data.error){toast('Error cargando posición',true);return;}
+      const p=data.position||data;
+      fillPositionForm(p);
+    }).catch(()=>toast('Error cargando posición',true));
+  }else{
+    title.textContent='Nueva posición';
+    archiveBtn.style.display='none';
+    slugInput.disabled=false;
+    fillPositionForm({
+      slug:'',title:'',subtitle:'',status:'active',
+      share_with_headhunters:false,min_score_to_invite:7,
+      public_intro_html:'',cv_analysis_prompt:'',interview_system_prompt:'',
+      interview_blocks:[],interview_questions:[],
+    });
+  }
+  document.getElementById('pos-modal').classList.add('show');
+}
+
+function fillPositionForm(p){
+  document.getElementById('pm-slug').value=p.slug||'';
+  document.getElementById('pm-title').value=p.title||'';
+  document.getElementById('pm-subtitle').value=p.subtitle||'';
+  document.getElementById('pm-status').value=p.status||'active';
+  document.getElementById('pm-share-hh').checked=!!p.share_with_headhunters;
+  document.getElementById('pm-min-score').value=p.min_score_to_invite||7;
+  document.getElementById('pm-intro').value=p.public_intro_html||'';
+  document.getElementById('pm-cv-prompt').value=p.cv_analysis_prompt||'';
+  document.getElementById('pm-iv-prompt').value=p.interview_system_prompt||'';
+  document.getElementById('pm-blocks').value=p.interview_blocks?JSON.stringify(p.interview_blocks,null,2):'';
+  document.getElementById('pm-questions').value=p.interview_questions?JSON.stringify(p.interview_questions,null,2):'';
+}
+
+function closePositionEditor(){
+  document.getElementById('pos-modal').classList.remove('show');
+  editingPositionId=null;
+}
+
+function readPositionForm(){
+  const err=document.getElementById('pm-err');
+  let blocks,questions;
+  try{blocks=JSON.parse(document.getElementById('pm-blocks').value||'[]');}
+  catch(e){err.textContent='Bloques: JSON inválido — '+e.message;err.classList.add('show');return null;}
+  try{questions=JSON.parse(document.getElementById('pm-questions').value||'[]');}
+  catch(e){err.textContent='Preguntas: JSON inválido — '+e.message;err.classList.add('show');return null;}
+  err.classList.remove('show');err.textContent='';
+  return {
+    slug:document.getElementById('pm-slug').value.trim(),
+    title:document.getElementById('pm-title').value.trim(),
+    subtitle:document.getElementById('pm-subtitle').value.trim()||null,
+    status:document.getElementById('pm-status').value,
+    share_with_headhunters:document.getElementById('pm-share-hh').checked,
+    min_score_to_invite:parseInt(document.getElementById('pm-min-score').value)||7,
+    public_intro_html:document.getElementById('pm-intro').value||null,
+    cv_analysis_prompt:document.getElementById('pm-cv-prompt').value,
+    interview_system_prompt:document.getElementById('pm-iv-prompt').value,
+    interview_blocks:blocks,
+    interview_questions:questions,
+  };
+}
+
+async function savePosition(){
+  const payload=readPositionForm();
+  if(!payload)return;
+  const btn=document.getElementById('pm-save');
+  btn.disabled=true;btn.textContent='Guardando…';
+  const err=document.getElementById('pm-err');
+  try{
+    const url=editingPositionId?'/api/admin/positions/'+encodeURIComponent(editingPositionId):'/api/admin/positions';
+    const method=editingPositionId?'PATCH':'POST';
+    const r=await fetch(url,{method,headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    const data=await r.json();
+    if(!r.ok){
+      const map={slug_taken:'Ese slug ya existe',invalid_slug:'Slug inválido (minúsculas, números y guiones)',invalid_status:'Estado inválido'};
+      const msg=map[data.error]||data.error||'error';
+      const detail=data.detail?' — '+data.detail:'';
+      err.textContent=msg+detail;err.classList.add('show');
+      return;
+    }
+    toast(editingPositionId?'Posición actualizada':'Posición creada');
+    closePositionEditor();
+    loadPositions();
+  }catch(e){
+    err.textContent='Error de red: '+e.message;err.classList.add('show');
+  }finally{
+    btn.disabled=false;btn.textContent='Guardar';
+  }
+}
+
+async function archivePosition(){
+  if(!editingPositionId)return;
+  if(!confirm('Archivar esta posición? Quedará como "closed" y no aparecerá en landings ni pickers. Las candidaturas existentes se conservan.'))return;
+  try{
+    const r=await fetch('/api/admin/positions/archive',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({id:editingPositionId}),
+    });
+    const data=await r.json();
+    if(!r.ok)throw new Error(data.error||'error');
+    toast('Posición archivada');
+    closePositionEditor();
+    loadPositions();
+  }catch(e){toast('Error: '+e.message,true);}
+}
+
+async function duplicateFromHoe(){
+  try{
+    // Find HoE in the already-loaded cache — if missing, hit the API.
+    let hoe=(positionsCache||[]).find(p=>p.slug==='hoe');
+    if(!hoe){
+      const r=await fetch('/api/admin/positions');
+      const data=await r.json();
+      hoe=(data.positions||[]).find(p=>p.slug==='hoe');
+    }
+    if(!hoe){toast('No se encontró la posición hoe',true);return;}
+    const r=await fetch('/api/admin/positions/'+encodeURIComponent(hoe.id));
+    const data=await r.json();
+    if(!r.ok)throw new Error(data.error||'error');
+    const p=data.position||data;
+    // Don't overwrite slug/title/subtitle that the user may already be typing —
+    // only fill the heavy fields.
+    document.getElementById('pm-cv-prompt').value=p.cv_analysis_prompt||'';
+    document.getElementById('pm-iv-prompt').value=p.interview_system_prompt||'';
+    document.getElementById('pm-blocks').value=p.interview_blocks?JSON.stringify(p.interview_blocks,null,2):'';
+    document.getElementById('pm-questions').value=p.interview_questions?JSON.stringify(p.interview_questions,null,2):'';
+    if(!document.getElementById('pm-intro').value)document.getElementById('pm-intro').value=p.public_intro_html||'';
+    toast('Prompts y preguntas copiados desde HoE');
+  }catch(e){toast('Error: '+e.message,true);}
+}
+
+document.getElementById('pos-modal').addEventListener('click',e=>{if(e.target.id==='pos-modal')closePositionEditor();});
+
+// ───────────────────────────────────────────────────────────────────────────
 // Initial load
 // ───────────────────────────────────────────────────────────────────────────
-loadReview();
+loadPositionsDropdown().then(loadReview);
 </script>
 </body>
 </html>
