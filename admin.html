@@ -558,6 +558,25 @@ async function decide(id,decision){
   }catch{toast('Error de red',true);}
 }
 
+// Statuses where it makes sense to nudge the candidate again with a fresh
+// interview link. Kept in sync with ELIGIBLE_STATES in
+// api/admin/resend-interview-reminder.js — if you add one there, add it here.
+const REMINDER_ELIGIBLE=['analyzed_manual_approved','analyzed_auto_invited','interview_started'];
+
+async function resendReminder(id){
+  if(!confirm('¿Enviar un recordatorio de entrevista a este candidato? Se invalidará el enlace anterior.'))return;
+  toast('Enviando recordatorio…');
+  try{
+    const r=await fetch('/api/admin/resend-interview-reminder',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({applicationId:id}),
+    });
+    const data=await r.json();
+    if(!r.ok||!data.ok){toast('Error: '+(data.error||'unknown'),true);return;}
+    toast(data.email_ok?'Recordatorio enviado ✓':'Token generado pero email falló (revisar Resend)',!data.email_ok);
+  }catch{toast('Error de red',true);}
+}
+
 // ───────────────────────────────────────────────────────────────────────────
 // All applications
 // ───────────────────────────────────────────────────────────────────────────
@@ -599,6 +618,9 @@ function renderAllRow(a){
   const score=an?`<span class="mono"><strong>${an.score}/10</strong></span>`:'<span class="muted">—</span>';
   const ivScore=iv&&iv.global_score!=null?`<span class="mono"><strong>${iv.global_score}</strong></span>${iv.flags>0?` <span class="badge b-red">${iv.flags} flags</span>`:''}`:'<span class="muted">—</span>';
   const posCell=a.position?`<span class="badge b-blue" title="${esc(a.position.slug)}">${esc(a.position.title)}</span>`:'<span class="muted">—</span>';
+  const remindBtn=REMINDER_ELIGIBLE.includes(a.status)
+    ? ` <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();resendReminder('${a.id}')" title="Enviar recordatorio de entrevista con enlace nuevo">Recordar</button>`
+    : '';
   return `<tr>
     <td>
       <div style="font-weight:500">${esc(a.name||'—')}</div>
@@ -610,7 +632,7 @@ function renderAllRow(a){
     <td>${ivScore}</td>
     <td>${originCell(a)}</td>
     <td class="muted">${fmtDate(a.created_at)}</td>
-    <td><button class="btn btn-ghost btn-sm" onclick="openDetail('${a.id}')">Ver →</button></td>
+    <td><button class="btn btn-ghost btn-sm" onclick="openDetail('${a.id}')">Ver →</button>${remindBtn}</td>
   </tr>`;
 }
 
@@ -708,6 +730,9 @@ function renderDetail(d){
   }
   if(['analyzed_pending_review','analyzed_auto_invited'].includes(a.status)){
     actions.push(`<button class="btn btn-danger btn-sm" onclick="decide('${a.id}','reject');closeModal();">Descartar (email de rechazo)</button>`);
+  }
+  if(REMINDER_ELIGIBLE.includes(a.status)){
+    actions.push(`<button class="btn btn-ghost btn-sm" onclick="resendReminder('${a.id}');closeModal();">Reenviar recordatorio de entrevista</button>`);
   }
   if(a.status==='interview_completed'){
     actions.push(`<button class="btn btn-danger btn-sm" onclick="decide('${a.id}','reject');closeModal();">Descartar tras entrevista (email de rechazo)</button>`);
